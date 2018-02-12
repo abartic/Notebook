@@ -1,0 +1,33 @@
+<div [@routerTransition]>
+
+    <div class="row">
+        <div class="col col-xl-6 col-lg-12">
+            <div class="card mb-3">
+                <div class="card-header">Striped Rows</div>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Descr</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of package.rows">
+                                <td>{{row['code_part']}}</td>
+                                <td>{{row['name']}}</td>
+                                <td>{{row['descr']}}</td>
+                                <td>{{row['type']}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col col-xl-6 col-lg-12">
+
+            <button (click)="onApply()" class="btn btn-secondary">Apply</button>
+        </div>
+    </div>
