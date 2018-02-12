@@ -1,0 +1,119 @@
+{
+    "spreadsheet": {
+        "properties": {
+            "title": ""
+        },
+        "sheets": []
+    },
+    "sheet": {
+        "properties": {
+            "title": "",
+            "gridProperties": {
+                "rowCount": 2,
+                "columnCount": 0
+            }
+        },
+        "data": [{
+            "startColumn": 0,
+            "startRow": 0,
+            "rowData": [{
+                "values": []
+            }]
+
+        }]
+    },
+    "fields_row": {
+        "addProtectedRange": {
+            "protectedRange": {
+                "range": {
+                    "sheetId": 0,
+                    "startRowIndex": 0,
+                    "endRowIndex": 1
+                },
+                "requestingUserCanEdit": false,
+                "editors": {
+                    "users": [],
+                    "domainUsersCanEdit": false
+                }
+            }
+        }
+    },
+    "block_fields_row": {
+
+        "updateSheetProperties": {
+            "properties": {
+                "sheetId": 0,
+                "gridProperties": {
+                    "frozenRowCount": 1
+                }
+            },
+            "fields": "gridProperties.frozenRowCount"
+        }
+    },
+    "rowid_column": {
+        "addProtectedRange": {
+            "protectedRange": {
+                "range": {
+                    "sheetId": 0,
+                    "startColumnIndex": 0,
+                    "endColumnIndex": 1
+                },
+                "requestingUserCanEdit": false,
+                "editors": {
+                    "users": [],
+                    "domainUsersCanEdit": false
+                }
+            }
+        }
+    },
+    "block_rowid_column": {
+        "updateSheetProperties": {
+            "properties": {
+                "sheetId": 0,
+                "gridProperties": {
+                    "frozenColumnCount": 1
+                }
+            },
+            "fields": "gridProperties.frozenColumnCount"
+        }
+    },
+    "meta_data_column": {
+
+        "createDeveloperMetadata": {
+            "developerMetadata": {
+                "location": {
+                    "dimensionRange": {
+                        "dimension": "COLUMNS",
+                        "startIndex": 0,
+                        "endIndex": 1,
+                        "sheetId": 0
+                    }
+                },
+                "metadataKey": "column",
+                "metadataValue": "",
+                "visibility": "DOCUMENT"
+            }
+        }
+
+    },
+    "meta_data_row": {
+
+        "createDeveloperMetadata": {
+            "developerMetadata": {
+                "location": {
+                    "dimensionRange": {
+                        "dimension": "ROWS",
+                        "startIndex": 0,
+                        "endIndex": 1,
+                        "sheetId": 0
+                    }
+                },
+                "metadataKey": "row",
+                "metadataValue": "",
+                "visibility": "DOCUMENT"
+            }
+        }
+
+    }
+
+}

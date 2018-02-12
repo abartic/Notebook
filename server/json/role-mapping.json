@@ -1,0 +1,11 @@
+{
+    "mapping": [{
+        "roles": ["guest"],
+        "allows": [{
+                "resources": "/",
+                "permissions": "get"
+            }
+
+        ]
+    }]
+}

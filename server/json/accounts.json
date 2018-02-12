@@ -1,0 +1,41 @@
+[{
+    "accountName": "alexandrubartic@gmail.com",
+    "accountDescr": "google-account",
+    "spreadsheets": [{
+        "spreadsheetName": "movements",
+        "spreadsheetID": "1fG2cYg8xYigHT4WHYr1AyBwNDh0yH-fjmD2PT0RWrgc",
+        "sheets": [{
+            "sheetName": "documents",
+            "sheetID": 712313279
+        }, {
+            "sheetName": "document_lines",
+            "sheetID": 2063482057
+        }]
+    }, {
+        "spreadsheetName": "partners",
+        "spreadsheetID": "1-AnIPsJgKngXqNzyuqB6mB-pvzofSBHHFiBFvVMWUXI",
+        "sheets": [{
+            "sheetName": "partners",
+            "sheetID": 915212446
+        }, {
+            "sheetName": "addresses",
+            "sheetID": 1146525077
+        }, {
+            "sheetName": "contacts",
+            "sheetID": 345334302
+        }]
+    }, {
+        "spreadsheetName": "inventory",
+        "spreadsheetID": "1tOtXo2celdFnR5r1RwFWA6aY0vOcqanWtOztt82ym8Y",
+        "sheets": [{
+            "sheetName": "articles",
+            "sheetID": 1644683378
+        }, {
+            "sheetName": "stores",
+            "sheetID": 2146107354
+        }, {
+            "sheetName": "art_inventory",
+            "sheetID": 560619761
+        }]
+    }]
+}]

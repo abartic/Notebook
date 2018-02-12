@@ -1,0 +1,11 @@
+{
+    "dialect": "postgres",
+    "database": "d65otjbphfbmhh",
+    "host": "ec2-107-21-99-176.compute-1.amazonaws.com",
+    "username": "mqdzozcxbiyamv",
+    "port": 5432,
+    "password": "5bf3cc051e66c5ee3a90ed7e19d7fafb26c8ddb1a1a725f2259727cd73a8f9ac",
+    "dialectOptions": {
+        "ssl": true
+    }
+}

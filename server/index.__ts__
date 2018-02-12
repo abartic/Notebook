@@ -1,0 +1,216 @@
+/*jshint esversion: 6 */
+
+import * as express from "express";
+import * as passport from "passport";
+import * as passfacebook from "passport-facebook";
+import * as request from "request-promise";
+import * as Sequelize from "sequelize";
+
+var user_access_token = null;
+
+var sequelize = new Sequelize('dcu6ns95de7qua', 'yvxnnbvqtqtbai', 'd6e74578086fdbca9c6dd30a263e89b2a827701360c3d0252cc2853c88909d50', {
+    "host": "ec2-50-19-218-160.compute-1.amazonaws.com",
+    
+    "port": "5432",
+    "dialect": "postgres",
+    "dialectOptions": {
+        "ssl": true
+    }
+});
+
+sequelize
+    .authenticate()
+    .then(() => {
+        console.log('Connection has been established successfully.');
+    })
+    .catch(err => {
+        console.error('Unable to connect to the database:', err);
+    });
+
+import * as accounts_m from "../models/accounts.js";
+
+
+const accounts = accounts_m(sequelize, Sequelize); //{ account_name: 'alexandrubartic@gmail.com', account_descr: 'facebook acct' });
+var account = accounts.build({
+    accountName: 'alexandrubartic@gmail.com',
+    accountDescr: 'facebook'
+});
+account.save().catch(error => {
+    console.log(error);
+});
+
+var account1 = accounts.findOne({
+    where: {
+        id: 1
+    }
+});
+
+
+var payload = {
+    queryTerm: 'Fiat',
+    searchType: 'page'
+};
+
+// var pgp = require('pg-promise')( /*options*/ );
+// var db = pgp('postgres://yvxnnbvqtqtbai:d6e74578086fdbca9c6dd30a263e89b2a827701360c3d0252cc2853c88909d50@ec2-50-19-218-160.compute-1.amazonaws.com:5432/dcu6ns95de7qua?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory');
+
+// db.one('SELECT $1 AS value', 123)
+//     .then(function(data) {
+//         console.log('DATA:', data.value);
+//     })
+//     .catch(function(error) {
+//         console.log('ERROR:', error);
+//     });
+
+
+
+
+
+// you'll need to have requested 'user_about_me' permissions
+// in order to get 'quotes' and 'about' fields from search
+var userFieldSet = 'name, link, is_verified, picture';
+var pageFieldSet = 'name, category, link, picture, is_verified';
+
+
+
+
+passport.use(new passfacebook.Strategy({
+        clientID: '131341240768365',
+        clientSecret: '863c22772f1c5f09a47e06a7d2fb3a43',
+        //callbackURL: "https://glacial-falls-46785.herokuapp.com/login/facebook/return"
+        callbackURL: "http://localhost:3000/login/facebook/return"
+    },
+    function(access_token, refreshToken, profile, cb) {
+        user_access_token = access_token;
+        return cb(null, profile);
+
+    }
+));
+
+
+// Configure Passport authenticated session persistence.
+//
+// In order to restore authentication state across HTTP requests, Passport needs
+// to serialize users into and deserialize users out of the session.  In a
+// production-quality application, this would typically be as simple as
+// supplying the user ID when serializing, and querying the user record by ID
+// from the database when deserializing.  However, due to the fact that this
+// example does not have a database, the complete Facebook profile is serialized
+// and deserialized.
+passport.serializeUser(function(user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+    cb(null, obj);
+});
+
+
+// Create a new Express application.
+var app = express();
+
+// Configure view engine to render EJS templates.
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+
+// Use application-level middleware for common functionality, including
+// logging, parsing, and session handling.
+import * as morgan from 'morgan';
+app.use(morgan('combined'));
+
+import * as cookieparser from 'cookie-parser';
+app.use(cookieparser());
+
+import * as bodyparser from 'body-parser';
+app.use(bodyparser.urlencoded({ extended: true }));
+
+import * as session from 'express-session';
+app.use(session({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+
+// Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+// Define routes.
+app.get('/',
+    function(req, res) {
+        res.render('home', { user: req
+            //.user
+         });
+    });
+
+app.get('/login',
+    function(req, res) {
+        res.render('login');
+    });
+
+app.get('/login/facebook',
+    passport.authenticate('facebook', {
+        scope: ['publish_actions', 'manage_pages']
+    }));
+
+app.get('/login/facebook/return',
+    passport.authenticate('facebook', { failureRedirect: '/login' }),
+    function(req, res) {
+        res.redirect('/');
+    });
+
+app.get('/profile',
+    require('connect-ensure-login').ensureLoggedIn(),
+    function(req, res) {
+        res.render('profile', 
+        { user: 
+            req //.user
+         });
+    });
+
+app.get('/facebook-search/:id', (req, res) => {
+
+    // you need permission for most of these fields
+    const userFieldSet = 'id, name, about, email, accounts, link, is_verified, significant_other, relationship_status, website, picture, photos, feed';
+
+    const options = {
+        method: 'GET',
+        uri: `https://graph.facebook.com/v2.8/${req.params.id}`,
+        qs: {
+            access_token: user_access_token,
+            fields: userFieldSet
+        }
+    };
+    request(options)
+        .then(fbRes => {
+            res.json(fbRes);
+        })
+})
+
+
+app.post('/facebook-search', (req, res) => {
+    const { queryTerm, searchType } = req.body;
+
+    const options = {
+        method: 'GET',
+        uri: 'https://graph.facebook.com/search',
+        qs: {
+            access_token: null, //config.user_access_token,
+            q: queryTerm,
+            type: searchType,
+            fields: searchType === 'page' ? pageFieldSet : userFieldSet
+        }
+    };
+
+    request(options)
+        .then(fbRes => {
+            // Search results are in the data property of the response.
+            // There is another property that allows for pagination of results.
+            // Pagination will not be covered in this post,
+            // so we only need the data property of the parsed response.
+            const parsedRes = JSON.parse(fbRes).data;
+            res.json(parsedRes);
+        })
+});
+
+app.listen(3000);
+
+// app.listen(process.env.PORT || 5000);

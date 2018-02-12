@@ -1,0 +1,20 @@
+{
+
+    "name": "partners",
+    "sheets": [{
+            "name": "partners",
+            "fields": ["code_part", "name", "descr", "type", "unit"]
+
+        },
+        {
+            "name": "addresses",
+            "fields": ["code_part", "line1", "line2", "city", "country", "zip", "country"]
+
+        },
+        {
+            "name": "contacts",
+            "fields": ["code_part", "name", "email", "phone1", "phone2"]
+
+        }
+    ]
+}
