@@ -4,7 +4,7 @@
         "name": "webclient"
     },
     "apps": [{
-        "root": "wclient",
+        "root": "web-client",
         "outDir": "dist",
         "assets": [
             "assets",
@@ -33,11 +33,11 @@
         }
     },
     "lint": [{
-            "project": "wclient/tsconfig.app.json",
+            "project": "web-client/tsconfig.app.json",
             "exclude": "**/node_modules/**"
         },
         {
-            "project": "wclient/tsconfig.spec.json",
+            "project": "web-client/tsconfig.spec.json",
             "exclude": "**/node_modules/**"
         },
         {
