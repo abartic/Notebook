@@ -3,12 +3,17 @@
     "version": "0.0.0",
     "license": "MIT",
     "scripts": {
-        "ng": "ng",
-        "start": "ng serve",
-        "build": "ng build --prod",
-        "test": "ng test",
+        "ngbuild": "ng build",
+        "start": "node starts.js",
+        "devm": "SET NODE_ENV=development&& grunt mbuild && nodemon --watch dist --inspect starts.js",
+        "dev": "concurrently --kill-others \"grunt watch\" \"ng build --watch\" \"SET NODE_ENV=development&& nodemon --watch dist --inspect starts.js\" ",
+        "run": "grunt mbuild && node starts.js",
+        "build": "grunt mbuild",
+        "build all": "ng build && grunt mbuild",
         "lint": "ng lint",
-        "e2e": "ng e2e"
+        "e2e": "ng e2e",
+        "spostinstall": "ng build --build-optimizer=false --prod && grunt mbuild",
+        "test": "mocha --timeout 10000"
     },
     "private": true,
     "dependencies": {
