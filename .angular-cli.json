@@ -5,7 +5,7 @@
     },
     "apps": [{
         "root": "web-client",
-        "outDir": "dist/middletier/web-client",
+        "outDir": "dist/middletier/app",
         "assets": [
             "assets",
             "favicon.ico",
@@ -19,7 +19,6 @@
         "testTsconfig": "tsconfig.spec.json",
         "prefix": "app",
         "styles": [
-
             "styles/app.scss"
         ],
         "scripts": [],
