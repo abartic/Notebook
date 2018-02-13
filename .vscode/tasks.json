@@ -1,0 +1,20 @@
+{
+    "version": "0.1.0",
+    "runner": "terminal",
+    "tasks": [{
+        "taskName": "build",
+        "command": "powershell",
+        "isBuildCommand": true,
+        "args": [
+            "-ExecutionPolicy",
+            "Unrestricted",
+            "-NoProfile",
+            "npm run-script mbuild"
+        ],
+
+        "showOutput": "always",
+        "options": {
+            "cwd": "${workspaceRoot}/server"
+        }
+    }]
+}

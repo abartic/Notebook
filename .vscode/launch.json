@@ -1,0 +1,61 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        /*{
+            "type": "node",
+            "request": "launch",
+            "name": "nodemon",
+            "program": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
+            "args": ["${workspaceRoot}/starts.js"],
+            "runtimeArgs": [
+                "--inspect"
+            ],
+            "restart": true,
+            "port": 9229,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "protocol": "inspector"
+        },*/
+        {
+            "name": "middle-tier-run",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/starts.js",
+            "sourceMaps": true,
+            "outFiles": ["${workspaceRoot}/{dist,node_modules}/**/*.js"],
+            "protocol": "inspector"
+        },
+        {
+            "name": "middle-tier-attach",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "address": "localhost",
+            "restart": true,
+            "sourceMaps": true,
+            "outFiles": ["${workspaceRoot}/{dist,node_modules}/**/*.js"],
+            "protocol": "inspector"
+        },
+        {
+            "name": "client-launch-chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceRoot}/web-client",
+            "sourceMaps": true
+        },
+        {
+            "name": "client-attach-chrome",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "url": "http://localhost:8080",
+            "webRoot": "${workspaceRoot}/web-client"
+        }
+
+    ]
+
+}
