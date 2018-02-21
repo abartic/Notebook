@@ -1,7 +1,7 @@
 
 import { BaseEntity } from "./base-entity";
 
-export class DocumentLine extends BaseEntity {
+export class DocumentLine extends BaseEntity<DocumentLine> {
 
     public code_doc : String;
 
@@ -15,7 +15,15 @@ export class DocumentLine extends BaseEntity {
     
     public discount : Number;
     
-    public toArray() {
-        return super.toArray().concat([this.code_doc, this.code_art, this.price_in, this.price_out, this.qty, this.discount]);
-    }
+    protected getPropertiesMaps(): Array<[string, string]> { return DocumentLine.propertiesMaps; }
+    static propertiesMaps: Array<[string, string]> = [
+        ["code_doc", "C"],
+        ["code_art", "D"],
+        ["price_in", "E"],
+        ["price_out", "F"],
+        ["qty", "G"],
+        ["discount", "H"],
+        
+    ];
+
 }

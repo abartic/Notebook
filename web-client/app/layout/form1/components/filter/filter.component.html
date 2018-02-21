@@ -1,33 +1,72 @@
 <div [@routerTransition]>
-
     <div class="row">
-        <div class="col col-xl-6 col-lg-12">
-            <div class="card mb-3">
-                <div class="card-header">Striped Rows</div>
-                <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Name</th>
-                                <th>Descr</th>
-                                <th>Type</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let row of package.rows">
-                                <td>{{row['code_part']}}</td>
-                                <td>{{row['name']}}</td>
-                                <td>{{row['descr']}}</td>
-                                <td>{{row['type']}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col col-xl-6 col-lg-12">
 
+        <div class="col col-xl-2 col-lg-12">
+            <button (click)="onClear()" class="btn btn-secondary">Clear</button>
             <button (click)="onApply()" class="btn btn-secondary">Apply</button>
         </div>
+
+        <div class="col col-xl-10 col-lg-12">
+        </div>
     </div>
+    <BR>
+    <div class="row">
+
+        <div class="card mb-3">
+            <!-- <div class="card-header">Striped Rows</div> -->
+            <div class="card-body table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Descr</th>
+                            <th>Type</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input [(ngModel)]="package.filter.code_part" placeholder="code" />
+                            </td>
+                            <td>
+                                <input [(ngModel)]="package.filter.name" placeholder="name" />
+                            </td>
+                            <td>
+                                <input [(ngModel)]="package.filter.descr" placeholder="descr" />
+                            </td>
+                            <td>
+                                <input [(ngModel)]="package.filter.type" placeholder="type" />
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of package.rows">
+                            <td>{{row['code_part']}}</td>
+                            <td>{{row['name']}}</td>
+                            <td>{{row['descr']}}</td>
+                            <td>{{row['type']}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <BR>
+    <div class="row">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page - 1) < 0}">
+                    <a class="page-link" (click)="onPreviousPage()">Previous</a>
+                </li>
+                <li class="page-item" *ngFor="let page of package.row_pages; let i = index" [ngClass]="{'active':i===package.row_current_page}">
+                    <a class="page-link" (click)="onSelectPage(i)">{{i+1}}</a>
+                </li>
+                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page + 1) >= package.row_pages.length}">
+                    <a class="page-link" (click)="onNextPage()">Next</a>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+</div>

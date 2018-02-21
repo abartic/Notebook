@@ -1,7 +1,7 @@
 
 import { BaseEntity } from "./base-entity";
 
-export class Address extends BaseEntity {
+export class Address extends BaseEntity<Address> {
 
     public code_part : String;
 
@@ -17,7 +17,14 @@ export class Address extends BaseEntity {
 
     public zip : String;
     
-    public toArray() {
-            return super.toArray().concat([this.code_part, this.line1, this.line2, this.city, this.county, this.country, this.zip]);
-    }
+    protected getPropertiesMaps(): Array<[string, string]> { return Address.propertiesMaps; }
+    static propertiesMaps: Array<[string, string]> = [
+        ["code_part", "C"],
+        ["line1", "D"],
+        ["line2", "E"],
+        ["city", "F"],
+        ["county", "G"],
+        ["country", "H"],
+        ["zip", "I"],
+    ];
 }

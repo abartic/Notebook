@@ -1,7 +1,7 @@
 
 import { BaseEntity } from "./base-entity";
 
-export class ArticleInventory extends BaseEntity {
+export class ArticleInventory extends BaseEntity<ArticleInventory> {
 
     public code_art : String;
 
@@ -11,7 +11,12 @@ export class ArticleInventory extends BaseEntity {
     
     public qty : Number;
     
-    public toArray() {
-        return super.toArray().concat([this.code_art, this.code_store, this.prince_in, this.qty]);
-    }
+    protected getPropertiesMaps(): Array<[string, string]> { return ArticleInventory.propertiesMaps; }
+    static propertiesMaps: Array<[string, string]> = [
+        ["code_art", "C"],
+        ["code_store", "D"],
+        ["prince_in", "E"],
+        ["qty", "F"],
+        
+    ];
 }

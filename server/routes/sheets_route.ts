@@ -18,7 +18,6 @@ export class SheetRoute extends BaseRoute {
         super();
     }
 
-    // tslint:disable-next-line:member-ordering
     public static create(router: Router) {
 
         router.post('/sheetdata/create-spreadsheet',
@@ -214,11 +213,11 @@ export class SheetRoute extends BaseRoute {
                 const { spreadsheetName, sheetName, entityName, select } = req.body;
 
                 let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
-                let accounts : Account[] = <Account[]>(JSON.parse(data));
-                let account : Account = accounts.find(function (a, index, array) { return a.accountName === req.session['userId'];});
-                let sheet : Sheet  = undefined;
-                let spreadsheet : Spreadsheet= undefined;
-                
+                let accounts: Account[] = <Account[]>(JSON.parse(data));
+                let account: Account = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
+                let sheet: Sheet = undefined;
+                let spreadsheet: Spreadsheet = undefined;
+
                 if (account !== undefined) {
                     spreadsheet = account.spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
                     if (spreadsheet !== undefined) {
@@ -252,6 +251,11 @@ export class SheetRoute extends BaseRoute {
                         if (err) {
                             res.json({ error: err });
                         }
+                        else if (data.status === 'error') {
+                            res.json({
+                                error: data.errors
+                            });
+                        }
                         else {
                             var entities = [];
                             for (const row of data.table.rows) {
@@ -262,40 +266,74 @@ export class SheetRoute extends BaseRoute {
                                 }
                                 entities.push(ent)
                             }
-                            res.json(entities);
+                            let result = {};
+                            result['rows'] = entities;
+                            res.json(result);
                         }
                     });
             });
 
-        
-            var parse = function (data) {
-            var column_length = data.table.cols.length;
-            if (!column_length || !data.table.rows.length) {
-                return false;
-            }
-            var columns = [],
-                result = [],
-                row_length,
-                value;
-            for (var column_idx in data.table.cols) {
-                columns.push(data.table.cols[column_idx].label);
-            }
-            for (var rows_idx in data.table.rows) {
-                row_length = data.table.rows[rows_idx]['c'].length;
-                if (column_length != row_length) {
-                    // Houston, we have a problem!
-                    return false;
-                }
-                for (var row_idx in data.table.rows[rows_idx]['c']) {
-                    if (!result[rows_idx]) {
-                        result[rows_idx] = {};
+        router.post('/sheetdata/getscalar',
+            (req: Request, res: Response, next: NextFunction) => {
+
+                const { spreadsheetName, sheetName, entityName, select } = req.body;
+
+                let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
+                let accounts: Account[] = <Account[]>(JSON.parse(data));
+                let account: Account = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
+                let sheet: Sheet = undefined;
+                let spreadsheet: Spreadsheet = undefined;
+
+                if (account !== undefined) {
+                    spreadsheet = account.spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
+                    if (spreadsheet !== undefined) {
+                        sheet = spreadsheet.sheets.find(s => s.sheetName === sheetName);
                     }
-                    value = !!data.table.rows[rows_idx]['c'][row_idx].v ? data.table.rows[rows_idx]['c'][row_idx].v : null;
-                    result[rows_idx][columns[row_idx]] = value;
                 }
-            }
-            return result;
-        };
+
+                if (sheet === undefined) {
+                    res.send({ error: 'account missing' });
+                    return;
+                }
+
+                var googleApi = require('googleapis');
+                var googleAuth = require('google-auth-library');
+                var auth = new googleAuth();
+                var oauth2Client = new auth.OAuth2();
+                oauth2Client.credentials = {
+                    access_token: req.session['google_access_token']
+                };
+
+                var jsonpClient = require('jsonp-client');
+                var url = "https://docs.google.com/spreadsheets/d/" + spreadsheet.spreadsheetID +
+                    "/gviz/tq?tqx=responseHandler:handleTqResponse" +
+                    "&sheet=" + sheetName +
+                    "&headers=1" +
+                    "&tq=" + encodeURI(select) +
+                    "&access_token=" + req.session['google_access_token']
+
+                jsonpClient(url,
+                    function (err, data) {
+                        if (err) {
+                            res.json({ error: err });
+                        }
+                        else if (data.status === 'error') {
+                            res.json({
+                                error: data.errors
+                            });
+                        }
+                        else {
+                            let result = {};
+                            for (const row of data.table.rows) {
+                                var ent = {};
+                                result['scalar'] = row.c[0].v;
+                                
+                                break;
+                            }
+                            res.json(result);
+                        }
+                    });
+            });
     }
 
     static getAuth(req: Request) {

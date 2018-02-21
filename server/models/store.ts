@@ -1,13 +1,16 @@
 
 import { BaseEntity } from "./base-entity";
 
-export class Store extends BaseEntity {
+export class Store extends BaseEntity<Store> {
 
     public code_store : String;
 
     public descr : String;
 
-    public toArray() {
-        return super.toArray().concat([this.code_store, this.descr]);
-    }
+    protected getPropertiesMaps(): Array<[string, string]> { return Store.propertiesMaps; }
+
+    static propertiesMaps: Array<[string, string]> = [
+        ["code_store", "C"],
+        ["descr", "D"]
+    ];
 }

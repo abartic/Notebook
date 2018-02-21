@@ -2,7 +2,7 @@ import { DocumentLine } from './document-line';
 
 import { BaseEntity } from "./base-entity";
 
-export class Document extends BaseEntity {
+export class Document extends BaseEntity<Document> {
 
     public code_doc : String;
 
@@ -24,7 +24,18 @@ export class Document extends BaseEntity {
 
     public documentLines : (DocumentLine)[];
 
-    public toArray() {
-        return super.toArray().concat([this.code_doc, this.code_part, this.type, this.creation_date, this.due_date, this.register_date, this.internal_reference, this.store_in, this.store_out]);
-    }
+    protected getPropertiesMaps(): Array<[string, string]> { return Document.propertiesMaps; }
+    static propertiesMaps: Array<[string, string]> = [
+        ["code_doc", "C"],
+        ["code_part", "D"],
+        ["type", "E"],
+        ["creation_date", "F"],
+        ["due_date", "G"],
+        ["register_date", "H"],
+        
+        ["internal_reference", "I"],
+        ["store_in", "J"],
+        ["store_out", "K"],
+    ];
+
 }
