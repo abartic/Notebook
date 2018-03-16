@@ -1,6 +1,19 @@
+import { BaseEntity } from './../../../../server/models/base-entity';
+
+import { DialogWnd } from './../../dialog/dialog';
+import { SharedPipesModule } from './../../shared/pipes/shared-pipes.module';
 import { Package } from './package';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { routerTransition } from '../../router.animations';
+import { ModelInfos } from '../../../../server/models/modelProperties';
+import { HttpCallerService } from '../../services/httpcaller.service';
+import { PackageController, IPackageController } from './package-controller';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ActivatedRoute } from '@angular/router';
+import { ModelFactory } from '../../../../server/models/modelFactory';
+
+
+
 
 @Component({
   selector: 'app-form1',
@@ -9,12 +22,22 @@ import { routerTransition } from '../../router.animations';
   animations: [routerTransition()]
 })
 export class Form1Component implements OnInit {
-
-  constructor() { }
-  package : Package;
-  ngOnInit() {
-    ;
+  
+  private packageCtrl : IPackageController
+  constructor(private route: ActivatedRoute, @Inject(NgbModal) private modalService, @Inject(HttpCallerService) private httpCaller) { 
+    let param = this.route.params['value']['id'];
+    let type = ModelFactory.uniqueInstance.get(param);
+    
+    this.packageCtrl = new PackageController(type, modalService, httpCaller);
     
   }
+  
+  get package() {
+    return this.packageCtrl.package;
+  }
 
+  ngOnInit(){
+    
+
+  }
 }

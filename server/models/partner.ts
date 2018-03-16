@@ -1,8 +1,9 @@
 import { Address } from './address';
 import { Contact } from './contact';
-import { BaseEntity } from "./base-entity";
+import { BaseEntity, IPropInfo, SheetInfo } from "./base-entity";
 
-export class Partner extends BaseEntity<Partner> {
+@SheetInfo("partners", "partners") export 
+class Partner extends BaseEntity {
 
     public code_part: String;
 
@@ -17,14 +18,5 @@ export class Partner extends BaseEntity<Partner> {
     public addresses: (Address)[];
 
     public contacts: (Contact)[];
-
-    protected getPropertiesMaps(): Array<[string, string]> { return Partner.propertiesMaps; }
-
-    static propertiesMaps: Array<[string, string]> = [
-        ["code_part", "C"],
-        ["name", "D"],
-        ["descr", "E"],
-        ["type", "F"],
-        ["unit", "G"]
-    ];
+   
 }

@@ -1,0 +1,26 @@
+<div [@routerTransition]>
+    <div class="row justify-content-start">
+        <button (click)="onNew()" class="btn btn-secondary">New</button>
+        <button (click)="onSave()" class="btn btn-secondary">Save</button>
+        <button (click)="onDelete()" class="btn btn-secondary">Delete</button>
+        <button (click)="onUndo()" class="btn btn-secondary">Undo</button>
+    </div>
+
+    <BR>
+
+    <div *ngFor="let property of (package.entity.properties)">
+        <div class="form-group row" *ngIf="packageCtrl.isVisible(package.entity, property)">
+            <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
+            <div class="col-6" [ngSwitch]="property.dataType">
+                <input *ngSwitchCase="'NUMBER'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="number" [(ngModel)]="package.entity[property.propName]">
+                <input *ngSwitchCase="'TEXT'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="text" [(ngModel)]="package.entity[property.propName]">
+                <input *ngSwitchCase="'DATE'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="date" [(ngModel)]="package.entity[property.propName]">
+                <input *ngSwitchCase="'TIME'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="time" [(ngModel)]="package.entity[property.propName]">
+            </div>
+        </div>
+    </div>
+
+    <div *ngFor="let relation of (package.entity.entityInfo.relations)">
+        <form-editor-relation [package]="package" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
+    </div>
+</div>

@@ -1,16 +1,23 @@
+
+
 import { ModelFactory } from './../models/modelFactory';
-
-
-
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
 import { BaseRoute } from './route';
 import * as request from 'request-promise';
 import * as fs from 'fs';
 import * as path from 'path';
+import { IPropInfo } from '../models/base-entity';
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 
 
+export interface ISelectObj {
+
+    spreadsheetName: string;
+    sheetName: string;
+    entityName: string;
+    select: string;
+}
 
 export class SheetRoute extends BaseRoute {
 
@@ -34,7 +41,7 @@ export class SheetRoute extends BaseRoute {
                     access_token: req.session['google_access_token']
                 };
 
-                let accountSpreadsheets: Array<Spreadsheet> = new Array<Spreadsheet>();
+                let accountSpreadsheets: Array<ISpreadsheet> = new Array<ISpreadsheet>();
 
                 let spreadsheetReqDefinition = null;
                 let data = fs.readFileSync(path.join(__dirname, '../json/base-spreadsheet.json'), 'utf8');
@@ -91,15 +98,15 @@ export class SheetRoute extends BaseRoute {
                             }
                             const spreadsheet = result;
 
-                            let accountSpreadsheet = <Spreadsheet>{};
+                            let accountSpreadsheet = <ISpreadsheet>{};
                             accountSpreadsheets.push(accountSpreadsheet);
                             accountSpreadsheet.spreadsheetName = spreadsheetDefinition.name;
                             accountSpreadsheet.spreadsheetID = spreadsheet.spreadsheetId;
-                            accountSpreadsheet.sheets = new Array<Sheet>();
+                            accountSpreadsheet.sheets = new Array<ISheet>();
 
                             for (const sheet of spreadsheet.sheets) {
 
-                                let accountSheet = <Sheet>{};
+                                let accountSheet = <ISheet>{};
                                 accountSheet.sheetName = sheet.properties.title;
                                 accountSheet.sheetID = sheet.properties.sheetId;
                                 accountSpreadsheet.sheets.push(accountSheet);
@@ -152,7 +159,7 @@ export class SheetRoute extends BaseRoute {
                                         spreadsheetIndex++;
                                         if (spreadsheetIndex === spreadsheetCount) {
                                             let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
-                                            let accounts = <Array<Account>>(JSON.parse(data));
+                                            let accounts = <Array<IAccount>>(JSON.parse(data));
 
                                             for (let account of accounts) {
                                                 if (account.accountName === req.session['userId']) {
@@ -174,7 +181,98 @@ export class SheetRoute extends BaseRoute {
                         });
                 }
             });
+        router.post('/sheetdata/spreadsheet-info',
+            (req: Request, res: Response, next: NextFunction) => {
 
+                const { spreadsheetName, sheetName, entityName } = req.body;
+
+                let spreadsheet: ISpreadsheet, accout_spreadsheet : ISpreadsheet;
+                let sheet: ISheet = undefined, accout_sheet : ISheet;
+
+                let data = fs.readFileSync(path.join(__dirname, ('../json/' + spreadsheetName + '.json')), 'utf8');
+                spreadsheet = <ISpreadsheet>(JSON.parse(data));
+                if (spreadsheet !== undefined) {
+                    sheet = spreadsheet.sheets.find(s => s.sheetName === sheetName);
+                }
+
+                data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
+                let accounts: IAccount[] = <IAccount[]>(JSON.parse(data));
+                let account: IAccount = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
+                if (account !== undefined) {
+                    accout_spreadsheet = <ISpreadsheet>account.spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
+                    if (accout_spreadsheet !== undefined) {
+                        accout_sheet = <ISheet>accout_spreadsheet.sheets.find(s => s.sheetName === sheetName);
+                    }
+                }
+
+                if (sheet === undefined) {
+                    res.send({ error: 'account missing' });
+                    return;
+                }
+
+                spreadsheet.spreadsheetID = accout_spreadsheet.spreadsheetID;
+                sheet.sheetID = accout_sheet.sheetID;
+
+                var googleApi = require('googleapis');
+                var googleAuth = require('google-auth-library');
+                var sheets = googleApi.sheets('v4');
+
+                var auth = new googleAuth();
+                var oauth2Client = new auth.OAuth2();
+                oauth2Client.credentials = {
+                    access_token: req.session['google_access_token']
+                };
+
+
+                sheets.spreadsheets.get(
+                    {
+                        spreadsheetId: spreadsheet.spreadsheetID,
+                        ranges: [sheet.sheetName + '!1:1'],
+                        includeGridData: true,
+                        fields: "sheets(properties.title,data.rowData.values(effectiveValue,effectiveFormat.numberFormat))",
+                        auth: oauth2Client,
+                    },
+                    function (err, result) {
+                        if (err) {
+                            console.log(err);
+                            res.send({ error: err });
+                            return;
+                        }
+                        let columns = undefined;
+                        try {
+                            columns = result.sheets[0]['data'][0]['rowData'][0]['values'];
+
+                            let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
+                            let cellName = 'A';
+                            for (let column of columns) {
+                                let propInfo: IPropInfo = {
+                                    propName: column['effectiveValue']['stringValue'],
+                                    cellName: cellName,
+                                    onlyEdit: true,
+                                    dataType: column['effectiveFormat'] === undefined ? 'TEXT' : column['effectiveFormat']['numberFormat']['type'],
+                                    mask: column['effectiveFormat'] === undefined ? '' : column['effectiveFormat']['numberFormat']['pattern']
+                                };
+                                cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
+                                propInfos.push(propInfo);
+                            }
+
+                            res.json({
+                                spreadsheetID: spreadsheet.spreadsheetID,
+                                sheetID: sheet.sheetID,
+                                properties: propInfos,
+                                spreadsheetName: spreadsheet.spreadsheetName,
+                                sheetName: sheet.sheetName,
+                                entityName : entityName,
+                                relations: sheet.entity.relations !== undefined ? sheet.entity.relations : []
+                            });
+                        }
+                        catch (e) {
+                            res.send({ error: e });
+                            return;
+                        }
+                    });
+
+            });
 
         router.post('/sheetdata/create',
             (req: Request, res: Response, next: NextFunction) => {
@@ -188,9 +286,10 @@ export class SheetRoute extends BaseRoute {
 
         router.post('/sheetdata/delete',
             (req: Request, res: Response, next: NextFunction) => {
-                const { spreadsheetID, sheetName, sheetID, rowID, rowIndex } = req.body;
+                const { spreadsheetID, sheetName, sheetID, ID, rowid } = req.body;
+                var rowIndex = rowid - 1;
 
-                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowID, rowIndex, null);
+                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, ID, rowIndex, null);
             });
 
 
@@ -200,8 +299,8 @@ export class SheetRoute extends BaseRoute {
 
                 var rowIndex = values[0] - 1;
                 values[0] = "=ROW()";
-                var rowID = values[1];
-                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowID, rowIndex, function () {
+                var rowid = values[1];
+                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowid, rowIndex, function () {
                     SheetRoute.append(req, res, spreadsheetID, sheetName, sheetID, values);
                 });
 
@@ -210,13 +309,13 @@ export class SheetRoute extends BaseRoute {
         router.post('/sheetdata/select',
             (req: Request, res: Response, next: NextFunction) => {
 
-                const { spreadsheetName, sheetName, entityName, select } = req.body;
+                const { spreadsheetName, sheetName, entityName, select } = req.body as ISelectObj;
 
                 let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
-                let accounts: Account[] = <Account[]>(JSON.parse(data));
-                let account: Account = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
-                let sheet: Sheet = undefined;
-                let spreadsheet: Spreadsheet = undefined;
+                let accounts: IAccount[] = <IAccount[]>(JSON.parse(data));
+                let account: IAccount = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
+                let sheet: ISheet = undefined;
+                let spreadsheet: ISpreadsheet = undefined;
 
                 if (account !== undefined) {
                     spreadsheet = account.spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
@@ -259,10 +358,13 @@ export class SheetRoute extends BaseRoute {
                         else {
                             var entities = [];
                             for (const row of data.table.rows) {
-                                var ent = ModelFactory.uniqueInstance.create(entityName);
+                                var ent = ModelFactory.uniqueInstance.create(entityName.toLowerCase());
                                 var i = 0;
                                 for (const col of data.table.cols) {
-                                    ent[col.label] = row.c[i++].v;
+                                    if (row.c[i] && row.c[i].v) {
+                                        ent[col.label] = row.c[i].v;
+                                    }
+                                    i += 1;
                                 }
                                 entities.push(ent)
                             }
@@ -276,13 +378,13 @@ export class SheetRoute extends BaseRoute {
         router.post('/sheetdata/getscalar',
             (req: Request, res: Response, next: NextFunction) => {
 
-                const { spreadsheetName, sheetName, entityName, select } = req.body;
+                const { spreadsheetName, sheetName, entityName, select } = req.body as ISelectObj;
 
                 let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
-                let accounts: Account[] = <Account[]>(JSON.parse(data));
-                let account: Account = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
-                let sheet: Sheet = undefined;
-                let spreadsheet: Spreadsheet = undefined;
+                let accounts: IAccount[] = <IAccount[]>(JSON.parse(data));
+                let account: IAccount = accounts.find(function (a, index, array) { return a.accountName === req.session['userId']; });
+                let sheet: ISheet = undefined;
+                let spreadsheet: ISpreadsheet = undefined;
 
                 if (account !== undefined) {
                     spreadsheet = account.spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
@@ -327,13 +429,18 @@ export class SheetRoute extends BaseRoute {
                             for (const row of data.table.rows) {
                                 var ent = {};
                                 result['scalar'] = row.c[0].v;
-                                
+
                                 break;
                             }
                             res.json(result);
                         }
                     });
             });
+
+
+
+
+
     }
 
     static getAuth(req: Request) {
@@ -348,7 +455,7 @@ export class SheetRoute extends BaseRoute {
         return oauth2Client;
     }
 
-    static clean(req: Request, res: Response, spreadsheetID, sheetName, sheetID, rowID, rowIndex, callback) {
+    static clean(req: Request, res: Response, spreadsheetID, sheetName, sheetID, ID, rowid, callback) {
 
         var oauth2Client = SheetRoute.getAuth(req);
         var createMetadataReq = {
@@ -362,7 +469,7 @@ export class SheetRoute extends BaseRoute {
                             "dataFilter": {
                                 "developerMetadataLookup": {
                                     "metadataKey": "lock_key",
-                                    "metadataValue": rowID,
+                                    "metadataValue": ID,
                                     "locationType": "ROW"
                                 }
                             }
@@ -376,12 +483,12 @@ export class SheetRoute extends BaseRoute {
                                     "dimensionRange": {
                                         "sheetId": sheetID,
                                         "dimension": "ROWS",
-                                        "startIndex": rowIndex,
-                                        "endIndex": rowIndex + 1
+                                        "startIndex": rowid,
+                                        "endIndex": rowid + 1
                                     }
                                 },
                                 "metadataKey": "lock_key",
-                                "metadataValue": rowID,
+                                "metadataValue": ID,
                                 "visibility": "DOCUMENT"
                             }
                         }
@@ -405,7 +512,7 @@ export class SheetRoute extends BaseRoute {
                     "dataFilters": [{
                         "developerMetadataLookup": {
                             "metadataKey": "lock_key",
-                            "metadataValue": rowID,
+                            "metadataValue": ID,
                             "locationType": "ROW",
                             "visibility": "DOCUMENT"
                         }
@@ -426,7 +533,7 @@ export class SheetRoute extends BaseRoute {
                 }
 
                 var markedRowID = result.valueRanges[0].valueRange.values[0][1];
-                if (markedRowID !== rowID) {
+                if (markedRowID !== ID) {
                     res.send({ error: "ERROR_METADATA_CREATION" });
                     return;
                 }
@@ -438,7 +545,7 @@ export class SheetRoute extends BaseRoute {
                         "dataFilters": [{
                             "developerMetadataLookup": {
                                 "metadataKey": "lock_key",
-                                "metadataValue": rowID,
+                                "metadataValue": ID,
                                 "locationType": "ROW",
                                 "visibility": "DOCUMENT"
                             }
@@ -469,7 +576,7 @@ export class SheetRoute extends BaseRoute {
     static append(req: Request, res: Response, spreadsheetID: String, sheetName: String, sheetID: String, values) {
         var spreadsheetReqDefinition = null;
 
-        var data = fs.readFileSync(path.join(__dirname, '../base-spreadsheet.json'), 'utf8');
+        var data = fs.readFileSync(path.join(__dirname, '../json/base-spreadsheet.json'), 'utf8');
         spreadsheetReqDefinition = JSON.parse(data);
 
         var oauth2Client = SheetRoute.getAuth(req);

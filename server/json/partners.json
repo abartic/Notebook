@@ -1,20 +1,29 @@
 {
 
-    "name": "partners",
+    "spreadsheetName": "partners",
     "sheets": [{
-            "name": "partners",
-            "fields": ["code_part", "name", "descr", "type", "unit"]
+            "sheetName": "partners",
+            "fields": ["code_part", "name", "descr", "type", "unit"],
+            "entity": {
+                "entityName": "Partner",
+                "ukey": "code_part",
+                "relations": ["address", "contact"]
+            }
+        },
+        {
+            "sheetName": "addresses",
+            "fields": ["code_part", "line1", "line2", "city", "country", "zip", "country"],
+            "entity": {
+                "entityName": "Address"
+            }
 
         },
         {
-            "name": "addresses",
-            "fields": ["code_part", "line1", "line2", "city", "country", "zip", "country"]
-
-        },
-        {
-            "name": "contacts",
-            "fields": ["code_part", "name", "email", "phone1", "phone2"]
-
+            "sheetName": "contacts",
+            "fields": ["code_part", "name", "email", "phone1", "phone2"],
+            "entity": {
+                "entityName": "Contact"
+            }
         }
     ]
 }

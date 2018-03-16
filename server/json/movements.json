@@ -1,12 +1,12 @@
 {
 
-    "name": "movements",
+    "spreadsheetName": "movements",
     "sheets": [{
-        "name": "documents",
+        "sheetName": "documents",
         "fields": ["code_doc", "code_part", "type", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"]
 
     }, {
-        "name": "document_lines",
+        "sheetName": "document_lines",
         "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount"]
     }]
 }

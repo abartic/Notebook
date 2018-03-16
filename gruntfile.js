@@ -32,7 +32,8 @@ module.exports = function(grunt) {
                     rootDir: "server",
                     module: "commonjs",
                     target: "ES6",
-                    allowJs: true
+                    allowJs: true,
+                    experimentalDecorators: true
                 }
             }
         },

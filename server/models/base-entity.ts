@@ -1,18 +1,84 @@
+import { ModelInfos } from "./modelProperties";
 
-export class BaseEntity<E> {
+export interface IEntityInfo {
+    spreadsheetID: string,
+    sheetID: string,
 
-    public rowID: Number;
+    prototype: object,
+    spreadsheetName: string,
+    sheetName: string,
+    entityName: string,
+    relations: string[],
 
-    public uid: String;
+    properties: Array<IPropInfo>
+}
 
-    protected getPropertiesMaps(): Array<[string, string]> { return undefined; }
+export interface IPropInfo {
+    propName: string,
+    cellName: string;
+    onlyEdit: boolean;
+    dataType: string;
+    mask: string;
+}
+
+
+export enum eEntityStatus {
+    None = 0,
+    New = 1,
+    Loaded = 2,
+    Deleted = 3,
+}
+
+export function SheetInfo(spreadsheetName : string, sheetName: string) {
+    return (ctor: Function) => {
+        ctor.prototype['spreadsheet_name'] = spreadsheetName;
+        ctor.prototype['sheet_name'] = sheetName;
+    }
+}
+
+
+export class BaseEntity {
+
+    constructor() {
+
+    }
+
+    public rowid: number;
+
+    public uid: string;
+    
+    private sheet_name : string;
+
+    private spreadsheet_name : string;
+
+    public status: eEntityStatus = eEntityStatus.None;
+
+    get spreadsheetName(): string {
+        return this.spreadsheet_name;
+    }
+    get sheetName(): string {
+        return this.sheet_name;
+    }
+
+    get entityName(): string {
+        return this.constructor.name;
+    }
+
+    get entityInfo(): IEntityInfo {
+        return ModelInfos.uniqueInstance.get(this.entityName);
+    }
+
+    get properties(): Array<IPropInfo> {
+        return this.entityInfo.properties;
+    }
 
     public toArray(): (String | Number | Date)[] {
-        let array = [this.rowID, this.uid];
+        let array = [];
 
-        if (this.getPropertiesMaps()) {
-            for (let p of this.getPropertiesMaps()) {
-                array.push(this[p["0"]])
+        if (this.properties) {
+            for (let p of this.properties) {
+                if ((this.status === eEntityStatus.New && (p.propName === 'uid' || p.propName === 'rowid')) === false)
+                    array.push(this[p.propName])
             }
         }
 
@@ -21,34 +87,45 @@ export class BaseEntity<E> {
 
     public clearFilter() {
 
-        for (let p of this.getPropertiesMaps()) {
-            if (this[p["0"]]) {
-                this[p["0"]] = undefined;
+        for (let p of this.properties) {
+            if (this[p.propName]) {
+                this[p.propName] = undefined;
             }
         }
+    }
+
+    public toUKeyFilter(): string {
+        let query = 'select ';
+        for (let p of this.properties) {
+            query = query + p.cellName + ',';
+        }
+        let p_uid = this.properties.find(p => p.propName === 'uid')
+        query = query.slice(0, query.length - 1);
+        query = query + ' where ' + p_uid.cellName + ' = "' + this.uid + '"';
+        return query;
     }
 
     public toFilter(offset: number, limit: number): string {
 
         let query = 'select ';
-        for (let p of this.getPropertiesMaps()) {
-            query = query + p["1"] + ',';
+        for (let p of this.properties) {
+            query = query + p.cellName + ',';
         }
         query = query.slice(0, query.length - 1);
-        query = query + ' where '; 
+        query = query + ' where ';
 
         let where = ' 1=1 ';
-        for (let p of this.getPropertiesMaps()) {
-            if (this[p["0"]]) {
-                let fvalue = (<string>this[p["0"]]).toUpperCase();
+        for (let p of this.properties) {
+            if (this[p.propName]) {
+                let fvalue = (<string>this[p.propName]).toUpperCase();
                 if (fvalue.indexOf('%') >= 0)
-                    where = where + ' and upper(' + p["1"] + ') like "' + fvalue + '"';
+                    where = where + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
-                    where = where + ' and upper(' + p["1"] + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
+                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0)
-                    where = where + ' and upper(' + p["1"] + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
+                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
                 else
-                    where = where + ' and upper(' + p["1"] + ') like "%' + fvalue + '%"';
+                    where = where + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
         }
         query = query + where;
@@ -64,17 +141,17 @@ export class BaseEntity<E> {
 
         let query = 'select count(A) where 1=1 ';
 
-        for (let p of this.getPropertiesMaps()) {
+        for (let p of this.properties) {
             if (this[p["0"]]) {
-                let fvalue = (<string>this[p["0"]]).toUpperCase();
+                let fvalue = (<string>this[p.propName]).toUpperCase();
                 if (fvalue.indexOf('%') >= 0)
-                    query = query + ' and upper(' + p["1"] + ') like "' + fvalue + '"';
+                    query = query + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
-                    query = query + ' and upper(' + p["1"] + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
+                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0)
-                    query = query + ' and upper(' + p["1"] + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
+                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
                 else
-                    query = query + ' and upper(' + p["1"] + ') like "%' + fvalue + '%"';
+                    query = query + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
         }
 
@@ -84,4 +161,19 @@ export class BaseEntity<E> {
             query = query + ' offset ' + offset;
         return query;
     }
+
+    static createInstance<T extends BaseEntity>(type: new () => T, instance?: Object): T {
+        let new_instance: T;
+        if ((instance instanceof type) === true) {
+            new_instance = <T>instance;
+        }
+        else {
+            new_instance = new type();
+            if (instance !== undefined)
+                Object.assign(new_instance, instance);
+        }
+        return new_instance;
+    }
 }
+
+

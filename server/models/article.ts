@@ -1,7 +1,7 @@
 
 import { BaseEntity } from "./base-entity";
 
-export class Article extends BaseEntity<Article> {
+export class Article extends BaseEntity {
 
     public code_art : String;
 
@@ -22,18 +22,5 @@ export class Article extends BaseEntity<Article> {
     public attr4 : String;
     
     public attr5: String;
-
-    protected getPropertiesMaps(): Array<[string, string]> { return Article.propertiesMaps; }
-    static propertiesMaps: Array<[string, string]> = [
-        ["code_art", "C"],
-        ["descr", "D"],
-        ["UM", "E"],
-        ["EAN", "F"],
-        ["SN", "G"],
-        ["attr1", "H"],
-        ["attr2", "I"],
-        ["attr3", "J"],
-        ["attr4", "K"],
-        ["attr5", "L"],
-    ];
+   
 }

@@ -1,7 +1,9 @@
 
-import { BaseEntity } from "./base-entity";
+import { BaseEntity, SheetInfo } from "./base-entity";
 
-export class Address extends BaseEntity<Address> {
+@SheetInfo("partners", "addresses")  
+export class Address extends BaseEntity {
+
 
     public code_part : String;
 
@@ -16,15 +18,4 @@ export class Address extends BaseEntity<Address> {
     public country : String;
 
     public zip : String;
-    
-    protected getPropertiesMaps(): Array<[string, string]> { return Address.propertiesMaps; }
-    static propertiesMaps: Array<[string, string]> = [
-        ["code_part", "C"],
-        ["line1", "D"],
-        ["line2", "E"],
-        ["city", "F"],
-        ["county", "G"],
-        ["country", "H"],
-        ["zip", "I"],
-    ];
 }

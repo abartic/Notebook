@@ -12,10 +12,9 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Http, Jsonp, Response } from '@angular/http';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms'
 
-
 import { CookieService } from 'ngx-cookie-service';
-import { MatDialog } from '@angular/material';
-import { LoginDialog } from "./login.dialog";
+
+
 
 declare var jquery: any;
 declare var $: any;
@@ -34,14 +33,13 @@ export class LoginComponent implements OnInit, AfterContentInit {
         private http: Http,
         private jsonp: Jsonp,
 
-        private cookieService: CookieService,
-        public dialog: MatDialog) {
+        private cookieService: CookieService) {
 
     }
 
 
     signInWithGoogle(): void {
-        
+
         window.open("/login/google", "_self");
 
         //this.authService.signIn();
@@ -62,7 +60,7 @@ export class LoginComponent implements OnInit, AfterContentInit {
             return;
         else
             this.router.navigate(['/dashboard']);
-        
+
     }
 
     //cookieValue = 'UNKNOWN';
@@ -93,9 +91,9 @@ export class LoginComponent implements OnInit, AfterContentInit {
         //     // })
         //     .subscribe((res: Response) => {
         //         var response = res.json();
-       
+
         //         //localStorage.setItem('fbk_access_token', response['fbk_access_token']);
-       
+
         //         this.router.navigate(['/dashboard']);
         //     });
 

@@ -28,7 +28,7 @@ export class PassportManager {
             console.log(profile);
 
             let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
-            let accounts = <Array<Account>>(JSON.parse(data));
+            let accounts = <Array<IAccount>>(JSON.parse(data));
             let emails: Array<{ value: String; type?: String; }> = profile.emails;
             var emailAccounts = <Array<String>>emails.map(e => e.value);
             for (let account of accounts) {

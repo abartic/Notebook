@@ -2,7 +2,7 @@ import { DocumentLine } from './document-line';
 
 import { BaseEntity } from "./base-entity";
 
-export class Document extends BaseEntity<Document> {
+export class Document extends BaseEntity{
 
     public code_doc : String;
 
@@ -23,19 +23,4 @@ export class Document extends BaseEntity<Document> {
     public store_out: String;
 
     public documentLines : (DocumentLine)[];
-
-    protected getPropertiesMaps(): Array<[string, string]> { return Document.propertiesMaps; }
-    static propertiesMaps: Array<[string, string]> = [
-        ["code_doc", "C"],
-        ["code_part", "D"],
-        ["type", "E"],
-        ["creation_date", "F"],
-        ["due_date", "G"],
-        ["register_date", "H"],
-        
-        ["internal_reference", "I"],
-        ["store_in", "J"],
-        ["store_out", "K"],
-    ];
-
 }

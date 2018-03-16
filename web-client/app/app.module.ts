@@ -1,4 +1,5 @@
-import { LoginDialog } from './login/login.dialog';
+import { DialogWnd } from './dialog/dialog';
+
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -12,9 +13,11 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 import { JsonpModule, Jsonp, Response } from '@angular/http';
 import { CookieService } from 'ngx-cookie-service';
-import { MatDialogModule } from "@angular/material";
+import { HttpCallerService } from './services/httpcaller.service';
 
 
+import { ReactiveFormsModule } from '@angular/forms';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 
@@ -37,17 +40,15 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    LoginDialog
-    
-    
-  ],
-  entryComponents: [
-    LoginDialog
+    DialogWnd
+
+
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     AppRoutingModule,
     TranslateModule.forRoot({
@@ -58,7 +59,8 @@ export function HttpLoaderFactory(http: HttpClient) {
       }
     }),
     JsonpModule,
-    MatDialogModule,
+    NgbModule.forRoot()
+    
     // GoogleApiModule.forRoot({
     //   provide: NG_GAPI_CONFIG,
     //   useValue: gapiClientConfig
@@ -66,9 +68,16 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   providers: [
     AuthGuard,
-    CookieService 
+    CookieService,
+    HttpCallerService
     
-    ],
-  bootstrap: [AppComponent]
+
+    
+
+  ],
+  bootstrap: [AppComponent],
+  entryComponents: [
+    DialogWnd
+  ]
 })
 export class AppModule { }
