@@ -1,4 +1,4 @@
-import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog';
+import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialogWnd';
 import { ModelInfos } from './../../../../server/models/modelProperties';
 import { ModelFactory } from './../../../../server/models/modelFactory';
 import { HttpCallerService } from './../../services/httpcaller.service';
@@ -6,10 +6,10 @@ import { BaseEntity, IPropInfo, IEntityInfo, eEntityStatus } from './../../../..
 import { Package } from './package';
 import { Input, Inject, Injectable } from '@angular/core';
 import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
-import { AlertDialogWnd } from '../../dialog/alertdialog';
-import { AskDialogWnd } from '../../dialog/askdialog';
+import { AlertDialogWnd } from '../../dialog/alertDialogWnd';
+import { AskDialogWnd } from '../../dialog/askDialogWnd';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { EditEntityDialogWnd } from '../../dialog/editEntityDialog';
+import { EditEntityDialogWnd } from '../../dialog/editEntityDialogWnd';
 
 
 
@@ -48,7 +48,7 @@ export interface IPackageController {
     filterProperties;
 
     entityType: string;
-    
+
     lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
 
     getRelationProperties(relation: string);
