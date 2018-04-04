@@ -46,6 +46,14 @@ export interface IPackageController {
     package;
 
     filterProperties;
+
+    entityType: string;
+    
+    lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
+
+    getRelationProperties(relation: string);
+
+    onCreateEntityByRelation(relation: string);
 }
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
