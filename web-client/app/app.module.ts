@@ -1,4 +1,4 @@
-import { SelectEntityDialogWnd } from './dialog/selectEntityDialog';
+
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -18,10 +18,10 @@ import { HttpCallerService } from './services/httpcaller.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertDialogWnd } from './dialog/alertdialog';
-import { AskDialogWnd } from './dialog/askdialog';
-import { EditEntityDialogWnd } from './dialog/editEntityDialog';
-
+// import { AlertDialogWnd } from './dialog/alertdialog';
+// import { AskDialogWnd } from './dialog/askdialog';
+// import { EditEntityDialogWnd } from './dialog/editEntityDialog';
+// import { SelectEntityDialogWnd } from './dialog/selectEntityDialog';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -41,10 +41,10 @@ export function HttpLoaderFactory(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    AlertDialogWnd,
-    AskDialogWnd,
-    EditEntityDialogWnd,
-    SelectEntityDialogWnd
+    // AlertDialogWnd,
+    // AskDialogWnd,
+    // EditEntityDialogWnd,
+    // SelectEntityDialogWnd
   ],
   imports: [
     BrowserModule,
@@ -79,10 +79,10 @@ export function HttpLoaderFactory(http: HttpClient) {
   ],
   bootstrap: [AppComponent],
   entryComponents: [
-    AlertDialogWnd,
-    AskDialogWnd,
-    EditEntityDialogWnd,
-    SelectEntityDialogWnd
+    // AlertDialogWnd,
+    // AskDialogWnd,
+    // EditEntityDialogWnd,
+    // SelectEntityDialogWnd
   ]
 })
 export class AppModule { }
