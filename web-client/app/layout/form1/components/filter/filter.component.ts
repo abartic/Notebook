@@ -53,10 +53,7 @@ export class FilterComponent implements OnInit {
     this.packageCtrl.onPreviousPage();
   }
 
-  onExecuteFilter(count: boolean) {
-
-    this.packageCtrl.onExecuteFilter(count);
-  }
+  
 
   onSelectEntity(row) {
     this.packageCtrl.onSelectEntity(row);

@@ -1,11 +1,13 @@
 import { DocumentLine } from './document-line';
 
-import { BaseEntity } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
+@SheetInfo("documents", "documents", "code_doc")
 export class Document extends BaseEntity{
 
     public code_doc : String;
 
+    @LookupProp("partner", ["code_part","descr"])
     public code_part : String;
     
     public type : String;
@@ -22,5 +24,5 @@ export class Document extends BaseEntity{
     
     public store_out: String;
 
-    public documentLines : (DocumentLine)[];
+    public document_line_relation : (DocumentLine)[];
 }

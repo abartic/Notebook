@@ -1,6 +1,4 @@
 import { BaseEntity } from './../../../../server/models/base-entity';
-
-import { DialogWnd } from './../../dialog/dialog';
 import { SharedPipesModule } from './../../shared/pipes/shared-pipes.module';
 import { Package } from './package';
 import { Component, OnInit, Inject } from '@angular/core';
@@ -28,7 +26,7 @@ export class Form1Component implements OnInit {
     let param = this.route.params['value']['id'];
     let type = ModelFactory.uniqueInstance.get(param);
     
-    this.packageCtrl = new PackageController(type, modalService, httpCaller);
+    this.packageCtrl = new PackageController(param, type, modalService, httpCaller);
     
   }
   

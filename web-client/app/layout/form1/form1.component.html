@@ -1,5 +1,5 @@
 <div [@routerTransition]>
-    <h2 class="text-muted">Partners</h2>
+    <h2 class="text-muted">{{packageCtrl.entityType}}</h2>
 
     <div class="form-group row">
         <div class="col-md-12">
@@ -19,7 +19,7 @@
             <form-filter [package]="package" [packageCtrl]="packageCtrl"></form-filter>
         </div>
     </div>
-    <div class="row" *ngIf="package.show_filter===false ">
+    <div class="row" *ngIf="package.show_filter===false">
         <div class="col-md-12 ">
             <button type="button " class="btn btn-link " (click)="packageCtrl.clearMsg(true)">Filter</button>
         </div>

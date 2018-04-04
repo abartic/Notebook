@@ -1,12 +1,13 @@
 import { Address } from './address';
 import { Contact } from './contact';
-import { BaseEntity, IPropInfo, SheetInfo } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
-@SheetInfo("partners", "partners") export 
-class Partner extends BaseEntity {
+@SheetInfo("partners", "partners", "code_part") export
+    class Partner extends BaseEntity {
 
     public code_part: String;
 
+    @LookupProp("address", ["line1","country"])
     public name: String;
 
     public descr: String;
@@ -15,8 +16,8 @@ class Partner extends BaseEntity {
 
     public unit: String;
 
-    public addresses: (Address)[];
+    public address_relation: (Address)[];
 
-    public contacts: (Contact)[];
-   
+    public contact_relation: (Contact)[];
+
 }

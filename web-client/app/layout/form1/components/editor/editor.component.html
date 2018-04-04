@@ -1,21 +1,25 @@
 <div [@routerTransition]>
-    <div class="row justify-content-start">
-        <button (click)="onNew()" class="btn btn-secondary">New</button>
-        <button (click)="onSave()" class="btn btn-secondary">Save</button>
-        <button (click)="onDelete()" class="btn btn-secondary">Delete</button>
-        <button (click)="onUndo()" class="btn btn-secondary">Undo</button>
+    <div class="row ">
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group mr-2" role="group">
+                <button type="button" (click)="onNew()" class="btn btn-secondary">New</button>
+                <button type="button" (click)="onSave()" class="btn btn-primary">Save</button>
+                <button type="button" (click)="onDelete()" class="btn btn-secondary">Delete</button>
+                <button type="button" (click)="onUndo()" class="btn btn-secondary">Undo</button>
+            </div>
+        </div>
     </div>
 
     <BR>
 
     <div *ngFor="let property of (package.entity.properties)">
-        <div class="form-group row" *ngIf="packageCtrl.isVisible(package.entity, property)">
+        <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
             <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
-            <div class="col-6" [ngSwitch]="property.dataType">
-                <input *ngSwitchCase="'NUMBER'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="number" [(ngModel)]="package.entity[property.propName]">
-                <input *ngSwitchCase="'TEXT'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="text" [(ngModel)]="package.entity[property.propName]">
-                <input *ngSwitchCase="'DATE'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="date" [(ngModel)]="package.entity[property.propName]">
-                <input *ngSwitchCase="'TIME'" [disabled]="packageCtrl.isDisabled(property)" class="form-control" type="time" [(ngModel)]="package.entity[property.propName]">
+            <div class="input-group col-6">
+                <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" (type)="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]">
+                <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
+                    <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(property)">...</button>
+                </div>
             </div>
         </div>
     </div>

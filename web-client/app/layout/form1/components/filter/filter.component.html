@@ -1,9 +1,13 @@
 <div [@routerTransition]>
 
-    <div class="row justify-content-start">
-        <button (click)="onClear()" class="btn btn-secondary">Clear</button>
-        <button (click)="onApply()" class="btn btn-secondary">Apply</button>
-        <button (click)="onNew()" class="btn btn-secondary">New</button>
+    <div class="row">
+        <div class="btn-toolbar" role="toolbar">
+            <div class="btn-group mr-2" role="group">
+                <button type="button" (click)="onApply()" class="btn btn-primary">Apply</button>
+                <button type="button" (click)="onClear()" class="btn btn-secondary">Clear</button>
+                <button type="button" (click)="onNew()" class="btn btn-secondary">New</button>
+            </div>
+        </div>
     </div>
 
     <BR>
@@ -27,29 +31,27 @@
     <BR>
     <div class="row">
         <div class="col col-xl-12 col-lg-12">
-            <div class="card mb-3">
+            <table class="table table-hover table-striped table-bordered table-md">
+                <thead class="thead-light">
+                    <tr>
+                        <th></th>
+                        <th *ngFor="let property of packageCtrl.filterProperties">
+                            <input type="text" class="form-control" [(ngModel)]="package.filter[property.propName]" placeholder="{{property.propName}}" />
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>#</th>
+                        <th *ngFor="let property of packageCtrl.filterProperties">{{property.propName}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of package.rows; index as i" (click)="onSelectEntity(row)">
+                        <td>{{i+1}}</td>
+                        <td *ngFor="let property of packageCtrl.filterProperties">{{row[property.propName]}}</td>
+                    </tr>
+                </tbody>
+            </table>
 
-                <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th *ngFor="let property of packageCtrl.filterProperties">{{property.propName}}</th>
-                            </tr>
-                            <tr>
-                                <td *ngFor="let property of packageCtrl.filterProperties">
-                                    <input [(ngModel)]="package.filter[property.propName]" placeholder="{{property.propName}}" />
-                                </td>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let row of package.rows" (click)="onSelectEntity(row)">
-                                <td *ngFor="let property of packageCtrl.filterProperties">{{row[property.propName]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 

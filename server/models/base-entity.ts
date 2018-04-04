@@ -1,10 +1,10 @@
+import { IEntityInfo } from './base-entity';
 import { ModelInfos } from "./modelProperties";
+import "reflect-metadata"
 
 export interface IEntityInfo {
     spreadsheetID: string,
     sheetID: string,
-
-    prototype: object,
     spreadsheetName: string,
     sheetName: string,
     entityName: string,
@@ -19,6 +19,8 @@ export interface IPropInfo {
     onlyEdit: boolean;
     dataType: string;
     mask: string;
+    lookup_entity_name? : string;
+    lookup_properties? : string[];
 }
 
 
@@ -27,15 +29,29 @@ export enum eEntityStatus {
     New = 1,
     Loaded = 2,
     Deleted = 3,
+    Updated = 4
 }
 
-export function SheetInfo(spreadsheetName : string, sheetName: string) {
+
+
+export function SheetInfo(spreadsheetName: string, sheetName: string, ukeyPropName?: string) {
     return (ctor: Function) => {
         ctor.prototype['spreadsheet_name'] = spreadsheetName;
         ctor.prototype['sheet_name'] = sheetName;
+        ctor.prototype['ukey_prop_name'] = ukeyPropName;
     }
 }
 
+export function LookupProp(entityName: string, propNames: (string)[]) {
+
+    return (prototype: any, propName: string) => {
+
+        if (!prototype['lookups'])
+            prototype['lookups'] = new Map<string, {entityName : string, propNames : (string)[]}>();
+        prototype['lookups'].set(propName, {entityName, propNames});
+    }
+
+}
 
 export class BaseEntity {
 
@@ -46,10 +62,14 @@ export class BaseEntity {
     public rowid: number;
 
     public uid: string;
-    
-    private sheet_name : string;
 
-    private spreadsheet_name : string;
+    private ukey_prop_name: string;
+
+    private sheet_name: string;
+
+    private spreadsheet_name: string;
+
+    private lookups : Map<string, {entityName : string, propNames : (string)[]}>;
 
     public status: eEntityStatus = eEntityStatus.None;
 
@@ -64,8 +84,16 @@ export class BaseEntity {
         return this.constructor.name;
     }
 
+    get ukeyPropName(): string {
+        return this.ukey_prop_name;
+    }
+
     get entityInfo(): IEntityInfo {
         return ModelInfos.uniqueInstance.get(this.entityName);
+    }
+
+    get entityLookups(): Map<string, {entityName : string, propNames : (string)[]}> {
+        return this.lookups;
     }
 
     get properties(): Array<IPropInfo> {
@@ -94,30 +122,57 @@ export class BaseEntity {
         }
     }
 
-    public toUKeyFilter(): string {
+    public static toUKeyFilter(entityInfo: IEntityInfo, uid: any): string {
+
         let query = 'select ';
-        for (let p of this.properties) {
+        for (let p of entityInfo.properties) {
             query = query + p.cellName + ',';
         }
-        let p_uid = this.properties.find(p => p.propName === 'uid')
+        let p_uid = entityInfo.properties.find(p => p.propName === 'uid')
         query = query.slice(0, query.length - 1);
-        query = query + ' where ' + p_uid.cellName + ' = "' + this.uid + '"';
+        if (uid instanceof Number)
+            query = query + ' where ' + p_uid.cellName + ' = ' + uid;
+        else
+            query = query + ' where ' + p_uid.cellName + ' = "' + uid + '"';
         return query;
     }
 
-    public toFilter(offset: number, limit: number): string {
+    public static toFKeyFilter(relationEntityInfo: IEntityInfo, fkeyPropName: string, fkeyvalue: any): string {
 
         let query = 'select ';
-        for (let p of this.properties) {
+        for (let p of relationEntityInfo.properties) {
+            query = query + p.cellName + ',';
+        }
+        let p_uid = relationEntityInfo.properties.find(p => p.propName === fkeyPropName)
+        if (p_uid && fkeyvalue) {
+            query = query.slice(0, query.length - 1);
+            if (fkeyvalue instanceof Number)
+                query = query + ' where ' + p_uid.cellName + ' = ' + fkeyvalue;
+            else
+                query = query + ' where ' + p_uid.cellName + ' = "' + fkeyvalue + '"';
+            return query;
+        }
+        else {
+            return '';
+        }
+
+    }
+
+    public static toFilter(entity: BaseEntity, offset: number, limit: number): string {
+
+        let entityInfo = entity.entityInfo;
+
+        let query = 'select ';
+        for (let p of entity.properties) {
             query = query + p.cellName + ',';
         }
         query = query.slice(0, query.length - 1);
         query = query + ' where ';
 
         let where = ' 1=1 ';
-        for (let p of this.properties) {
-            if (this[p.propName]) {
-                let fvalue = (<string>this[p.propName]).toUpperCase();
+        for (let p of entity.properties) {
+            if (entity[p.propName]) {
+                let fvalue = (<string>entity[p.propName]).toUpperCase();
                 if (fvalue.indexOf('%') >= 0)
                     where = where + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
@@ -137,12 +192,12 @@ export class BaseEntity {
         return query;
     }
 
-    public toCountFilter(offset: number, limit: number): string {
+    public toCountFilter(): string {
 
         let query = 'select count(A) where 1=1 ';
 
         for (let p of this.properties) {
-            if (this[p["0"]]) {
+            if (this[p.propName]) {
                 let fvalue = (<string>this[p.propName]).toUpperCase();
                 if (fvalue.indexOf('%') >= 0)
                     query = query + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
@@ -154,17 +209,12 @@ export class BaseEntity {
                     query = query + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
         }
-
-        if (limit)
-            query = query + ' limit ' + limit;
-        if (offset)
-            query = query + ' offset ' + offset;
         return query;
     }
 
-    static createInstance<T extends BaseEntity>(type: new () => T, instance?: Object): T {
+    static createInstance<T extends BaseEntity>(type: new () => T, instance?: Object, forceClone?: boolean, parent?: BaseEntity): T {
         let new_instance: T;
-        if ((instance instanceof type) === true) {
+        if ((instance instanceof type) === true && forceClone !== true) {
             new_instance = <T>instance;
         }
         else {
@@ -172,6 +222,10 @@ export class BaseEntity {
             if (instance !== undefined)
                 Object.assign(new_instance, instance);
         }
+
+        if (parent && parent.ukeyPropName) //copy the unique key
+            new_instance[parent.ukeyPropName] = parent[parent.ukeyPropName];
+
         return new_instance;
     }
 }

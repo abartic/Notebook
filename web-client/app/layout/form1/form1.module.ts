@@ -14,6 +14,7 @@ import { RelationComponent } from './components/relation/relation.component';
     CommonModule,
     FormsModule,
     Form1RoutingModule
+    
   ],
   declarations: [
     Form1Component,

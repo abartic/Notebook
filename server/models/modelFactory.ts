@@ -18,14 +18,15 @@ export class ModelFactory {
     }
 
     public get(type: string) : (new() => any ) {
+        type = type.toLowerCase();
          if (type === "article") return Article;
          else if (type === "partner") return Partner;
          else if (type === "address") return Address;
-         else if (type === "articleinventory") return ArticleInventory;
+         else if (type === "article_inventory") return ArticleInventory;
          else if (type === "contact") return Contact;
          else if (type === "store") return Store;
          else if (type === "document") return Document;
-         else if (type === "documentline") return DocumentLine;
+         else if (type === "document_line") return DocumentLine;
     }
 
     public static get uniqueInstance() : ModelFactory {

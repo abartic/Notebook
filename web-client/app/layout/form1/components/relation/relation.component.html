@@ -1,28 +1,29 @@
 <div [@routerTransition]>
 
-    <div class="row justify-content-start">
-        <button (click)="onDelete()" class="btn btn-secondary">Apply</button>
-        <button (click)="onNew()" class="btn btn-secondary">New</button>
-    </div>
-    <BR>
-    <div class="row">
+    <div class="row top-buffer">
         <div class="col col-xl-12 col-lg-12">
-            <div class="card mb-3">
-                <div class="card-body table-responsive">
-                    <table class="table table-hover table-striped">
-                        <thead>
-                            <tr>
-                                <th *ngFor="let property of packageCtrl.getRelationProperties(relation).properties">{{property.propName}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let row of package.rows" (click)="onSelectEntity(row)">
-                                <td *ngFor="let property of packageCtrl.getRelationProperties(relation).properties">{{row[property.propName]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <h5>{{relation}}</h5>
+            <table class="table table-hover table-striped table-responsive table-bordered">
+
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            <button class="btn btn-secondary" (click)="packageCtrl.onCreateEntityByRelation(relation)">+</button>
+                        </th>
+                        <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(relation)">{{property.propName}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
+                        <th scope="row">
+                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) ">=</button>
+                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) ">-</button>
+                        </th>
+                        <td *ngFor="let property of packageCtrl.getRelationProperties(relation) ">{{row[property.propName]}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <label *ngIf="package.entity[relation+ '_relation'] && package.entity[relation+ '_relation'].length===0">(none)</label>
         </div>
     </div>
 

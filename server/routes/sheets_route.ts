@@ -17,6 +17,7 @@ export interface ISelectObj {
     sheetName: string;
     entityName: string;
     select: string;
+    addSchema : boolean;
 }
 
 export class SheetRoute extends BaseRoute {
@@ -229,7 +230,7 @@ export class SheetRoute extends BaseRoute {
                         spreadsheetId: spreadsheet.spreadsheetID,
                         ranges: [sheet.sheetName + '!1:1'],
                         includeGridData: true,
-                        fields: "sheets(properties.title,data.rowData.values(effectiveValue,effectiveFormat.numberFormat))",
+                        fields: "sheets(properties.title,data.rowData.values(effectiveValue.stringValue,effectiveFormat.numberFormat))",
                         auth: oauth2Client,
                     },
                     function (err, result) {
@@ -245,6 +246,9 @@ export class SheetRoute extends BaseRoute {
                             let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
                             let cellName = 'A';
                             for (let column of columns) {
+                                if (column['effectiveValue'] === undefined)
+                                    continue;
+
                                 let propInfo: IPropInfo = {
                                     propName: column['effectiveValue']['stringValue'],
                                     cellName: cellName,
@@ -309,7 +313,7 @@ export class SheetRoute extends BaseRoute {
         router.post('/sheetdata/select',
             (req: Request, res: Response, next: NextFunction) => {
 
-                const { spreadsheetName, sheetName, entityName, select } = req.body as ISelectObj;
+                const { spreadsheetName, sheetName, entityName, select, addSchema } = req.body as ISelectObj;
 
                 let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
                 let accounts: IAccount[] = <IAccount[]>(JSON.parse(data));
@@ -357,6 +361,7 @@ export class SheetRoute extends BaseRoute {
                         }
                         else {
                             var entities = [];
+                            var schema = data.table.cols;
                             for (const row of data.table.rows) {
                                 var ent = ModelFactory.uniqueInstance.create(entityName.toLowerCase());
                                 var i = 0;
@@ -370,6 +375,8 @@ export class SheetRoute extends BaseRoute {
                             }
                             let result = {};
                             result['rows'] = entities;
+                            if (addSchema === true)
+                                result['schema'] = schema;
                             res.json(result);
                         }
                     });

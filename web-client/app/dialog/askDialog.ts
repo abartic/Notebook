@@ -4,11 +4,14 @@ import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-
 
 
 @Component({
-  selector: 'dialog-wnd',
-  templateUrl: './dialog.html'
+  selector: 'ask-dialog-wnd',
+  templateUrl: './askDialog.html'
 })
-export class DialogWnd {
+export class AskDialogWnd {
 
   @Input() message;
-  constructor(public activeModal: NgbActiveModal) {}
+  constructor(public activeModal: NgbActiveModal) {
+
+    
+  }
 }
