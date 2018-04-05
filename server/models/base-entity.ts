@@ -81,6 +81,8 @@ export class BaseEntity {
     }
 
     get entityName(): string {
+        console.log(this.constructor);
+        console.log(this.constructor.name);
         return this.constructor.name;
     }
 
