@@ -2,7 +2,7 @@ import { DocumentLine } from './document-line';
 
 import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
-@SheetInfo("documents", "documents", "code_doc")
+@SheetInfo("documents", "documents", "Document", "code_doc")
 export class Document extends BaseEntity{
 
     public code_doc : String;
