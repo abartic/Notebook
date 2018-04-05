@@ -1,7 +1,7 @@
 
 import { BaseEntity, SheetInfo } from "./base-entity";
 
-@SheetInfo("partners", "addresses")  
+@SheetInfo("partners", "addresses","Address")  
 export class Address extends BaseEntity {
 
 

@@ -34,10 +34,11 @@ export enum eEntityStatus {
 
 
 
-export function SheetInfo(spreadsheetName: string, sheetName: string, ukeyPropName?: string) {
+export function SheetInfo(spreadsheetName: string, sheetName: string, entityName: string, ukeyPropName?: string) {
     return (ctor: Function) => {
         ctor.prototype['spreadsheet_name'] = spreadsheetName;
         ctor.prototype['sheet_name'] = sheetName;
+        ctor.prototype['entity_name'] = entityName;
         ctor.prototype['ukey_prop_name'] = ukeyPropName;
     }
 }
@@ -65,6 +66,8 @@ export class BaseEntity {
 
     private ukey_prop_name: string;
 
+    private entity_name: string;
+
     private sheet_name: string;
 
     private spreadsheet_name: string;
@@ -81,9 +84,8 @@ export class BaseEntity {
     }
 
     get entityName(): string {
-        console.log(this.constructor);
-        console.log(this.constructor.name);
-        return this.constructor.name;
+        
+        return this.entity_name;
     }
 
     get ukeyPropName(): string {
