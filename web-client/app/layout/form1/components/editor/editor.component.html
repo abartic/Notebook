@@ -18,7 +18,7 @@
             <div class="input-group col-6">
                 <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" (type)="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]">
                 <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
-                    <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(property)">...</button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
                 </div>
             </div>
         </div>

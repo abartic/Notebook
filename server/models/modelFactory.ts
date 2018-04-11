@@ -14,14 +14,12 @@ export class ModelFactory {
 
     public create(type: string) {
         let entity = this.get(type);
-        console.log(entity);
         return new entity();
     }
 
     public get(type: string) : (new() => any ) {
         
         type = type.toLowerCase();
-        console.log(type);
          if (type === "article") return Article;
          else if (type === "partner") return Partner;
          else if (type === "address") return Address;

@@ -25,8 +25,6 @@ export class PassportManager {
 
         let authHandler = function (req, accessToken, refreshToken, profile, callBack) {
 
-            console.log(profile);
-
             let data = fs.readFileSync(path.join(__dirname, ('../json/accounts.json')), 'utf8');
             let accounts = <Array<IAccount>>(JSON.parse(data));
             let emails: Array<{ value: String; type?: String; }> = profile.emails;

@@ -8,7 +8,6 @@ export class Contact extends BaseEntity {
 
     public name : String;
     
-    @LookupProp("address", ["code_part","line1"])
     public email : String;
     
     public phone1 : String;

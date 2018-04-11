@@ -41,7 +41,7 @@ export interface IPackageController {
 
     onUndo();
 
-    openLookupWnd(lookupProperty: IPropInfo);
+    openLookupWnd(lookupSource : BaseEntity, lookupSourceProperty: IPropInfo);
 
     package;
 
@@ -589,14 +589,18 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
 
 
-    openLookupWnd(lookupProperty: IPropInfo) {
-        let entityInfo = ModelInfos.uniqueInstance.get(lookupProperty.lookup_entity_name);
-        let properties = lookupProperty.lookup_properties;
-        this.package.lookup_filter = ModelFactory.uniqueInstance.create(lookupProperty.lookup_entity_name);
+    openLookupWnd(lookupSource : BaseEntity, lookupSourceProperty: IPropInfo) {
+        let entityInfo = ModelInfos.uniqueInstance.get(lookupSourceProperty.lookup_entity_name);
+        let properties = lookupSourceProperty.lookup_properties;
+        this.package.lookup_filter = ModelFactory.uniqueInstance.create(lookupSourceProperty.lookup_entity_name);
 
         const modalRef = this.modalService.open(SelectEntityDialogWnd, { size: 'lg' });
         modalRef.componentInstance.title = "select: " + entityInfo.entityName;
+        modalRef.componentInstance.lookupSource = lookupSource;
+        modalRef.componentInstance.lookupSourceProperty = lookupSourceProperty.propName;
         modalRef.componentInstance.lookupEntity = this.package.lookup_filter;
+        modalRef.componentInstance.lookupTargetProperty = lookupSourceProperty.lookup_properties[0];
+        
         modalRef.componentInstance.lookupProperties = properties;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
@@ -613,6 +617,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             }
         }
         return properties;
+    }
+
+    onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty : string, lookupEntity : BaseEntity, lookupTargetProperty : string) {
+
+        lookupSource[lookupSourceProperty] = lookupEntity[lookupTargetProperty];
+    }
+
+    onLookupFilterChange()
+    {
+        this.executeLookupFilter(true);
     }
 
     public getInputType(dataType: string) {

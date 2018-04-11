@@ -1,6 +1,7 @@
 
-import { BaseEntity } from "./base-entity";
+import { BaseEntity, SheetInfo } from "./base-entity";
 
+@SheetInfo("inventory", "stores", "Store")  
 export class Store extends BaseEntity {
 
     public code_store : String;

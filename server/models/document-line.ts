@@ -1,12 +1,12 @@
 
 import { BaseEntity, LookupProp, SheetInfo } from "./base-entity";
 
-@SheetInfo("documents", "document_lines","DocumentLine")
+@SheetInfo("movements", "document_lines","DocumentLine")
 export class DocumentLine extends BaseEntity {
 
     public code_doc : String;
 
-    @LookupProp("artcle", ["cod_art"])
+    @LookupProp("article", ["cod_art", "descr", "UM"])
     public code_art : String;
     
     public price_in : Number;

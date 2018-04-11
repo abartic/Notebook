@@ -13,6 +13,11 @@ import { BaseEntity } from '../../../server/models/base-entity';
 export class SelectEntityDialogWnd implements OnInit {
 
   @Input() title;
+
+  @Input() lookupSource: BaseEntity;
+  @Input() lookupSourceProperty: String;
+  @Input() lookupTargetProperty: String;
+
   @Input() lookupEntity: BaseEntity;
   @Input() lookupProperties: string[];
   @Input() package;

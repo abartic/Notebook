@@ -7,7 +7,6 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
     public code_part: String;
 
-    @LookupProp("address", ["line1","country"])
     public name: String;
 
     public descr: String;
