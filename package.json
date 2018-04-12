@@ -45,7 +45,7 @@
         "@types/morgan": "^1.7.32",
         "@types/node": "~6.0.60",
         "@types/passport": "^0.3.5",
-        "@types/passport-google-oauth": "^1.0.35",
+        "@types/passport-google-oauth": "1.0.35",
         "acl": "^0.4.11",
         "body-parser": "^1.18.2",
         "config": "^1.29.4",
