@@ -32,9 +32,7 @@ export class LoginComponent implements OnInit, AfterContentInit {
     constructor(public router: Router,
         private http: Http,
         private jsonp: Jsonp,
-
         private cookieService: CookieService) {
-
     }
 
 

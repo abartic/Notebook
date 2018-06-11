@@ -2,11 +2,27 @@
 
     "spreadsheetName": "movements",
     "sheets": [{
-        "sheetName": "documents",
-        "fields": ["code_doc", "code_part", "type", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"]
+            "sheetName": "documents",
+            "fields": ["code_doc", "code_part", "type", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"],
+            "entity": {
+                "entityName": "Document",
+                "ukey": "code_doc",
+                "relations": ["documentline"]
+            }
 
-    }, {
-        "sheetName": "document_lines",
-        "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount"]
-    }]
+        }, {
+            "sheetName": "document_lines",
+            "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount"],
+            "entity": {
+                "entityName": "DocumentLine"
+            }
+        },
+        {
+            "sheetName": "art_inventory",
+            "formula": "QUERY(document_lines!A:Z,'select D, E, SUM(G) WHERE D <> '' group by D,E', 1)",
+            "fields": ["code_art", "code_store", "price_in", "qty"],
+            "entity": { "entityName": "ArticleInventory" }
+
+        }
+    ]
 }

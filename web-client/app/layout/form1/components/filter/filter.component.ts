@@ -23,6 +23,8 @@ import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
 })
 export class FilterComponent implements OnInit {
 
+
+  public isDetailsFilterCollapsed = true;
   @Input() package;
   @Input() packageCtrl: IPackageController;
   constructor() { }

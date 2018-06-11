@@ -26,5 +26,5 @@ export class Document extends BaseEntity{
     @LookupProp("store", ["code_store","descr"])
     public store_out: String;
 
-    public document_line_relation : (DocumentLine)[];
+    public documentline_relation : (DocumentLine)[];
 }

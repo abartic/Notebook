@@ -19,8 +19,8 @@ export interface IPropInfo {
     onlyEdit: boolean;
     dataType: string;
     mask: string;
-    lookup_entity_name? : string;
-    lookup_properties? : string[];
+    lookup_entity_name?: string;
+    lookup_properties?: string[];
 }
 
 
@@ -48,17 +48,14 @@ export function LookupProp(entityName: string, propNames: (string)[]) {
     return (prototype: any, propName: string) => {
 
         if (!prototype['lookups'])
-            prototype['lookups'] = new Map<string, {entityName : string, propNames : (string)[]}>();
-        prototype['lookups'].set(propName, {entityName, propNames});
+            prototype['lookups'] = new Map<string, { entityName: string, propNames: (string)[] }>();
+        prototype['lookups'].set(propName, { entityName, propNames });
     }
 
 }
 
 export class BaseEntity {
 
-    constructor() {
-
-    }
 
     public rowid: number;
 
@@ -72,7 +69,7 @@ export class BaseEntity {
 
     private spreadsheet_name: string;
 
-    private lookups : Map<string, {entityName : string, propNames : (string)[]}>;
+    private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
 
     public status: eEntityStatus = eEntityStatus.None;
 
@@ -83,8 +80,9 @@ export class BaseEntity {
         return this.sheet_name;
     }
 
+
     get entityName(): string {
-        
+
         return this.entity_name;
     }
 
@@ -92,11 +90,11 @@ export class BaseEntity {
         return this.ukey_prop_name;
     }
 
-    get entityInfo(): IEntityInfo {
+    public get entityInfo(): IEntityInfo {
         return ModelInfos.uniqueInstance.get(this.entityName);
     }
 
-    get entityLookups(): Map<string, {entityName : string, propNames : (string)[]}> {
+    get entityLookups(): Map<string, { entityName: string, propNames: (string)[] }> {
         return this.lookups;
     }
 
@@ -141,6 +139,7 @@ export class BaseEntity {
         return query;
     }
 
+
     public static toFKeyFilter(relationEntityInfo: IEntityInfo, fkeyPropName: string, fkeyvalue: any): string {
 
         let query = 'select ';
@@ -162,20 +161,30 @@ export class BaseEntity {
 
     }
 
-    public static toFilter(entity: BaseEntity, offset: number, limit: number): string {
+    public static toFilter(entity: BaseEntity, keys, offset: number, limit: number, forFkey?: string): string {
 
         let entityInfo = entity.entityInfo;
 
         let query = 'select ';
+        let fkeycell = '';
         for (let p of entity.properties) {
-            query = query + p.cellName + ',';
+            if (!forFkey || (forFkey && p.propName === forFkey))
+                query = query + p.cellName + ',';
+
+            if (forFkey && p.propName === forFkey) {
+                query = query + 'count(' + p.cellName + '),';
+                fkeycell = p.cellName;
+            }
         }
         query = query.slice(0, query.length - 1);
         query = query + ' where ';
 
         let where = ' 1=1 ';
+        let where_keys = '';
+        let exists_filter = false;
         for (let p of entity.properties) {
-            if (entity[p.propName]) {
+            if (entity[p.propName] && entity[p.propName] !== '') {
+                exists_filter = true;
                 let fvalue = (<string>entity[p.propName]).toUpperCase();
                 if (fvalue.indexOf('%') >= 0)
                     where = where + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
@@ -186,23 +195,46 @@ export class BaseEntity {
                 else
                     where = where + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
-        }
-        query = query + where;
+            if (p.propName === entity.ukeyPropName) {
+                if (keys && keys.length > 0) {
+                    
+                    where_keys = where_keys + ' and ( 1=0 ';
+                    for (let key of keys) {
+                        if (key instanceof Number)
+                            where_keys = where_keys + ' or ' + p.cellName + ' = ' + key;
+                        else
+                            where_keys = where_keys + ' or ' + p.cellName + ' = "' + key + '"';
+                    }
+                    where_keys = where_keys + ')';
+                }
+            }
 
-        if (limit)
-            query = query + ' limit ' + limit;
-        if (offset)
-            query = query + ' offset ' + offset;
+        }
+        if (!exists_filter && forFkey)
+            return null;
+
+        query = query + where + where_keys;
+
+        if (forFkey) {
+            query = query + ' group by ' + fkeycell;
+        }
+        else {
+            if (limit)
+                query = query + ' limit ' + limit;
+            if (offset)
+                query = query + ' offset ' + offset;
+        }
         return query;
     }
 
-    public toCountFilter(): string {
+    public toCountFilter(keys?): string {
 
         let query = 'select count(A) where 1=1 ';
 
         for (let p of this.properties) {
             if (this[p.propName]) {
                 let fvalue = (<string>this[p.propName]).toUpperCase();
+
                 if (fvalue.indexOf('%') >= 0)
                     query = query + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
                 else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
@@ -212,7 +244,21 @@ export class BaseEntity {
                 else
                     query = query + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
+
+            if (p.propName === this.ukeyPropName) {
+                if (keys && keys.length > 0) {
+                    query = query + ' and ( 1=0 ';
+                    for (let key of keys) {
+                        if (key instanceof Number)
+                            query = query + ' or ' + p.cellName + ' = ' + key;
+                        else
+                            query = query + ' or ' + p.cellName + ' = "' + key + '"';
+                    }
+                    query = query + ')';
+                }
+            }
         }
+
         return query;
     }
 

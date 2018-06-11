@@ -12,7 +12,7 @@
         },
         {
             "sheetName": "addresses",
-            "fields": ["code_part", "line1", "line2", "city", "country", "zip", "country"],
+            "fields": ["code_part", "line1", "line2", "city", "county", "zip", "country"],
             "entity": {
                 "entityName": "Address"
             }

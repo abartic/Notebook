@@ -3,7 +3,7 @@
         <button class="navbar-toggler navbar-toggler-right" (click)="toggleSidebar()">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="javascript:void(0)">Fbk reporter</a>
+        <a class="navbar-brand" href="javascript:void(0)">Notebook</a>
         <div class="collapse navbar-collapse">
             <form class="form-inline my-2 my-lg-0">
                 <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}">
@@ -36,11 +36,11 @@
                 </li>
                 <li class="nav-item dropdown" ngbDropdown>
                     <a href="javascript:void(0)" class="nav-link" ngbDropdownToggle>
-                        <i class="fa fa-user"></i> John Smith <b class="caret"></b>
+                        <i class="fa fa-user"></i> {{userSession.Username}} <b class="caret"></b>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="javascript:void(0)"><i class="fa fa-fw fa-user"></i> {{ 'Profile' | translate }}</a>
-                        <a class="dropdown-item" href="javascript:void(0)"><i class="fa fa-fw fa-gear"></i> {{ 'Settings' | translate }}</a>
+                        <!-- <a class="dropdown-item" href="javascript:void(0)"><i class="fa fa-fw fa-user"></i> {{ 'Profile' | translate }}</a>
+                        <a class="dropdown-item" href="javascript:void(0)"><i class="fa fa-fw fa-gear"></i> {{ 'Settings' | translate }}</a> -->
                         <a class="dropdown-item" [routerLink]="['/login']" (click)="onLoggedout()"><i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }} </a>
                     </div>
                 </li>

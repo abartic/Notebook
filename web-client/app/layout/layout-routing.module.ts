@@ -5,17 +5,20 @@ import { LayoutComponent } from './layout.component';
 const routes: Routes = [
     {
         path: '', component: LayoutComponent,
-         children: [
-             { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
-        //     { path: 'charts', loadChildren: './charts/charts.module#ChartsModule' },
-        //     { path: 'tables', loadChildren: './tables/tables.module#TablesModule' },
-             { path: 'form1/partner/:id', loadChildren: './form1/form1.module#Form1Module' },
-             { path: 'form1/address/:id', loadChildren: './form1/form1.module#Form1Module' },
-        //     { path: 'bs-element', loadChildren: './bs-element/bs-element.module#BsElementModule' },
-        //     { path: 'grid', loadChildren: './grid/grid.module#GridModule' },
-        //     { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
-        //     { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
-         ]
+        children: [
+            { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
+            //     { path: 'charts', loadChildren: './charts/charts.module#ChartsModule' },
+            //     { path: 'tables', loadChildren: './tables/tables.module#TablesModule' },
+            { path: 'form1/partner/:id', loadChildren: './form1/form1.module#Form1Module' },
+            { path: 'form1/document/:id', loadChildren: './form1/form1.module#Form1Module' },
+            { path: 'form1/article/:id', loadChildren: './form1/form1.module#Form1Module' },
+            { path: 'form1/store/:id', loadChildren: './form1/form1.module#Form1Module' },
+            { path: 'sheets-creation', loadChildren: './sheets/sheets.module#SheetsModule' },
+            //     { path: 'bs-element', loadChildren: './bs-element/bs-element.module#BsElementModule' },
+            //     { path: 'grid', loadChildren: './grid/grid.module#GridModule' },
+            //     { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
+            //     { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
+        ]
     }
 ];
 

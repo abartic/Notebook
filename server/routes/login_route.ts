@@ -1,5 +1,6 @@
-import { AppAcl } from './../acl/app-acl';
 
+
+import { AppAcl } from './../acl/app-acl';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
 import { BaseRoute } from './route';
 import { PassportManager } from '../passport-manager/passport-manager';
@@ -15,7 +16,7 @@ export class LoginRoute extends BaseRoute {
     }
 
     // tslint:disable-next-line:member-ordering
-    public static create(router: Router, passportManager: PassportManager, aclHandler: RequestHandler, csrfProtection: RequestHandler) {
+    public static create(router: Router, passportManager: PassportManager, csrfProtection: RequestHandler) {
 
         router.post('/checkAuthorization',
             csrfProtection,
@@ -33,6 +34,46 @@ export class LoginRoute extends BaseRoute {
             passportManager.initGoogleAuth()
         );
 
+        router.get('/login/google/refresh',
+            (req: Request, res: Response, next: NextFunction) => {
+                let old_access_token = req.session['google_access_token'];
+                let promise = new Promise((resolve, reject) => {
+                    passportManager.refreshGoogleAuth(req, resolve, reject);
+                });
+
+                promise.then((result) => {
+                    if (old_access_token !== req.session['google_access_token']) {
+                        res.cookie('google_access_token', req.session['google_access_token']);
+                        res.cookie('google_refresh_token', req.session['google_refresh_token']);
+                        res.cookie('lastAuthTime', req.session['lastAuthTime']);
+                    }
+                    res.json({ 'refresh': 'true' });
+                }).catch(() => {
+                    res.json({ 'refresh': 'false' });
+                });
+
+            },
+
+        );
+
+        router.get('/logout/google',
+            (req: Request, res: Response, next: NextFunction) => {
+                let token = req.session['google_refresh_token'];
+                const options = {
+                    method: 'GET',
+                    uri: 'https://accounts.google.com/o/oauth2/revoke?token=' + token,
+
+                };
+                request(options)
+                    .then(fbRes => {
+                        res.json({'response' : 'ok'});
+                    });
+
+                //res.redirect('https://accounts.google.com/o/oauth2/revoke?token=' + token);
+            },
+
+        );
+
         router.get('/login/google/return', passportManager.completeGoogleAuth());
 
         router.get('/login/facebook',
@@ -43,6 +84,7 @@ export class LoginRoute extends BaseRoute {
                 next();
             },
             passportManager.initFacebookAuth()
+            
         );
 
         router.get('/login/facebook/return',
@@ -59,12 +101,13 @@ export class LoginRoute extends BaseRoute {
                 //     fbk_access_token : req.session['fbk_access_token'],
                 //  });
                 res.cookie('google_access_token', req.session['google_access_token']);
+                res.cookie('google_refresh_token', req.session['google_refresh_token']);
                 res.cookie('lastAuthTime', req.session['lastAuthTime']);
+                res.cookie('userId', req.session['userId']);
                 res.redirect("/");
             });
 
         router.get('/facebook-search/:id',
-            aclHandler,
             (req, res) => {
 
                 // you need permission for most of these fields

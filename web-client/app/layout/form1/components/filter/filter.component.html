@@ -3,51 +3,65 @@
     <div class="row">
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group mr-2" role="group">
-                <button type="button" (click)="onApply()" class="btn btn-primary">Apply</button>
-                <button type="button" (click)="onClear()" class="btn btn-secondary">Clear</button>
-                <button type="button" (click)="onNew()" class="btn btn-secondary">New</button>
+                <button type="button" (click)="onApply()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-primary">Apply</button>
+                <button type="button" (click)="onClear()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-secondary">Clear</button>
+                <button type="button" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" (click)="isDetailsFilterCollapsed = !isDetailsFilterCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="detailsFilterArea">Details Filters</button>
+                <button type="button" (click)="onNew()" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}">New</button>
             </div>
         </div>
     </div>
 
     <BR>
-    <div class="row justify-content-end" *ngIf="package.rows.length > 0">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page - 1) < 0}">
-                    <a class="page-link" (click)="onPreviousPage()">Previous</a>
-                </li>
-                <li class="page-item" *ngFor="let page of package.row_pages; let i = index" [ngClass]="{'active':i===package.row_current_page}">
-                    <a class="page-link" (click)="onSelectPage(i)">{{i+1}}</a>
-                </li>
-                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page + 1) >= package.row_pages.length}">
-                    <a class="page-link" (click)="onNextPage()">Next</a>
-                </li>
-            </ul>
+    <div class="row">
+        <div class="col col-xl-12 col-lg-12 ">
+            <div id=" detailsFilterArea " [ngbCollapse]="isDetailsFilterCollapsed ">
 
-        </nav>
+                <div *ngFor="let relation of (package.filter.entityInfo.relations) ">
+                    {{relation}} filter:
+                    <table class="table table-hover table-striped ">
+
+                        <thead>
+                            <tr>
+                                <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation) ">{{property.propName}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation) ">
+                                    <input type="text " class="form-control " [(ngModel)]="package.filter_details[relation][property.propName] " placeholder="{{property.propName}} " />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+                <hr>
+            </div>
+
+        </div>
     </div>
 
+
     <BR>
-    <div class="row">
-        <div class="col col-xl-12 col-lg-12">
-            <table class="table table-hover table-striped table-bordered table-md">
-                <thead class="thead-light">
+    <div class="row ">
+        <div class="col col-xl-12 col-lg-12 ">
+            <table class="table table-hover table-striped table-bordered table-md ">
+                <thead class="thead-light ">
                     <tr>
                         <th></th>
-                        <th *ngFor="let property of packageCtrl.filterProperties">
-                            <input type="text" class="form-control" [(ngModel)]="package.filter[property.propName]" placeholder="{{property.propName}}" />
+                        <th *ngFor="let property of packageCtrl.filterProperties ">
+                            <input type="text " class="form-control " [(ngModel)]="package.filter[property.propName] " placeholder="{{property.propName}} " />
                         </th>
                     </tr>
                     <tr>
                         <th>#</th>
-                        <th *ngFor="let property of packageCtrl.filterProperties">{{property.propName}}</th>
+                        <th *ngFor="let property of packageCtrl.filterProperties ">{{property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of package.rows; index as i" (click)="onSelectEntity(row)">
+                    <tr *ngFor="let row of package.rows; index as i " (click)="onSelectEntity(row) ">
                         <td>{{i+1}}</td>
-                        <td *ngFor="let property of packageCtrl.filterProperties">{{row[property.propName]}}</td>
+                        <td *ngFor="let property of packageCtrl.filterProperties ">{{row[property.propName]}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -56,7 +70,7 @@
     </div>
 
     <BR>
-    <div class="row justify-content-end" *ngIf="package.rows.length > 0">
+    <div class="row justify-content-end " *ngIf="package.rows.length> 0">
         <nav aria-label="Page navigation example">
             <ul class="pagination">
                 <li class="page-item" [ngClass]="{'disabled':(package.row_current_page - 1) < 0}">

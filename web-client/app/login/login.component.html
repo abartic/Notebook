@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-4 push-md-4">
             <img src="assets/images/logo.png" width="150px" class="user-avatar" />
-            <h1>Fbk Reporter</h1>
+            <h1>Notebook</h1>
             <form role="form">
                 <!-- <div class="form-content">
                     <div class="form-group">
@@ -14,11 +14,13 @@
                     </div>
                 </div> -->
                 <!-- <a class="btn rounded-btn" (click)="signInWithFB()">Faceboook login</a> &nbsp; -->
-                <a class="btn rounded-btn" (click)="signInWithGoogle()">Google login</a> &nbsp;
+                <a (click)="signInWithGoogle()" style="cursor: pointer;">
+                    <img src="assets/images/google_login.png" width="250px" height="45px" />
+                </a> &nbsp;
 
-                <a class="btn rounded-btn" href="/login/google">Register</a>
+                <!-- <a class="btn rounded-btn" href="/login/google">Register</a>
 
-                <a class="btn rounded-btn" [routerLink]="['/dashboard']"> Log in </a>
+                <a class="btn rounded-btn" [routerLink]="['/dashboard']"> Log in </a> -->
             </form>
         </div>
     </div>

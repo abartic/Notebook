@@ -9,16 +9,25 @@ export class HttpCallerService {
 
   constructor(private router: Router, private http: Http) { }
 
-  public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void)) {
+  public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
     this.http.post(url, pack)
       .subscribe(resp => {
         const result = resp.json();
-        if (result.error === undefined || result.error === null) {
+        if ((result.error === undefined || result.error === null) &&
+          (result.errors === undefined || result.errors === null)) {
           cb(result);
         }
-        else if (result.error.status === 401 || result.error.code === 401) {
-          this.router.navigate(['/login']);
+        else if ((result.error !== undefined && (result.error.status === 401 || result.error.code === 401)) ||
+          (result.errors !== undefined && result.code === 401)) {
+
+          if (!ignoreError) {
+            this.router.navigate(['/login']);
+          }
+          else
+          {
+            errcb(401);
+          }
         }
         else {
           errcb(result.error);
@@ -39,11 +48,32 @@ export class HttpCallerService {
     }
 
     call.subscribe(resp => {
+      const result = resp.json();
+      if ((result.error === undefined || result.error === null) &&
+        (result.errors === undefined || result.errors === null)) {
+        cb(result);
+      }
+      else if ((result.error !== undefined && (result.error.status === 401 || result.error.code === 401)) ||
+        (result.errors !== undefined && result.code === 401)) {
+        this.router.navigate(['/login']);
+      }
+      else {
+        errcb(result.error);
+      }
+    });
+  }
+
+  public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
+
+    this.http.get(url)
+      .subscribe(resp => {
         const result = resp.json();
-        if (result.error === undefined || result.error === null) {
+        if ((result.error === undefined || result.error === null) &&
+          (result.errors === undefined || result.errors === null)) {
           cb(result);
         }
-        else if (result.error.status === 401 || result.error.code === 401) {
+        else if ((result.error !== undefined && (result.error.status === 401 || result.error.code === 401)) ||
+          (result.errors !== undefined && result.code === 401)) {
           this.router.navigate(['/login']);
         }
         else {
@@ -51,5 +81,4 @@ export class HttpCallerService {
         }
       });
   }
-
 }

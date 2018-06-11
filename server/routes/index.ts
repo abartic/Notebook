@@ -1,6 +1,6 @@
+
 import { NextFunction, Request, Response, Router, RequestHandler } from "express";
 import { BaseRoute } from "./route";
-
 
 /**
  * / route

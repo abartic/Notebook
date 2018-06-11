@@ -6,7 +6,7 @@ export class DocumentLine extends BaseEntity {
 
     public code_doc : String;
 
-    @LookupProp("article", ["cod_art", "descr", "UM"])
+    @LookupProp("article", ["code_art", "descr", "UM"])
     public code_art : String;
     
     public price_in : Number;

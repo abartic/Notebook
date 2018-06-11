@@ -13,8 +13,6 @@ import { EditEntityDialogWnd } from '../../dialog/editEntityDialogWnd';
 
 
 
-
-
 export interface IPackageController {
 
     onClear();
@@ -41,7 +39,7 @@ export interface IPackageController {
 
     onUndo();
 
-    openLookupWnd(lookupSource : BaseEntity, lookupSourceProperty: IPropInfo);
+    openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo);
 
     package;
 
@@ -51,7 +49,7 @@ export interface IPackageController {
 
     lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
 
-    getRelationProperties(relation: string);
+    getRelationProperties(entity: BaseEntity, relation: string);
 
     onCreateEntityByRelation(relation: string);
 }
@@ -59,6 +57,7 @@ export interface IPackageController {
 export class PackageController<T extends BaseEntity> implements IPackageController {
 
     public package: Package<T>;
+    public package_initialized: boolean = undefined;
 
     constructor(
         public entityType: string,
@@ -67,60 +66,88 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         private httpCaller: HttpCallerService) {
 
         this.package = new Package<T>(type);
-        this.onInit();
     }
 
-    private onInit() {
+    public fetchEntityInfo() {
         let entity = this.package.filter;
-        this.readEntityInfo(entity);
-    }
-
-
-
-    private readEntityInfo(entity: BaseEntity) {
-        this.httpCaller.callPost(
-            '/sheetdata/spreadsheet-info',
-            {
-                spreadsheetName: entity.spreadsheetName,
-                sheetName: entity.sheetName,
-                entityName: entity.entityName
-            },
-            result => {
-
-                if (result.error === undefined) {
-                    const info = <IEntityInfo>result;
-
-                    if (entity.entityLookups) {
-                        for (let property of info.properties) {
-                            if (entity.entityLookups.has(property.propName)) {
-                                property.lookup_entity_name = entity.entityLookups.get(property.propName).entityName;
-                                property.lookup_properties = entity.entityLookups.get(property.propName).propNames;
-                            }
-                        }
-                    }
-
-                    ModelInfos.uniqueInstance.add(entity.entityName, info);
-                    if (info.relations) {
-                        for (let relation of info.relations) {
-                            let rentity = <BaseEntity>ModelFactory.uniqueInstance.create(relation.toLowerCase());
-                            if (rentity)
-                                this.readEntityInfo(rentity);
-                        }
+        return this.readEntityInfo(entity)
+            .then(info => {
+                let calls = [];
+                if (info.relations) {
+                    for (let relation of info.relations) {
+                        let rentity = <BaseEntity>ModelFactory.uniqueInstance.create(relation.toLowerCase());
+                        if (rentity)
+                            calls.push(this.readEntityInfo(rentity));
                     }
                 }
 
-            },
-            err => {
-                this.package.error_msg = 'Connection error! ' + this.getError(err);
+                if (entity.entityLookups && entity.entityLookups.size > 0) {
+                    for (let lvalue of Array.from(entity.entityLookups.values())) {
+                        let lentity = <BaseEntity>ModelFactory.uniqueInstance.create(lvalue.entityName.toLowerCase());
+                        if (lentity)
+                            calls.push(this.readEntityInfo(lentity));
+                    }
+                }
+
+                if (calls.length > 0)
+                    return Promise.all(calls);
+                else
+                    return Promise.resolve([]);
+            }).then((r) => {
+                this.package.filter_details = {};
+                for (let relation of this.package.filter.entityInfo.relations) {
+                    let entity_relation = ModelFactory.uniqueInstance.create(relation);
+                    this.package.filter_details[relation] = entity_relation;
+                }
+                this.package_initialized = true;
             });
+    }
+
+    private readEntityInfo(entity: BaseEntity) {
+        return new Promise<IEntityInfo>((cb, err_cb) => {
+            this.httpCaller.callPost(
+                '/sheetdata/spreadsheet-info',
+
+                {
+                    spreadsheetName: entity.spreadsheetName,
+                    sheetName: entity.sheetName,
+                    entityName: entity.entityName
+                },
+                result => {
+                    let info = null;
+                    if (result.error === undefined) {
+                        info = <IEntityInfo>result;
+
+                        if (entity.entityLookups) {
+                            for (let property of info.properties) {
+                                if (entity.entityLookups.has(property.propName)) {
+                                    property.lookup_entity_name = entity.entityLookups.get(property.propName).entityName;
+                                    property.lookup_properties = entity.entityLookups.get(property.propName).propNames;
+                                }
+                            }
+                        }
+
+                        ModelInfos.uniqueInstance.add(entity.entityName, info);
+                    }
+                    cb(info);
+                },
+                err => {
+
+                    err_cb(err);
+                    this.package.error_msg = 'Connection error! ' + this.getError(err);
+                },
+                true);
+        });
     }
 
     onClear() {
         if (this.package.filter) {
             this.package.filter.clearFilter();
+            for (let relation of this.package.filter.entityInfo.relations)
+                this.package.filter_details[relation].clearFilter();
         }
         this.package.row_current_page = 0;
-        this.executeFilter();
+        this.executeFilter(true);
     }
 
     onApply() {
@@ -149,7 +176,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (!count)
             count = false;
         this.loadEntitiesByFilter(
-            this.package.filter,
+            this.package.filter, this.package.filter_details,
             count,
             (entities_count, entities) => {
                 if (entities) {
@@ -164,14 +191,17 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     executeLookupFilter(count?: boolean) {
+        this.package.lookup_rows = [];
+
         if (!count)
             count = false;
         this.loadEntitiesByFilter(
-            this.package.lookup_filter,
+            this.package.lookup_filter, null,
             count,
             (entities_count, entities) => {
+
                 if (entities) {
-                    this.package.lookup_rows = entities
+                    this.package.lookup_rows = entities;
                 }
                 else {
                     let pages = (entities_count) / this.package.row_page_max;
@@ -193,7 +223,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     private readPackageEntity(entity: T, cb?: () => void) {
         this.readEntitiesByUkey(entity.entityInfo,
-            null, entity.uid, null,
+            null, null, entity.uid, null,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
                 this.package.show_filter = false;
@@ -201,7 +231,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (entity.entityInfo.relations) {
                     for (let relation of entity.entityInfo.relations) {
                         let relation_entityInfo = ModelInfos.uniqueInstance.get(relation);
-                        this.readEntitiesByUkey(relation_entityInfo,
+                        this.readEntitiesByUkey(relation_entityInfo, null,
                             null, entity[this.package.entity.ukeyPropName], relation,
                             (entities_count, entities) => {
                                 this.package.entity[relation + '_relation'] = entities;
@@ -214,15 +244,50 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             }, () => { this.package.show_filter = true; });
     }
 
-    loadEntitiesByFilter(filter: BaseEntity,
-        count: boolean,
-        cb: (rows_count: number, rows: Array<any>) => void,
-        cerr: () => void) {
+    executeDetailFilterQuery(filter: BaseEntity, parent: BaseEntity) {
+        let promise = new Promise((result, reject) => {
+            let entityInfo: IEntityInfo = filter.entityInfo;
+            let query = BaseEntity.toFilter(filter, null, null, null, parent.ukeyPropName);
+            if (query === null) {
+                result([]);
+                return;
+            }
 
-        let entityInfo = filter.entityInfo;
-        let count_query = undefined;
-        if (count === true) {
-            count_query = filter.toCountFilter();
+            this.httpCaller.callPost('/sheetdata/select',
+                {
+                    spreadsheetName: entityInfo.spreadsheetName,
+                    sheetName: entityInfo.sheetName,
+                    entityName: entityInfo.entityName,
+                    select: query,
+                    addSchema: false
+                },
+                r => {
+                    let rows = r.rows as Array<any>;
+                    let ukeys = [];
+                    if (rows) {
+                        let entities = [];
+                        for (let row of rows) {
+                            let ukey = row[parent.ukeyPropName]
+                            ukeys.push(ukey);
+                        }
+                    }
+                    result(ukeys);
+                },
+                err => {
+                    reject(err);
+                });
+        });
+        return promise;
+    }
+
+    executeCountQuery(filter: BaseEntity, keys?) {
+
+        let promise = new Promise((result: (number) => void, reject) => {
+            let entityInfo: IEntityInfo = filter.entityInfo;
+            let count_query = filter.toCountFilter(keys);
+            if (!count_query)
+                return null;
+
             this.httpCaller.callPost(
                 '/sheetdata/getscalar',
                 {
@@ -231,22 +296,62 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     entityName: entityInfo.entityName,
                     select: count_query
                 },
-                result => {
-                    let rows_count = result.scalar;
-                    cb(rows_count, null);
-                    this.readEntitiesByUkey(entityInfo, filter, null, null, cb, cerr);
+                r => {
+                    let rows_count: number = r.scalar;
+                    result(rows_count);
+
                 },
                 err => {
-                    this.package.error_msg = 'Connection error! ' + this.getError(err);
+                    reject(err);
                 });
 
+        });
+        return promise;
+    }
+
+    async loadEntitiesByFilter(filter: BaseEntity,
+        filter_details,
+        count: boolean,
+        cb: (rows_count: number, rows: Array<any>) => void,
+        cerr: () => void) {
+
+        let entityInfo = filter.entityInfo;
+        let keys = [];
+        if (filter_details && entityInfo.relations) {
+            for (let relation of entityInfo.relations) {
+                await this.executeDetailFilterQuery(filter_details[relation], filter)
+                    .then(ukeys => {
+                        keys = keys.concat(ukeys);
+                    })
+                    .catch(err => {
+                        this.package.error_msg = 'Connection error! ' + this.getError(err);
+                    });
+            }
+        }
+
+        keys = Array.from(new Set(keys));
+
+        if (count === true) {
+            await this.executeCountQuery(filter, keys)
+                .then(count => {
+                    cb(count, null);
+                    if (count > 0)
+                        this.readEntitiesByUkey(entityInfo, filter, keys, null, null, cb, cerr);
+                })
+                .catch(err => {
+                    this.package.error_msg = 'Connection error! ' + this.getError(err);
+                });
         }
         else {
-            this.readEntitiesByUkey(entityInfo, filter, null, null, cb, cerr);
+            this.readEntitiesByUkey(entityInfo, filter, keys, null, null, cb, cerr);
         }
     }
 
-    private readEntitiesByUkey(entityInfo: IEntityInfo, filter: BaseEntity, ukey: any, relation: string,
+    private readEntitiesByUkey(entityInfo: IEntityInfo,
+        filter: BaseEntity,
+        keys,
+        ukey: any,
+        relation: string,
         cb: (rows_count: number, rows: Array<any>) => void,
         cerr: () => void) {
 
@@ -264,7 +369,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             else
                 offset = this.package.lookup_row_current_page * this.package.row_page_max;
             let limit = this.package.row_page_max;
-            query = BaseEntity.toFilter(filter, offset, limit);
+            query = BaseEntity.toFilter(filter, keys, offset, limit);
         }
 
 
@@ -529,12 +634,15 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_properties;
     }
 
-    public getRelationProperties(relation: string) {
-        let info = ModelInfos.uniqueInstance.get(relation.toLowerCase());
+    public getRelationProperties(entity: BaseEntity, relation: string) {
         let properties = [];
+        let info = ModelInfos.uniqueInstance.get(relation.toLowerCase());
+        if (!info.properties)
+            return properties;
+
         for (let property of info.properties) {
             if (property.propName === 'uid' || property.propName === 'rowid'
-                || property.propName === this.package.entity.ukeyPropName)
+                || property.propName === entity.ukeyPropName)
                 continue;
             properties.push(property);
         }
@@ -589,7 +697,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
 
 
-    openLookupWnd(lookupSource : BaseEntity, lookupSourceProperty: IPropInfo) {
+    openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo) {
         let entityInfo = ModelInfos.uniqueInstance.get(lookupSourceProperty.lookup_entity_name);
         let properties = lookupSourceProperty.lookup_properties;
         this.package.lookup_filter = ModelFactory.uniqueInstance.create(lookupSourceProperty.lookup_entity_name);
@@ -600,7 +708,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.lookupSourceProperty = lookupSourceProperty.propName;
         modalRef.componentInstance.lookupEntity = this.package.lookup_filter;
         modalRef.componentInstance.lookupTargetProperty = lookupSourceProperty.lookup_properties[0];
-        
+
         modalRef.componentInstance.lookupProperties = properties;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
@@ -619,13 +727,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return properties;
     }
 
-    onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty : string, lookupEntity : BaseEntity, lookupTargetProperty : string) {
+    onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty: string, lookupEntity: BaseEntity, lookupTargetProperty: string) {
 
         lookupSource[lookupSourceProperty] = lookupEntity[lookupTargetProperty];
     }
 
-    onLookupFilterChange()
-    {
+    onLookupFilterChange() {
         this.executeLookupFilter(true);
     }
 

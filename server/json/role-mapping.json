@@ -1,9 +1,17 @@
 {
     "mapping": [{
-        "roles": ["guest"],
+        "roles": ["proj-admin"],
         "allows": [{
                 "resources": "/",
                 "permissions": "get"
+            },
+            {
+                "resources": "/sheetdata/create-spreadsheet",
+                "permissions": "post"
+            },
+            {
+                "resources": "/sheetdata/enrolle-user-spreadsheet",
+                "permissions": "post"
             }
 
         ]

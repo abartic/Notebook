@@ -1,3 +1,4 @@
+import { ModelFactory } from './../../../../server/models/modelFactory';
 import { BaseEntity, eEntityStatus, IPropInfo } from '../../../../server/models/base-entity';
 
 
@@ -8,6 +9,7 @@ export class Package<T extends BaseEntity> {
     public selected_entity: T;
     public rows : T[];
     public filter : T;
+    public filter_details;
     public entity : T;
     public row_pages : Array<number> = [];
     public row_current_page : number = 0;
@@ -30,6 +32,8 @@ export class Package<T extends BaseEntity> {
     public constructor(type : new() => T) {
         this.rows = [];
         this.filter = BaseEntity.createInstance<T>(type);
+       
+        
     }
 
    

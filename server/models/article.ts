@@ -1,3 +1,4 @@
+import { ArticleInventory } from './article-inventory';
 
 import { BaseEntity, SheetInfo } from "./base-entity";
 
@@ -24,4 +25,5 @@ export class Article extends BaseEntity {
     
     public attr5: String;
    
+    public articleinventory_relation : (ArticleInventory)[];
 }

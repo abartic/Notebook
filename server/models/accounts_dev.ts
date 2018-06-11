@@ -19,9 +19,22 @@ interface ISpreadsheet
     sheets : Array<ISheet>
 }
 
+interface ISpreadsheetsSet
+{
+    accountsFileId : string,
+    spreadsheets : Array<ISpreadsheet>
+}
+
 interface IAccount
 {
     accountName : string,
     accountDescr : string,
-    spreadsheets: Array<ISpreadsheet>
+    enrollmentDate : number,
+    role : string,
+}
+
+interface IAccountsSet
+{
+    id : string,
+    accounts : Array<IAccount>
 }

@@ -10,7 +10,7 @@
                         <th scope="col">
                             <button class="btn btn-secondary" (click)="packageCtrl.onCreateEntityByRelation(relation)">+</button>
                         </th>
-                        <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(relation)">{{property.propName}}</th>
+                        <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(this.package.entity, relation)">{{property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -19,7 +19,7 @@
                             <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) ">=</button>
                             <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) ">-</button>
                         </th>
-                        <td *ngFor="let property of packageCtrl.getRelationProperties(relation) ">{{row[property.propName]}}</td>
+                        <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation) ">{{row[property.propName]}}</td>
                     </tr>
                 </tbody>
             </table>

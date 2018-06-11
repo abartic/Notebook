@@ -1,3 +1,4 @@
+import { LoadingModule } from 'ngx-loading';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
@@ -22,6 +23,7 @@ import { AlertDialogWnd } from './dialog/alertDialogWnd';
 import { AskDialogWnd } from './dialog/askDialogWnd';
 import { EditEntityDialogWnd } from './dialog/editEntityDialogWnd';
 import { SelectEntityDialogWnd } from './dialog/selectEntityDialogWnd';
+import { CheckLoginService } from './services/check-login-service';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -60,6 +62,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [Http]
       }
     }),
+    LoadingModule,
     JsonpModule,
     NgbModule.forRoot()
     
@@ -71,7 +74,8 @@ export function HttpLoaderFactory(http: HttpClient) {
   providers: [
     AuthGuard,
     CookieService,
-    HttpCallerService
+    HttpCallerService,
+    CheckLoginService
     
 
     

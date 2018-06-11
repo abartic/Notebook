@@ -157,7 +157,7 @@ export class Server {
         IndexRoute.create(router, csrfProtection);
 
         //login route
-        LoginRoute.create(router, this.passportManager, AppAcl.Instance.getAclRequest(), csrfProtection);
+        LoginRoute.create(router, this.passportManager, csrfProtection);
 
         SheetRoute.create(router);
 
