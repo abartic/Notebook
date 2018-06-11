@@ -47,6 +47,8 @@ export interface IPackageController {
 
     entityType: string;
 
+    package_initialized: boolean;
+
     lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
 
     getRelationProperties(entity: BaseEntity, relation: string);

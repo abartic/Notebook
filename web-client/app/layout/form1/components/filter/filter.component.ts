@@ -25,6 +25,7 @@ export class FilterComponent implements OnInit {
 
 
   public isDetailsFilterCollapsed = true;
+  public isCollapsed = false;
   @Input() package;
   @Input() packageCtrl: IPackageController;
   constructor() { }
