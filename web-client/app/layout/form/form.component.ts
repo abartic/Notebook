@@ -15,12 +15,12 @@ import { ModelFactory } from '../../../../server/models/modelFactory';
 
 
 @Component({
-  selector: 'app-form1',
-  templateUrl: './form1.component.html',
-  styleUrls: ['./form1.component.css'],
+  selector: 'app-form',
+  templateUrl: './form.component.html',
+  styleUrls: ['./form.component.css'],
   animations: [routerTransition()]
 })
-export class Form1Component implements OnInit {
+export class FormComponent implements OnInit {
 
   private packageCtrl: IPackageController
   constructor(private route: ActivatedRoute, private router: Router) {

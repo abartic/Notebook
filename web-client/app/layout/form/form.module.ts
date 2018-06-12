@@ -1,25 +1,26 @@
 
-import { Form1Component } from './form1.component';
+import { FormComponent } from './form.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Form1RoutingModule } from "./form1-routing.module";
+import { FormRoutingModule } from "./form-routing.module";
 import { FilterComponent } from './components/filter/filter.component';
 import { FormsModule } from '@angular/forms';
 import { EditorComponent } from './components/editor/editor.component';
 import { RelationComponent } from './components/relation/relation.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataResolver } from './data-resolver';
-
+import { LoadingModule } from 'ngx-loading';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    Form1RoutingModule,
-    NgbModule
+    FormRoutingModule,
+    NgbModule,
+    LoadingModule
   ],
   declarations: [
-    Form1Component,
+    FormComponent,
     FilterComponent,
     EditorComponent,
     RelationComponent
@@ -30,6 +31,6 @@ import { DataResolver } from './data-resolver';
     DataResolver
   ]
 })
-export class Form1Module { }
+export class FormModule { }
 
 

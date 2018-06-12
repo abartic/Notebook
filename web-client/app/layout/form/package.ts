@@ -29,6 +29,8 @@ export class Package<T extends BaseEntity> {
     public lookup_row_pages : Array<number> = [];
     public lookup_row_current_page : number = 0;
 
+    public loading : boolean= false;
+    
     public constructor(type : new() => T) {
         this.rows = [];
         this.filter = BaseEntity.createInstance<T>(type);

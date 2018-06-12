@@ -19,8 +19,8 @@ export class HeaderComponent implements OnInit {
     constructor(private translate: TranslateService,
         public router: Router,
         private cookieService: CookieService,
-        @Inject(CheckLoginService) private checkLogin) {
-        //@Inject(HttpCallerService) private httpCaller: HttpCallerService) {
+        @Inject(CheckLoginService) private checkLogin, 
+        @Inject(HttpCallerService) private httpCaller: HttpCallerService) {
         this.router.events.subscribe((val) => {
             if (val instanceof NavigationEnd && window.innerWidth <= 992 && this.isToggled()) {
                 this.toggleSidebar();
@@ -51,15 +51,15 @@ export class HeaderComponent implements OnInit {
     }
 
     onLoggedout() {
-        //        this.authService.signOut();
-        // this.httpCaller.callGet(
-        //     '/logout/google',
-        //     () => { },
-        //     () => { });
+               
+        this.httpCaller.callGet(
+            '/logout/google',
+            () => { },
+            () => { });
        
-        //this.cookieService.delete("google_access_token")
-        //this.cookieService.delete("google_refresh_token")
-        //this.cookieService.delete("lastAuthTime")
+        this.cookieService.delete("google_access_token")
+        this.cookieService.delete("google_refresh_token")
+        this.cookieService.delete("lastAuthTime")
     }
 
     changeLang(language: string) {

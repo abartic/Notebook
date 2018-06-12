@@ -1,12 +1,12 @@
 import { AuthGuard } from './../../shared/guard/auth.guard';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { Form1Component } from './form1.component';
+import { FormComponent } from './form.component';
 import { DataResolver } from './data-resolver';
 
 const routes: Routes = [
   {
-    path: '', component: Form1Component, canActivate: [AuthGuard], resolve: {
+    path: '', component: FormComponent, canActivate: [AuthGuard], resolve: {
       packCtrl: DataResolver
     }
   }
@@ -17,4 +17,4 @@ const routes: Routes = [
   exports: [RouterModule],
 
 })
-export class Form1RoutingModule { }
+export class FormRoutingModule { }

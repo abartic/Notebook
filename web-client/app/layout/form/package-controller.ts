@@ -1,4 +1,4 @@
-import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialogWnd';
+import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog/selectEntityDialogWnd';
 import { ModelInfos } from './../../../../server/models/modelProperties';
 import { ModelFactory } from './../../../../server/models/modelFactory';
 import { HttpCallerService } from './../../services/httpcaller.service';
@@ -6,10 +6,10 @@ import { BaseEntity, IPropInfo, IEntityInfo, eEntityStatus } from './../../../..
 import { Package } from './package';
 import { Input, Inject, Injectable } from '@angular/core';
 import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
-import { AlertDialogWnd } from '../../dialog/alertDialogWnd';
-import { AskDialogWnd } from '../../dialog/askDialogWnd';
+import { AlertDialogWnd } from '../../dialog/alertDialog/alertDialogWnd';
+import { AskDialogWnd } from '../../dialog/askDialog/askDialogWnd';
 import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
-import { EditEntityDialogWnd } from '../../dialog/editEntityDialogWnd';
+import { EditEntityDialogWnd } from '../../dialog/editEntityDialog/editEntityDialogWnd';
 
 
 
@@ -78,8 +78,17 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (info.relations) {
                     for (let relation of info.relations) {
                         let rentity = <BaseEntity>ModelFactory.uniqueInstance.create(relation.toLowerCase());
-                        if (rentity)
+                        if (rentity) {
                             calls.push(this.readEntityInfo(rentity));
+
+                            if (rentity.entityLookups && rentity.entityLookups.size > 0) {
+                                for (let lvalue of Array.from(rentity.entityLookups.values())) {
+                                    let lentity = <BaseEntity>ModelFactory.uniqueInstance.create(lvalue.entityName.toLowerCase());
+                                    if (lentity)
+                                        calls.push(this.readEntityInfo(lentity));
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -177,6 +186,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     executeFilter(count?: boolean) {
         if (!count)
             count = false;
+        this.package.loading = true;
         this.loadEntitiesByFilter(
             this.package.filter, this.package.filter_details,
             count,
@@ -188,11 +198,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     let pages = (entities_count) / this.package.row_page_max;
                     this.package.row_pages = new Array<number>(toInteger(pages));
                 }
+                this.package.loading = false;
             },
-            () => { this.package.show_filter = true; });
+            () => {
+                this.package.show_filter = true;
+                this.package.loading = false;
+            });
     }
 
     executeLookupFilter(count?: boolean) {
+        this.package.loading = true;
         this.package.lookup_rows = [];
 
         if (!count)
@@ -209,9 +224,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     let pages = (entities_count) / this.package.row_page_max;
                     this.package.lookup_row_pages = new Array<number>(toInteger(pages));
                 }
-
+                this.package.loading = false;
             },
-            () => { });
+            () => {
+
+                this.package.loading = false;
+            });
     }
 
     onSelectEntity(entity: T) {
@@ -657,6 +675,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.package.entity_relation.status = eEntityStatus.New;
         this.openEditDialog('New: ' + relation).then(result => {
             if (result === 'Save') {
+                if (!this.package.entity[relation + '_relation'])
+                    this.package.entity[relation + '_relation'] = [];
                 this.package.entity[relation + '_relation'].push(this.package.entity_relation);
             }
             else {

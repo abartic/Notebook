@@ -39,15 +39,6 @@ export class LoginComponent implements OnInit, AfterContentInit {
     signInWithGoogle(): void {
 
         window.open("/login/google", "_self");
-
-        //this.authService.signIn();
-        // let dialogRef = this.dialog.open(LoginDialog, { data: 
-        //     { source_page : '/login/google' }
-        // });
-        // dialogRef.afterClosed().subscribe(result => {
-        //     var r = result;
-        // });
-
     }
 
     ngAfterContentInit() {
@@ -61,22 +52,9 @@ export class LoginComponent implements OnInit, AfterContentInit {
 
     }
 
-    //cookieValue = 'UNKNOWN';
+
     ngOnInit() {
 
-
-
-        // this.authService.authState.subscribe((user) => {
-        //     this.user = user;
-        //     if (user === null || localStorage.getItem('pendingAuthentication') == null)
-        //         return;
-
-        //     localStorage.removeItem('pendingAuthentication');
-        //     if (user.provider === "GOOGLE")
-        //         this.checkAuthentication('google');
-        //     else
-        //         this.checkAuthentication('facebook');
-        // });
     }
 
 

@@ -49,3 +49,6 @@
 
     <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">Close</button>
 </div>
+<div class="my-container">
+    <ngx-loading [show]="package.loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+</div>

@@ -1,7 +1,7 @@
 
 import { Component, Inject, Injectable, Input } from '@angular/core';
 import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { IPackageController } from '../layout/form1/package-controller';
+import { IPackageController } from '../../layout/form/package-controller';
 
 
 @Component({

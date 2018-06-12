@@ -19,10 +19,10 @@ import { HttpCallerService } from './services/httpcaller.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { AlertDialogWnd } from './dialog/alertDialogWnd';
-import { AskDialogWnd } from './dialog/askDialogWnd';
-import { EditEntityDialogWnd } from './dialog/editEntityDialogWnd';
-import { SelectEntityDialogWnd } from './dialog/selectEntityDialogWnd';
+import { AlertDialogWnd } from './dialog/alertDialog/alertDialogWnd';
+import { AskDialogWnd } from './dialog/askDialog/askDialogWnd';
+import { EditEntityDialogWnd } from './dialog/editEntityDialog/editEntityDialogWnd';
+import { SelectEntityDialogWnd } from './dialog/selectEntityDialog/selectEntityDialogWnd';
 import { CheckLoginService } from './services/check-login-service';
 
 // AoT requires an exported function for factories

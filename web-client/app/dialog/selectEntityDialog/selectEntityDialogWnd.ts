@@ -1,8 +1,9 @@
 
 import { Component, Inject, Injectable, Input, OnInit } from '@angular/core';
 import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { IPackageController } from '../layout/form1/package-controller';
-import { BaseEntity } from '../../../server/models/base-entity';
+import { IPackageController } from '../../layout/form/package-controller';
+
+import { BaseEntity } from '../../../../server/models/base-entity';
 
 
 
