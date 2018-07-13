@@ -1,3 +1,6 @@
+import { DateUserFormatPipe } from './shared/pipes/shared-pipes.module';
+
+import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { LoadingModule } from 'ngx-loading';
 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -10,7 +13,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthGuard } from './shared';
+import { AuthGuard, SharedModule } from './shared';
 import { JsonpModule, Jsonp, Response } from '@angular/http';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpCallerService } from './services/httpcaller.service';
@@ -24,6 +27,7 @@ import { AskDialogWnd } from './dialog/askDialog/askDialogWnd';
 import { EditEntityDialogWnd } from './dialog/editEntityDialog/editEntityDialogWnd';
 import { SelectEntityDialogWnd } from './dialog/selectEntityDialog/selectEntityDialogWnd';
 import { CheckLoginService } from './services/check-login-service';
+import { CommonModule } from '@angular/common';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -47,12 +51,15 @@ export function HttpLoaderFactory(http: HttpClient) {
     AskDialogWnd,
     EditEntityDialogWnd,
     SelectEntityDialogWnd
+    
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+    
     HttpModule,
     AppRoutingModule,
     TranslateModule.forRoot({
@@ -64,6 +71,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     }),
     LoadingModule,
     JsonpModule,
+    SharedModule,
     NgbModule.forRoot()
     
     // GoogleApiModule.forRoot({
@@ -75,18 +83,19 @@ export function HttpLoaderFactory(http: HttpClient) {
     AuthGuard,
     CookieService,
     HttpCallerService,
-    CheckLoginService
-    
-
-    
-
+    CheckLoginService,
   ],
   bootstrap: [AppComponent],
   entryComponents: [
     AlertDialogWnd,
     AskDialogWnd,
     EditEntityDialogWnd,
-    SelectEntityDialogWnd
+    SelectEntityDialogWnd,
+    
+  ],
+  exports : [
+    
   ]
+  
 })
 export class AppModule { }

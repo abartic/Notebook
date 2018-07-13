@@ -1,3 +1,4 @@
+import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { LoadingModule } from 'ngx-loading';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -13,6 +14,7 @@ import { HeaderComponent, SidebarComponent } from '../shared';
 @NgModule({
     imports: [
         CommonModule,
+        
         NgbDropdownModule.forRoot(),
         
         TranslateModule,

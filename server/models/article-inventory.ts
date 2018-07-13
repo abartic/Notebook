@@ -1,4 +1,3 @@
-
 import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
 @SheetInfo("movements", "art_inventory", "ArticleInventory")  
@@ -10,7 +9,8 @@ export class ArticleInventory extends BaseEntity {
     @LookupProp("store", ["cod_store","descr"])
     public code_store : String;
     
-    public prince_in : Number;
+    public price_in : Number;
     
     public qty : Number;
+
 }

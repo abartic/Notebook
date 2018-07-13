@@ -2,6 +2,7 @@ import { SheetRoute, eFileOperationType } from "../routes/sheets_route";
 import { IMgrItem } from "./sheets-mgr";
 import * as fs from 'fs';
 import * as path from 'path';
+import { DriverRoute } from "../routes/driver_route";
 
 
 export class AccountsMgr {
@@ -50,7 +51,7 @@ export class AccountsMgr {
     }
 
     private readAccounts(token: string, accountsFileId: string): Promise<IAccountsSet> {
-        return SheetRoute.getConfigFile<IAccountsSet>(token, accountsFileId, eFileOperationType.accounts)
+        return DriverRoute.getConfigFile<IAccountsSet>(token, accountsFileId, eFileOperationType.accounts)
             .then(accountsset => {
                 if (!accountsset)
                     return Promise.resolve(null);

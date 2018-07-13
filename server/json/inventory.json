@@ -3,11 +3,12 @@
     "spreadsheetName": "inventory",
     "sheets": [{
         "sheetName": "articles",
-        "fields": ["code_art", "descr", "UM", "EAN", "SN", "attr1", "attr2", "attr3", "attr4", "attr5"],
+        "fields": ["code_art", "descr", "UM", "EAN", "SN", "attr1", "attr2", "attr3", "attr4", "attr5", "entry_date"],
+        "fields_types": ["", "", "", "", "", "", "", "", "", "", "d"],
         "entity": {
             "entityName": "Article",
-            "ukey": "code_art",
-            "relations": ["articleinventory"]
+            "ukey": "code_art"
+
         }
 
     }, {

@@ -8,7 +8,7 @@ import { Input, Inject, Injectable } from '@angular/core';
 import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
 import { AlertDialogWnd } from '../../dialog/alertDialog/alertDialogWnd';
 import { AskDialogWnd } from '../../dialog/askDialog/askDialogWnd';
-import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { EditEntityDialogWnd } from '../../dialog/editEntityDialog/editEntityDialogWnd';
 
 
@@ -186,7 +186,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     executeFilter(count?: boolean) {
         if (!count)
             count = false;
-        this.package.loading = true;
+        this.package.error_msg = '';
+        this.package.filter_loading = true;
         this.loadEntitiesByFilter(
             this.package.filter, this.package.filter_details,
             count,
@@ -198,16 +199,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     let pages = (entities_count) / this.package.row_page_max;
                     this.package.row_pages = new Array<number>(toInteger(pages));
                 }
-                this.package.loading = false;
+                this.package.filter_loading = false;
             },
             () => {
                 this.package.show_filter = true;
-                this.package.loading = false;
+                this.package.filter_loading = false;
             });
     }
 
     executeLookupFilter(count?: boolean) {
-        this.package.loading = true;
+        this.package.lookup_loading = true;
         this.package.lookup_rows = [];
 
         if (!count)
@@ -224,11 +225,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     let pages = (entities_count) / this.package.row_page_max;
                     this.package.lookup_row_pages = new Array<number>(toInteger(pages));
                 }
-                this.package.loading = false;
+                this.package.lookup_loading = false;
             },
             () => {
 
-                this.package.loading = false;
+                this.package.lookup_loading = false;
             });
     }
 
@@ -342,12 +343,23 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 await this.executeDetailFilterQuery(filter_details[relation], filter)
                     .then(ukeys => {
                         keys = keys.concat(ukeys);
+                        if (keys.length === 0) {
+                            this.package.rows = [];
+
+                        }
                     })
                     .catch(err => {
-                        this.package.error_msg = 'Connection error! ' + this.getError(err);
+                        this.package.error_msg = this.getError(err);
+                        this.package.rows = [];
+                        cerr();
+
                     });
             }
+            if (keys.length == 0)
+                return;
         }
+
+
 
         keys = Array.from(new Set(keys));
 
@@ -357,9 +369,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     cb(count, null);
                     if (count > 0)
                         this.readEntitiesByUkey(entityInfo, filter, keys, null, null, cb, cerr);
+                    else
+                        this.package.rows = [];
                 })
                 .catch(err => {
-                    this.package.error_msg = 'Connection error! ' + this.getError(err);
+                    this.package.error_msg = this.getError(err);
+                    cerr();
                 });
         }
         else {
@@ -682,6 +697,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             else {
                 this.package.entity_relation = undefined;
             }
+        }, (reason) => {
+            this.package.entity_relation = undefined;
         });
 
     }
@@ -697,6 +714,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             else {
                 this.package.entity_relation = undefined;
             }
+        }, (reason) => {
+            this.package.entity_relation = undefined;
         });
 
 
@@ -734,7 +753,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.lookupProperties = properties;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
-        return modalRef.result;
+        return modalRef.result.then((result) => {
+
+        }, (reason) => {
+
+        });
     }
 
     public lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]) {

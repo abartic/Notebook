@@ -1,6 +1,6 @@
 <div class="modal-header">
     <h4 class="modal-title">{{title}}</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cancel')">
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
           <span aria-hidden="true">&times;</span>
         </button>
 </div>
@@ -23,7 +23,12 @@
         </thead>
         <tbody>
             <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
-                <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">{{row[property.propName]}}</td>
+                <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
+                    <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                        <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                        <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                    </div>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -50,5 +55,5 @@
     <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">Close</button>
 </div>
 <div class="my-container">
-    <ngx-loading [show]="package.loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+    <ngx-loading [show]="package.lookup_loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
 </div>

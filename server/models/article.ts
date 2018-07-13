@@ -25,5 +25,6 @@ export class Article extends BaseEntity {
     
     public attr5: String;
    
-    public articleinventory_relation : (ArticleInventory)[];
+    public entry_date : Date;
+    //public articleinventory_relation : (ArticleInventory)[];
 }

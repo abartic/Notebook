@@ -4,6 +4,7 @@
     "sheets": [{
             "sheetName": "documents",
             "fields": ["code_doc", "code_part", "type", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"],
+            "fields_types": ["", "", "", "d", "d", "d", "", "", ""],
             "entity": {
                 "entityName": "Document",
                 "ukey": "code_doc",
@@ -12,15 +13,17 @@
 
         }, {
             "sheetName": "document_lines",
-            "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount"],
+            "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount", "move_date"],
+            "fields_types": ["", "", "n", "n", "n", "n", "d"],
             "entity": {
                 "entityName": "DocumentLine"
             }
         },
         {
             "sheetName": "art_inventory",
-            "formula": "QUERY(document_lines!A:Z,'select D, E, SUM(G) WHERE D <> '' group by D,E', 1)",
+            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(G) WHERE D <> '' group by D,E\", 1)",
             "fields": ["code_art", "code_store", "price_in", "qty"],
+            "fields_types": ["", "", "n", "n"],
             "entity": { "entityName": "ArticleInventory" }
 
         }

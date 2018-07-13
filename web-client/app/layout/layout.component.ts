@@ -8,15 +8,15 @@ import { Router, RouterEvent, NavigationCancel, NavigationStart, NavigationError
 })
 export class LayoutComponent implements OnInit {
 
-    public loading = false;
+    public screen_loading = false;
     constructor(public router: Router) {
 
         router.events.subscribe(event => {
             if (event instanceof NavigationStart) {
-                this.loading = true;
+                this.screen_loading = true;
             }
             if (event instanceof NavigationCancel || event instanceof NavigationError|| event instanceof NavigationEnd) {
-                this.loading = false;
+                this.screen_loading = false;
             }
         });
     }

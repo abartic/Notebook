@@ -1,6 +1,24 @@
 import { IEntityInfo } from './base-entity';
 import { ModelInfos } from "./modelProperties";
 import "reflect-metadata"
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+
+function padNumber(value: number) {
+    if (isNumber(value)) {
+        return `0${value}`.slice(-2);
+    } else {
+        return "";
+    }
+}
+
+function isNumber(value: any): boolean {
+    return !isNaN(toInteger(value));
+}
+
+function toInteger(value: any): number {
+    return parseInt(`${value}`, 10);
+}
+
 
 export interface IEntityInfo {
     spreadsheetID: string,
@@ -124,6 +142,73 @@ export class BaseEntity {
         }
     }
 
+    public static dateToStandardDate(date: Date): string {
+        var mm = date.getMonth();
+        var dd = date.getDate();
+
+        return [
+            date.getFullYear(),
+            (mm > 9 ? '' : '0') + mm,
+            (dd > 9 ? '' : '0') + dd
+        ].join('-');
+    }
+
+    public static dateStructToStandardDate(date: NgbDateStruct): string {
+        var mm = date.month + 1;
+        var dd = date.day;
+
+        return [
+            date.year,
+            (mm > 9 ? '' : '0') + mm,
+            (dd > 9 ? '' : '0') + dd
+        ].join('-');
+    }
+
+    public static toDateStructFormat(date: Date): NgbDateStruct {
+
+        return {
+            day: date.getDate(),
+            month: date.getMonth(),
+            year: date.getFullYear()
+        };
+
+    }
+
+    public static parseDateStruct(value: string): NgbDateStruct {
+        if (value) {
+            const dateParts = value.trim().split('/');
+            if (dateParts.length === 1 && isNumber(dateParts[0])) {
+                return { year: toInteger(dateParts[0]), month: null, day: null };
+            } else if (dateParts.length === 2 && isNumber(dateParts[0]) && isNumber(dateParts[1])) {
+                return { year: toInteger(dateParts[1]), month: toInteger(dateParts[0]) - 1, day: null };
+            } else if (dateParts.length === 3 && isNumber(dateParts[0]) && isNumber(dateParts[1]) && isNumber(dateParts[2])) {
+                return { year: toInteger(dateParts[2]), month: toInteger(dateParts[1]) - 1, day: toInteger(dateParts[0]) };
+            }
+        }
+        return null;
+    }
+
+    public static parseNumber(value: string): Number {
+        if (value) {
+            value = value.trim().replace(',', '');
+            if (value.indexOf(".")>=0)
+                return Number.parseFloat(value);
+            else
+                return Number.parseInt(value);
+        }
+        return null;
+    }
+
+    public static toUserFormatDate(date: NgbDateStruct): string {
+        let stringDate: string = "";
+        if (date) {
+            stringDate += isNumber(date.day) ? padNumber(date.day) + "/" : "";
+            stringDate += isNumber(date.month) ? padNumber(date.month + 1) + "/" : "";
+            stringDate += date.year;
+        }
+        return stringDate;
+    }
+
     public static toUKeyFilter(entityInfo: IEntityInfo, uid: any): string {
 
         let query = 'select ';
@@ -182,22 +267,43 @@ export class BaseEntity {
         let where = ' 1=1 ';
         let where_keys = '';
         let exists_filter = false;
+        let not_string = false;
         for (let p of entity.properties) {
             if (entity[p.propName] && entity[p.propName] !== '') {
                 exists_filter = true;
                 let fvalue = (<string>entity[p.propName]).toUpperCase();
-                if (fvalue.indexOf('%') >= 0)
+                let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
+                //date, time
+                if (p.dataType === 'DATE' || p.dataType === 'TIME') {
+                    if (li >= 0) {
+                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
+                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
+                    }
+                    else {
+                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue));
+                        where = where + ' and ' + p.cellName + ' = date "' + datevalue + '"';
+                    }
+                }
+                //number
+                else if (p.dataType === 'NUMBER') {
+                    if (li >= 0) {
+                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) +  BaseEntity.parseNumber(fvalue.substring(li + 1)).toString(); 
+                    }
+                    else {
+                        where = where + ' and ' + p.cellName + ' = ' +  BaseEntity.parseNumber(fvalue).toString();
+                    }
+                }
+                //string
+                else if (fvalue.indexOf('%') >= 0)
                     where = where + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
-                else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
-                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
-                else if ('=<>'.indexOf(fvalue[0]) >= 0)
-                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
+                else if (li >= 0)
+                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, li + 1) + '"' + fvalue.substring(li + 1) + '"';
                 else
                     where = where + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }
             if (p.propName === entity.ukeyPropName) {
                 if (keys && keys.length > 0) {
-                    
+
                     where_keys = where_keys + ' and ( 1=0 ';
                     for (let key of keys) {
                         if (key instanceof Number)
@@ -234,13 +340,32 @@ export class BaseEntity {
         for (let p of this.properties) {
             if (this[p.propName]) {
                 let fvalue = (<string>this[p.propName]).toUpperCase();
-
-                if (fvalue.indexOf('%') >= 0)
+                let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
+                //date or time
+                if (p.dataType === 'DATE' || p.dataType === 'TIME') {
+                    if (li >= 0) {
+                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
+                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
+                    }
+                    else {
+                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue));
+                        query = query + ' and ' + p.cellName + ' = date "' + datevalue + '"';
+                    }
+                }
+                //number
+                else if (p.dataType === 'NUMBER') {
+                    if (li >= 0) {
+                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) +   BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
+                    }
+                    else {
+                        query = query + ' and ' + p.cellName + ' = ' +  BaseEntity.parseNumber(fvalue).toString();
+                    }
+                }
+                //string
+                else if (fvalue.indexOf('%') >= 0)
                     query = query + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
-                else if ('=<>'.indexOf(fvalue[0]) >= 0 && '=<>'.indexOf(fvalue[1]) >= 0)
-                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 2) + '"' + fvalue.substring(2) + '"';
-                else if ('=<>'.indexOf(fvalue[0]) >= 0)
-                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, 1) + '"' + fvalue.substring(1) + '"';
+                else if (li >= 0)
+                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, li + 1) + '"' + fvalue.substring(li + 1) + '"';
                 else
                     query = query + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
             }

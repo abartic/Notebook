@@ -13,8 +13,11 @@ export class EditEntityDialogWnd {
   @Input() title;
   @Input() package;
   @Input() packageCtrl: IPackageController;
-  constructor(public activeModal: NgbActiveModal) {
 
+  constructor(public activeModal: NgbActiveModal) {
     
   }
+
+  
+
 }

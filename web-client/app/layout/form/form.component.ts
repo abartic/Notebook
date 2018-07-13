@@ -1,6 +1,5 @@
 
 import { BaseEntity } from './../../../../server/models/base-entity';
-import { SharedPipesModule } from './../../shared/pipes/shared-pipes.module';
 import { Package } from './package';
 import { Component, OnInit, Inject } from '@angular/core';
 import { routerTransition } from '../../router.animations';

@@ -1,4 +1,5 @@
 import { SheetRoute, eFileOperationType } from "../routes/sheets_route";
+import { DriverRoute } from "../routes/driver_route";
 
 export interface IMgrItem<T> {
     token: string;
@@ -16,7 +17,7 @@ export class SheetsMgr {
 
         var item = this.data.find(s => s.token === token);
         if (!item) {
-            return SheetRoute.getConfigFile<ISpreadsheetsSet>(token, null, eFileOperationType.sheets)
+            return DriverRoute.getConfigFile<ISpreadsheetsSet>(token, null, eFileOperationType.sheets)
                 .then(spreadsheetsSet => {
                     if (!spreadsheetsSet)
                         return Promise.resolve(null);

@@ -1,18 +1,30 @@
 <div class="modal-header">
     <h4 class="modal-title">{{title}}</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cancel')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
 <div class="modal-body">
 
     <div *ngFor="let property of (package.entity_relation.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity, package.entity_relation)" [ngSwitch]="property.dataType">
             <label class="col-2 col-form-label">{{property.propName}}</label>
-            <div class="input-group mb-3 col-10">
-                <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" (type)="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]">
-                <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
-                    <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity_relation, property)">...</button>
+            <div class="mb-3 col-10" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+
+                <div class="input-group" *ngSwitchCase="'date'">
+                    <input class="form-control" placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity_relation[property.propName]" [disabled]="packageCtrl.isDisabled(property)" ngbDatepicker #d="ngbDatepicker">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
+              ...
+            </button>
+                    </div>
+                </div>
+
+                <div class="input-group" *ngSwitchDefault>
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]">
+                    <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
+                        <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity_relation, property)">...</button>
+                    </div>
                 </div>
             </div>
         </div>

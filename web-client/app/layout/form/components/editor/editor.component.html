@@ -15,10 +15,21 @@
     <div *ngFor="let property of (package.entity.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
             <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
-            <div class="input-group col-6">
-                <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" (type)="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]">
-                <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
-                    <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
+            <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                <div class="input-group" *ngSwitchCase="'date'">
+                    <input class="form-control" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(property)" #d="ngbDatepicker">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
+              ...
+            </button>
+                    </div>
+                </div>
+
+                <div class="input-group" *ngSwitchDefault>
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]">
+                    <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
+                        <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
+                    </div>
                 </div>
             </div>
         </div>

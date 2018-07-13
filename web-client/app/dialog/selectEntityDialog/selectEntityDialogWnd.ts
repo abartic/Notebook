@@ -1,5 +1,5 @@
 
-import { Component, Inject, Injectable, Input, OnInit } from '@angular/core';
+import { Component, Inject, Injectable, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPackageController } from '../../layout/form/package-controller';
 
@@ -25,11 +25,9 @@ export class SelectEntityDialogWnd implements OnInit {
   @Input() packageCtrl: IPackageController;
   constructor(public activeModal: NgbActiveModal) {
 
-
   }
 
   ngOnInit() {
-
     this.packageCtrl.executeLookupFilter(true);
   }
 

@@ -1,12 +1,10 @@
-
-
 import { ModelFactory } from './../models/modelFactory';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
 import { BaseRoute } from './route';
 import * as request from 'request-promise';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IPropInfo } from '../models/base-entity';
+import { IPropInfo, BaseEntity } from '../models/base-entity';
 import acl = require('acl');
 
 import * as Config from "config";
@@ -14,9 +12,12 @@ import { KeyedCollection } from '../utils/dictionary';
 import { AppAcl } from '../acl/app-acl';
 import { SheetsMgr } from '../common/sheets-mgr';
 import { AccountsMgr } from '../common/accounts-mgr';
+import { DriverRoute } from './driver_route';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
+
 
 
 export interface ISelectObj {
@@ -24,7 +25,9 @@ export interface ISelectObj {
     spreadsheetName: string;
     sheetName: string;
     entityName: string;
+
     select: string;
+
     addSchema: boolean;
 }
 
@@ -33,6 +36,10 @@ export enum eFileOperationType {
     moveToFolder = "mf",
     accounts = "accounts",
     sheets = "sheets",
+}
+
+function isDate(value: NgbDateStruct): value is NgbDateStruct {
+    return (<NgbDateStruct>value).year !== undefined;
 }
 
 export class SheetRoute extends BaseRoute {
@@ -105,20 +112,77 @@ export class SheetRoute extends BaseRoute {
                                             "userEnteredValue": {
                                                 //"formulaValue": '=ARRAYFORMULA(ROW($A:$A))'
                                                 "stringValue": 'rowid'
+                                            },
+                                            "userEnteredFormat": {
+                                                "numberFormat": {
+                                                    "type": "TEXT"
+                                                }
                                             }
                                         });
                                         sheetReq.data[0].rowData[0].values.push({
                                             "userEnteredValue": {
                                                 "stringValue": 'uid'
+                                            },
+                                            "userEnteredFormat": {
+                                                "numberFormat": {
+                                                    "type": "TEXT"
+                                                }
                                             }
                                         });
+                                        let ti = 0;
                                         for (const field of sheet.fields) {
-
-                                            sheetReq.data[0].rowData[0].values.push({
-                                                "userEnteredValue": {
-                                                    "stringValue": field
-                                                }
-                                            });
+                                            if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
+                                                sheetReq.data[0].rowData[0].values.push({
+                                                    "userEnteredValue": {
+                                                        "stringValue": field
+                                                    },
+                                                    "userEnteredFormat": {
+                                                        "numberFormat": {
+                                                            "type": "NUMBER",
+                                                            "pattern": "#,##0"
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
+                                                sheetReq.data[0].rowData[0].values.push({
+                                                    "userEnteredValue": {
+                                                        "stringValue": field
+                                                    },
+                                                    "userEnteredFormat": {
+                                                        "numberFormat": {
+                                                            "type": "NUMBER",
+                                                            "pattern": "#,##0.00"
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
+                                                sheetReq.data[0].rowData[0].values.push({
+                                                    "userEnteredValue": {
+                                                        "stringValue": field
+                                                    },
+                                                    "userEnteredFormat": {
+                                                        "numberFormat": {
+                                                            "type": "DATE",
+                                                            "pattern": "dd/MM/yyyy"
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                sheetReq.data[0].rowData[0].values.push({
+                                                    "userEnteredValue": {
+                                                        "stringValue": field
+                                                    },
+                                                    "userEnteredFormat": {
+                                                        "numberFormat": {
+                                                            "type": "TEXT"
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            ti += 1;
                                         }
                                     }
                                 }
@@ -227,7 +291,7 @@ export class SheetRoute extends BaseRoute {
                         };
                         let folderId;
                         let calls_file = [];
-                        SheetRoute.writeConfigFile(req, eFileOperationType.folder, null, null, null)
+                        DriverRoute.writeConfigFile(req, eFileOperationType.folder, null, null, null)
                             .then(fileId => {
                                 folderId = fileId;
                                 // accountsSet.accounts.push({
@@ -237,7 +301,7 @@ export class SheetRoute extends BaseRoute {
                                 //     enrollmentDate: Date.now()
                                 // });
 
-                                return SheetRoute.writeConfigFile(req, eFileOperationType.accounts, null, folderId, JSON.stringify(accountsSet));
+                                return DriverRoute.writeConfigFile(req, eFileOperationType.accounts, null, folderId, JSON.stringify(accountsSet));
                             })
                             .then(accountsFileId => {
                                 let spreadsheetsSet: ISpreadsheetsSet = {
@@ -245,10 +309,10 @@ export class SheetRoute extends BaseRoute {
                                     spreadsheets: accountSpreadsheets
                                 };
 
-                                calls_file = [SheetRoute.writeConfigFile(req, eFileOperationType.sheets, null, folderId, JSON.stringify(spreadsheetsSet))];
+                                calls_file = [DriverRoute.writeConfigFile(req, eFileOperationType.sheets, null, folderId, JSON.stringify(spreadsheetsSet))];
 
                                 for (let ash of accountSpreadsheets)
-                                    calls_file.push(SheetRoute.writeConfigFile(req, eFileOperationType.moveToFolder, ash.spreadsheetID, folderId, null));
+                                    calls_file.push(DriverRoute.writeConfigFile(req, eFileOperationType.moveToFolder, ash.spreadsheetID, folderId, null));
 
                                 Promise.all(calls_file);
 
@@ -279,7 +343,7 @@ export class SheetRoute extends BaseRoute {
                         sheetsFileId = spreadsheetsSet['fileId'];
                         spreadsheets = spreadsheetsSet.spreadsheets;
 
-                       
+
 
                         return AccountsMgr.uniqueInstance.getAccounts(token, accountsFileId)
                     })
@@ -372,7 +436,7 @@ export class SheetRoute extends BaseRoute {
                             enrollmentDate: Date.now()
                         });
 
-                        calls.push(SheetRoute.writeConfigFile(req, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSet)));
+                        calls.push(DriverRoute.writeConfigFile(req, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSet)));
                         return Promise.all(calls);
                     })
                     .then(r => { return res.send({ error: null }); })
@@ -494,6 +558,11 @@ export class SheetRoute extends BaseRoute {
                 const uuidv1 = require('uuid/v1');
                 values.splice(0, 0, "=ROW()");
                 values.splice(1, 0, uuidv1());
+                for (let i = 0; i < values.length; i++) {
+                    if (values[i] !== null && values[i] !== undefined && isDate(values[i])) {
+                        values[i] = values[i].day + '/' + values[i].month + '/' + values[i].year
+                    }
+                }
                 SheetRoute.append(req, res, spreadsheetID, sheetName, sheetID, values);
             });
 
@@ -513,6 +582,13 @@ export class SheetRoute extends BaseRoute {
                 var rowIndex = values[0] - 1;
                 values[0] = "=ROW()";
                 var rowid = values[1];
+
+                for (let i = 0; i < values.length; i++) {
+                    if (values[i] !== null && values[i] !== undefined && isDate(values[i])) {
+                        values[i] = values[i].day + '/' + values[i].month + '/' + values[i].year
+                    }
+                }
+
                 SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowid, rowIndex, function () {
                     SheetRoute.append(req, res, spreadsheetID, sheetName, sheetID, values);
                 });
@@ -531,7 +607,7 @@ export class SheetRoute extends BaseRoute {
                         if (spreadsheetsSet === null) {
                             return Promise.reject({ error: 'Sheets not created!' });
                         }
-                        
+
 
                         p_spreadsheets = spreadsheetsSet.spreadsheets;
 
@@ -577,11 +653,18 @@ export class SheetRoute extends BaseRoute {
                                     var entities = [];
                                     var schema = data.table.cols;
                                     for (const row of data.table.rows) {
-                                        var ent = ModelFactory.uniqueInstance.create(entityName.toLowerCase());
+                                        let ent;
+                                        if (entityName)
+                                            ent = ModelFactory.uniqueInstance.create(entityName.toLowerCase());
+                                        else
+                                            ent = {};
                                         var i = 0;
                                         for (const col of data.table.cols) {
-                                            if (row.c[i] && row.c[i].v) {
-                                                ent[col.label] = row.c[i].v;
+                                            if (row.c[i] && row.c[i].v !== undefined) {
+                                                if (col.type === 'date' && row.c[i].v !== undefined)
+                                                    ent[col.label] = BaseEntity.toDateStructFormat(eval('new ' + row.c[i].v));
+                                                else
+                                                    ent[col.label] = row.c[i].v;
                                             }
                                             i += 1;
                                         }
@@ -609,7 +692,7 @@ export class SheetRoute extends BaseRoute {
                         if (spreadsheetsSet === null) {
                             return Promise.reject({ error: 'Sheets not created!' });
                         }
-                        
+
 
                         p_spreadsheets = spreadsheetsSet.spreadsheets;
 
@@ -845,174 +928,5 @@ export class SheetRoute extends BaseRoute {
 
 
 
-    static writeConfigFile(req: Request,
-        fileoperationtype: eFileOperationType,
-        fileId: string,
-        folderId: string,
-        data: string): Promise<string> {
 
-        var projId = Config.get<string>("googleConfig.clientID");
-        projId = projId.split('.')[0];
-
-        var googleApi = require('googleapis');
-        var googleAuth = require('google-auth-library');
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2();
-        oauth2Client.credentials = {
-            access_token: req.session['google_access_token']
-        };
-        const drive = googleApi.drive({ version: 'v3' });
-
-        return new Promise<string>((cb, err_cb) => {
-            let fileName = fileoperationtype.toString();
-            if (fileoperationtype === eFileOperationType.moveToFolder) {
-                drive.files.get(
-                    {
-                        fileId: fileId,
-                        fields: 'parents',
-                        auth: oauth2Client
-                    }
-                    , function (err, fileinfo) {
-
-                        if (err) {
-                            err_cb(err);
-                        }
-
-                        drive.files.update(
-                            {
-                                fileId: fileId,
-                                auth: oauth2Client,
-                                removeParents: fileinfo['parents'][0],
-                                addParents: folderId
-                            }
-                            , function (err, result) {
-                                if (!err) {
-                                    cb(data);
-                                } else {
-                                    err_cb(err);
-                                }
-                            });
-                    });
-            }
-            else if (fileId) {
-                drive.files.update(
-                    {
-                        fileId: fileId,
-                        media:
-                        {
-                            body: data,
-                            mimeType: 'application/json'
-
-                        },
-                        auth: oauth2Client
-                    }
-                    , function (err, fileinfo) {
-                        if (!err) {
-                            cb(fileinfo.id);
-                        } else {
-                            err_cb(err);
-                        }
-                    });
-            }
-            else {
-                drive.files.create(
-                    {
-                        resource: {
-                            name: fileName + '_' + projId,
-                            parents: fileoperationtype === eFileOperationType.folder ? [] : [folderId],
-                            mimeType: fileoperationtype === eFileOperationType.folder ? "application/vnd.google-apps.folder" : 'application/json',
-                            appProperties: {
-                                additionalID: projId
-                            }
-                        },
-                        media:
-                        {
-                            body: data,
-                            mimeType: 'application/json'
-
-                        },
-                        auth: oauth2Client
-                    }
-                    , function (err, fileinfo) {
-                        if (!err) {
-                            cb(fileinfo.id);
-                        } else {
-                            err_cb(err);
-                        }
-                    });
-            }
-
-        });
-
-    }
-
-    static getConfigFile<T>(token: string, fileId: string, filetype: eFileOperationType): Promise<T> {
-        var projId = Config.get<string>("googleConfig.clientID");
-        projId = projId.split('.')[0];
-
-        var googleApi = require('googleapis');
-        var googleAuth = require('google-auth-library');
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2();
-        oauth2Client.credentials = {
-            access_token: token
-        };
-        const drive = googleApi.drive({ version: 'v3' });
-        let fileName = filetype.toString();
-        return new Promise<T>((cb, err_cb) => {
-            if (fileId) {
-                drive.files.get(
-                    {
-                        fileId: fileId,
-                        alt: 'media',
-                        auth: oauth2Client
-                    }
-                    , function (err, data) {
-                        if (err) {
-                            err_cb(err);
-                        }
-                        else if (data) {
-                            cb(<T>data);
-                        }
-                    });
-            }
-            else {
-                drive.files.list(
-                    {
-                        q: 'name = "' + fileName + '_' + projId +
-                        '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '" }',
-                        auth: oauth2Client
-                    }
-                    , function (err, data) {
-                        if (err) {
-                            err_cb(err);
-                        }
-                        else if (data && data.files.length > 0) {
-                            var file = data.files[0];
-                            drive.files.get(
-                                {
-                                    fileId: file.id,
-                                    alt: 'media',
-                                    auth: oauth2Client
-                                }
-                                , function (err, data) {
-                                    if (data) {
-                                        let obj = <T>data;
-                                        obj['fileId'] = file.id;
-                                        cb(obj);
-                                    }
-                                    else {
-                                        err_cb(err);
-                                    }
-                                });
-                        }
-                        else{
-                            cb(null);
-                        }
-
-                    });
-            }
-        });
-
-    }
 }
