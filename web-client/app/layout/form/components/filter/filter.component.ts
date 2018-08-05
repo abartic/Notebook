@@ -24,7 +24,7 @@ import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
 export class FilterComponent implements OnInit {
 
 
-  public isDetailsFilterCollapsed = true;
+  
   public isCollapsed = false;
   @Input() package;
   @Input() packageCtrl: IPackageController;

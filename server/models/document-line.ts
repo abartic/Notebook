@@ -1,5 +1,6 @@
 
 import { BaseEntity, LookupProp, SheetInfo } from "./base-entity";
+import { Document } from "./document";
 
 @SheetInfo("movements", "document_lines","DocumentLine")
 export class DocumentLine extends BaseEntity {
@@ -18,4 +19,10 @@ export class DocumentLine extends BaseEntity {
     public discount : Number;
     
     public move_date : Date;
+
+    public onNew(parent : BaseEntity)
+    {
+        if (parent)
+            this.move_date = (<Document>parent).creation_date;
+    }
 }

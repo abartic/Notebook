@@ -38,6 +38,18 @@
             }
         }
     },
+    "sort_fields_row": {
+        "sortRange": {
+            "range": {
+                "sheetId": 0,
+
+            },
+            "sortSpecs": [{
+                "dimensionIndex": 0,
+                "sortOrder": "DESCENDING"
+            }]
+        }
+    },
     "block_fields_row": {
 
         "updateSheetProperties": {

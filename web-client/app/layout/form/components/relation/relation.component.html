@@ -8,7 +8,7 @@
                 <thead>
                     <tr>
                         <th scope="col">
-                            <button class="btn btn-secondary" (click)="packageCtrl.onCreateEntityByRelation(relation)">+</button>
+                            <button class="btn btn-secondary" (click)="packageCtrl.onCreateEntityByRelation(relation)" [disabled]="packageCtrl.isDisabled(package.entity, null)">+</button>
                         </th>
                         <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(this.package.entity, relation)">{{property.propName}}</th>
                     </tr>
@@ -16,10 +16,15 @@
                 <tbody>
                     <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
                         <th scope="row">
-                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) ">=</button>
-                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) ">-</button>
+                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)">=</button>
+                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)">-</button>
                         </th>
-                        <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation) ">{{row[property.propName]}}</td>
+                        <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation) ">
+                            <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                                <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                                <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

@@ -14,7 +14,7 @@ export class Package<T extends BaseEntity> {
     public row_pages : Array<number> = [];
     public row_current_page : number = 0;
 
-    public row_page_max : number = 1;
+    public row_page_max : number = 25;
     public show_filter : boolean = true;
 
     public error_msg : string = '';
@@ -31,7 +31,7 @@ export class Package<T extends BaseEntity> {
 
     public filter_loading : boolean= false;
     public lookup_loading : boolean= false;
-    
+    public isDetailsFilterCollapsed = true;
     public constructor(type : new() => T) {
         this.rows = [];
         this.filter = BaseEntity.createInstance<T>(type);

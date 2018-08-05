@@ -2,7 +2,7 @@ import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog/selectE
 import { ModelInfos } from './../../../../server/models/modelProperties';
 import { ModelFactory } from './../../../../server/models/modelFactory';
 import { HttpCallerService } from './../../services/httpcaller.service';
-import { BaseEntity, IPropInfo, IEntityInfo, eEntityStatus } from './../../../../server/models/base-entity';
+import { BaseEntity, IPropInfo, IEntityInfo, eEntityStatus, eEntityAction } from './../../../../server/models/base-entity';
 import { Package } from './package';
 import { Input, Inject, Injectable } from '@angular/core';
 import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
@@ -355,8 +355,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
                     });
             }
-            if (keys.length == 0)
+            if (keys.length == 0 && this.package.isDetailsFilterCollapsed === false) {
+                cb(0, null);
                 return;
+            }
         }
 
 
@@ -368,7 +370,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 .then(count => {
                     cb(count, null);
                     if (count > 0)
-                        this.readEntitiesByUkey(entityInfo, filter, keys, null, null, cb, cerr);
+                        this.readEntitiesByUkey(entityInfo, keys, filter, null, null, cb, cerr);
                     else
                         this.package.rows = [];
                 })
@@ -378,13 +380,13 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 });
         }
         else {
-            this.readEntitiesByUkey(entityInfo, filter, keys, null, null, cb, cerr);
+            this.readEntitiesByUkey(entityInfo, keys, filter, null, null, cb, cerr);
         }
     }
 
     private readEntitiesByUkey(entityInfo: IEntityInfo,
-        filter: BaseEntity,
         keys,
+        filter: BaseEntity,
         ukey: any,
         relation: string,
         cb: (rows_count: number, rows: Array<any>) => void,
@@ -421,7 +423,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (rows) {
                     let entities = [];
                     for (let row of rows) {
-                        let entity = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(entityInfo.entityName), row);
+                        let entity = BaseEntity.createInstance(
+                            ModelFactory.uniqueInstance.get(entityInfo.entityName), 
+                            row, 
+                            false, 
+                            null);
                         entity.status = eEntityStatus.Loaded;
                         entities.push(entity)
                     }
@@ -437,7 +443,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     onNew() {
-        this.package.entity = BaseEntity.createInstance(this.type);
+        this.package.entity = BaseEntity.createInstance(this.type, null, false, null);
         this.package.entity.status = eEntityStatus.New;
         this.package.entity_status_msg = '';
         this.package.error_msg = '';
@@ -446,12 +452,19 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     onSave() {
 
+        this.clearMsg(false);
         if (this.package.entity.status === eEntityStatus.Deleted) {
             this.showAlert('Entity deleted already!');
             return;
         }
 
-        this.saveEntity(this.package.entity, () => {
+        let action = eEntityAction.None;
+        if (this.package.entity.status === eEntityStatus.New)
+            action = eEntityAction.Create;
+        else
+            action = eEntityAction.Update;
+
+        this.saveEntity(action, this.package.entity, () => {
             if (this.package.entity.status === eEntityStatus.Loaded)
                 Object.assign(this.package.selected_entity, this.package.entity);
             this.package.entity_status_msg = 'Entity saved.';
@@ -460,55 +473,75 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         });
     }
 
-    private getEntitySaveCallPack(entity: BaseEntity) {
+    private getEntitySaveCallPack(action: eEntityAction, entity: BaseEntity) {
         let url = '';
-        if (entity.status === eEntityStatus.Loaded || entity.status === eEntityStatus.Updated)
+        if (action === eEntityAction.Update)
             url = '/sheetdata/update';
-        else if (entity.status === eEntityStatus.New)
+        else if (action === eEntityAction.Create)
             url = '/sheetdata/create';
-        else if (entity.status === eEntityStatus.Deleted)
+        else if (action === eEntityAction.Delete)
             url = '/sheetdata/delete';
 
         let entityInfo = entity.entityInfo;
-        if (entity.status === eEntityStatus.Deleted)
+        let select = BaseEntity.getFilterByUkey(entity);
+        if (action === eEntityAction.Delete)
             return [url,
                 {
                     spreadsheetID: entityInfo.spreadsheetID,
                     sheetName: entityInfo.sheetName,
                     sheetID: entityInfo.sheetID,
                     ID: entity.uid,
-                    rowid: entity.rowid
+                    rowid: entity.rowid,
+                    select: select
                 }];
         else
             return [url,
                 {
                     spreadsheetID: entityInfo.spreadsheetID,
+                    spreadsheetName: entityInfo.spreadsheetName,
                     sheetName: entityInfo.sheetName,
                     sheetID: entityInfo.sheetID,
-                    values: entity.toArray()
+                    values: entity.toArray(),
+                    select: select
                 }];
 
     }
 
-    private saveEntity(entity: BaseEntity, cb?: () => void) {
+    private saveEntity(action: eEntityAction, entity: BaseEntity, cb?: () => void) {
         let entityInfo = entity.entityInfo;
         let packs = [];
-        packs.push(this.getEntitySaveCallPack(entity));
         if (entityInfo.relations) {
             for (let relation of entityInfo.relations) {
                 if (this.package.entity[relation + '_relation']) {
                     for (let rentity of this.package.entity[relation + '_relation']) {
-                        if (rentity.status === eEntityStatus.Updated || rentity.status === eEntityStatus.New)
-                            packs.push(this.getEntitySaveCallPack(rentity));
+                        let raction = eEntityAction.None;
+
+                        if (action === eEntityAction.Delete && (rentity.status === eEntityStatus.Loaded
+                            || rentity.status === eEntityStatus.Updated)) {
+                            raction = eEntityAction.Delete;
+                        }
+                        if (action === eEntityAction.Create) {
+                            raction = eEntityAction.Create;
+                        }
+                        else if (action === eEntityAction.Update) {
+                            if (rentity.status === eEntityStatus.Updated)
+                                raction = eEntityAction.Update;
+                            else if (rentity.status === eEntityStatus.New)
+                                raction = eEntityAction.Create;
+                        }
+
+                        if (raction !== eEntityAction.None)
+                            packs.push(this.getEntitySaveCallPack(raction, rentity));
                     }
                 }
-                if (this.package.entity[relation + '_relation_deleted']) {
+                if (action !== eEntityAction.Create && this.package.entity[relation + '_relation_deleted']) {
                     for (let rentity of this.package.entity[relation + '_relation_deleted']) {
-                        packs.push(this.getEntitySaveCallPack(rentity));
+                        packs.push(this.getEntitySaveCallPack(eEntityAction.Delete, rentity));
                     }
                 }
             }
         }
+        packs.push(this.getEntitySaveCallPack(action, entity));
 
         this.httpCaller.callPosts(
             packs,
@@ -517,7 +550,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     cb();
             },
             err => {
-                this.package.error_msg += this.getError(err);
+                this.package.error_msg = this.getError(err);
             });
     }
 
@@ -533,52 +566,13 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             return;
         }
 
-
-        this.deleteEntity(this.package.entity, () => {
+        this.saveEntity(eEntityAction.Delete, this.package.entity, () => {
+            this.package.entity.status = eEntityStatus.Deleted;
             let index = this.package.rows.indexOf(this.package.selected_entity);
             this.package.rows = this.package.rows.splice(index, 1);
             this.package.entity_status_msg = 'Entity deleted.';
         });
 
-    }
-
-    private deleteEntity(entity: BaseEntity, cb?: () => void) {
-
-        entity.status = eEntityStatus.Deleted;
-        let entityInfo = entity.entityInfo;
-
-        this.httpCaller.callPost('/sheetdata/delete',
-            {
-                spreadsheetID: entityInfo.spreadsheetID,
-                sheetName: entityInfo.sheetName,
-                sheetID: entityInfo.sheetID,
-                ID: entity.uid,
-                rowid: entity.rowid
-            },
-            result => {
-
-                if (entityInfo.relations) {
-                    for (let relation of entityInfo.relations) {
-                        if (this.package.entity[relation + '_relation']) {
-                            for (let rentity of this.package.entity[relation + '_relation']) {
-                                this.deleteEntity(rentity);
-                            }
-                        }
-                        if (this.package.entity[relation + '_relation_deleted']) {
-                            for (let rentity of this.package.entity[relation + '_relation_deleted']) {
-                                this.deleteEntity(rentity);
-                            }
-                        }
-                    }
-                }
-
-                if (cb)
-                    cb();
-
-            },
-            err => {
-                this.package.error_msg = this.getError(err);
-            });
     }
 
     onUndo() {
@@ -686,7 +680,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     public onCreateEntityByRelation(relation: string) {
 
-        this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation), undefined, false, this.package.entity);
+        this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation), null,
+         false, this.package.entity);
         this.package.entity_relation.status = eEntityStatus.New;
         this.openEditDialog('New: ' + relation).then(result => {
             if (result === 'Save') {
@@ -705,10 +700,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     public onEditEntityByRelation(entity: BaseEntity, relation: string) {
         let index = this.package.entity[relation + '_relation'].indexOf(entity);
-        this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation), entity, true);
+        this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation),
+         entity, true, null);
         this.openEditDialog('Edit: ' + relation).then(result => {
             if (result === 'Save') {
-                this.package.entity_relation.status = eEntityStatus.Updated;
+                if (this.package.entity_relation.status !== eEntityStatus.New)
+                    this.package.entity_relation.status = eEntityStatus.Updated;
                 this.package.entity[relation + '_relation'][index] = this.package.entity_relation;
             }
             else {
@@ -726,8 +723,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (result === 'Yes') {
                 let index = this.package.entity[relation + '_relation'].indexOf(entity);
                 this.package.entity[relation + '_relation'].splice(index, 1);
-                if (this.package.entity_relation.status === eEntityStatus.Loaded) {
-                    this.package.entity_relation.status = eEntityStatus.Deleted;
+                if (entity.status !== eEntityStatus.New) {
+                    entity.status = eEntityStatus.Deleted;
+                    if (this.package.entity[relation + '_relation_deleted'] === undefined)
+                        this.package.entity[relation + '_relation_deleted'] = [];
                     this.package.entity[relation + '_relation_deleted'].push(entity);
                 }
 
@@ -739,6 +738,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo) {
+
+        this.package.lookup_row_current_page = 0;
+        this.package.lookup_rows = []
+        this.package.lookup_row_pages = [];
+
+
         let entityInfo = ModelInfos.uniqueInstance.get(lookupSourceProperty.lookup_entity_name);
         let properties = lookupSourceProperty.lookup_properties;
         this.package.lookup_filter = ModelFactory.uniqueInstance.create(lookupSourceProperty.lookup_entity_name);

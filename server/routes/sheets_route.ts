@@ -1,10 +1,11 @@
+import { BaseEntity } from './../models/base-entity';
 import { ModelFactory } from './../models/modelFactory';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
 import { BaseRoute } from './route';
 import * as request from 'request-promise';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IPropInfo, BaseEntity } from '../models/base-entity';
+import { IPropInfo } from '../models/base-entity';
 import acl = require('acl');
 
 import * as Config from "config";
@@ -14,6 +15,7 @@ import { SheetsMgr } from '../common/sheets-mgr';
 import { AccountsMgr } from '../common/accounts-mgr';
 import { DriverRoute } from './driver_route';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { ModelInfos } from '../models/modelProperties';
 
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
@@ -21,13 +23,10 @@ var sheets = googleApi.sheets('v4');
 
 
 export interface ISelectObj {
-
     spreadsheetName: string;
     sheetName: string;
     entityName: string;
-
     select: string;
-
     addSchema: boolean;
 }
 
@@ -85,6 +84,7 @@ export class SheetRoute extends BaseRoute {
                         }
 
                         let calls_spreadsheet = [];
+                        //let repeatCellsDict = new KeyedCollection();
                         for (let spreadsheetName of spreadsheetNames) {
 
                             calls_spreadsheet.push(new Promise((cb, cerr) => {
@@ -95,9 +95,13 @@ export class SheetRoute extends BaseRoute {
                                 spreadsheetReq.properties.title = spreadsheetDefinition['spreadsheetName'];
 
                                 for (let sheet of spreadsheetDefinition['sheets']) {
+
+
+
                                     let sheetReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.sheet));
                                     sheetReq.properties.title = sheet.sheetName;
                                     spreadsheetReq.sheets.push(sheetReq);
+
 
                                     if (sheet.formula) {
                                         sheetReq.data[0].rowData[0].values.push({
@@ -115,10 +119,13 @@ export class SheetRoute extends BaseRoute {
                                             },
                                             "userEnteredFormat": {
                                                 "numberFormat": {
-                                                    "type": "TEXT"
+                                                    "type": "NUMBER"
                                                 }
                                             }
                                         });
+
+
+
                                         sheetReq.data[0].rowData[0].values.push({
                                             "userEnteredValue": {
                                                 "stringValue": 'uid'
@@ -129,78 +136,71 @@ export class SheetRoute extends BaseRoute {
                                                 }
                                             }
                                         });
+
+
+
                                         let ti = 0;
                                         for (const field of sheet.fields) {
-                                            if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
-                                                sheetReq.data[0].rowData[0].values.push({
-                                                    "userEnteredValue": {
-                                                        "stringValue": field
-                                                    },
-                                                    "userEnteredFormat": {
-                                                        "numberFormat": {
-                                                            "type": "NUMBER",
-                                                            "pattern": "#,##0"
-                                                        }
+
+                                            let fieldDef = {
+                                                "userEnteredValue": {
+                                                    "stringValue": field
+                                                },
+                                                "userEnteredFormat": {
+                                                    "numberFormat": {
+                                                        "type": "TEXT",
+                                                        "pattern": undefined
                                                     }
-                                                });
+                                                }
+                                            };
+
+                                            if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
+                                                fieldDef['userEnteredFormat'] = {
+                                                    "numberFormat": {
+                                                        "type": "NUMBER",
+                                                        "pattern": "#,##0"
+                                                    }
+                                                };
                                             }
                                             else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
-                                                sheetReq.data[0].rowData[0].values.push({
-                                                    "userEnteredValue": {
-                                                        "stringValue": field
-                                                    },
-                                                    "userEnteredFormat": {
-                                                        "numberFormat": {
-                                                            "type": "NUMBER",
-                                                            "pattern": "#,##0.00"
-                                                        }
+                                                fieldDef['userEnteredFormat'] = {
+                                                    "numberFormat": {
+                                                        "type": "NUMBER",
+                                                        "pattern": "#,##0.00"
                                                     }
-                                                });
+                                                };
                                             }
                                             else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
-                                                sheetReq.data[0].rowData[0].values.push({
-                                                    "userEnteredValue": {
-                                                        "stringValue": field
-                                                    },
-                                                    "userEnteredFormat": {
-                                                        "numberFormat": {
-                                                            "type": "DATE",
-                                                            "pattern": "dd/MM/yyyy"
-                                                        }
+                                                fieldDef['userEnteredFormat'] = {
+                                                    "numberFormat": {
+                                                        "type": "DATE",
+                                                        "pattern": "dd/MM/yyyy"
                                                     }
-                                                });
+                                                };
                                             }
-                                            else {
-                                                sheetReq.data[0].rowData[0].values.push({
-                                                    "userEnteredValue": {
-                                                        "stringValue": field
-                                                    },
-                                                    "userEnteredFormat": {
-                                                        "numberFormat": {
-                                                            "type": "TEXT"
-                                                        }
-                                                    }
-                                                });
-                                            }
+                                            sheetReq.data[0].rowData[0].values.push(fieldDef);
+
                                             ti += 1;
                                         }
                                     }
                                 }
 
-
                                 sheets.spreadsheets.create({
                                     resource: spreadsheetReq,
                                     auth: oauth2Client
                                 },
-                                    function (err, result) {
+                                    function (err, ssheet) {
                                         if (err) {
                                             cerr(err);
                                         }
                                         else {
+
                                             cb({
                                                 "spreadsheetDefinition": spreadsheetDefinition,
-                                                "spreadsheet": result
+                                                "spreadsheet": ssheet
                                             });
+
+
                                         }
                                     });
                             }));
@@ -230,6 +230,9 @@ export class SheetRoute extends BaseRoute {
                                 var fields_rowReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.fields_row));
                                 fields_rowReq.addProtectedRange.protectedRange.range.sheetId = sheet.properties.sheetId;
                                 fields_rowReq.addProtectedRange.protectedRange.editors.users.push(req.session['userId']);
+
+                                // var sort_fields_rowReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.sort_fields_row));
+                                // sort_fields_rowReq.sortRange.range.sheetId = sheet.properties.sheetId;
 
                                 var block_fields_rowReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.block_fields_row));
                                 block_fields_rowReq.updateSheetProperties.properties.sheetId = sheet.properties.sheetId;
@@ -321,7 +324,9 @@ export class SheetRoute extends BaseRoute {
                                 res.send({ error: null });
                             });
                     })
-                    .catch(r => res.send(r))
+                    .catch(r => {
+                        res.send(r);
+                    })
             });
 
         router.post('/sheetdata/enrolle-user-spreadsheet',
@@ -553,44 +558,42 @@ export class SheetRoute extends BaseRoute {
 
         router.post('/sheetdata/create',
             (req: Request, res: Response, next: NextFunction) => {
-                const { spreadsheetID, sheetName, sheetID, values } = req.body;
+                const { spreadsheetID, spreadsheetName, sheetName, sheetID, values } = req.body;
 
                 const uuidv1 = require('uuid/v1');
                 values.splice(0, 0, "=ROW()");
-                values.splice(1, 0, uuidv1());
+                //values.splice(1, 0, uuidv1());
                 for (let i = 0; i < values.length; i++) {
                     if (values[i] !== null && values[i] !== undefined && isDate(values[i])) {
-                        values[i] = values[i].day + '/' + values[i].month + '/' + values[i].year
+                        values[i] = BaseEntity.toGoogleSheetsAPIDate(values[i]);
                     }
                 }
-                SheetRoute.append(req, res, spreadsheetID, sheetName, sheetID, values);
+                SheetRoute.append(req, res, spreadsheetID, spreadsheetName, sheetName, sheetID, values);
             });
 
         router.post('/sheetdata/delete',
             (req: Request, res: Response, next: NextFunction) => {
-                const { spreadsheetID, sheetName, sheetID, ID, rowid } = req.body;
-                var rowIndex = rowid - 1;
+                const { spreadsheetID, sheetName, sheetID, ID, select } = req.body;
 
-                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, ID, rowIndex, null);
+                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, ID, select, null);
             });
 
 
         router.post('/sheetdata/update',
             (req: Request, res: Response, next: NextFunction) => {
-                const { spreadsheetID, sheetName, sheetID, values } = req.body;
-
-                var rowIndex = values[0] - 1;
+                const { spreadsheetID, spreadsheetName, sheetName, sheetID, values, select } = req.body;
+                
                 values[0] = "=ROW()";
                 var rowid = values[1];
 
                 for (let i = 0; i < values.length; i++) {
                     if (values[i] !== null && values[i] !== undefined && isDate(values[i])) {
-                        values[i] = values[i].day + '/' + values[i].month + '/' + values[i].year
+                        values[i] = BaseEntity.toGoogleSheetsAPIDate(values[i]);
                     }
                 }
 
-                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowid, rowIndex, function () {
-                    SheetRoute.append(req, res, spreadsheetID, sheetName, sheetID, values);
+                SheetRoute.clean(req, res, spreadsheetID, sheetName, sheetID, rowid, select, function () {
+                    SheetRoute.append(req, res, spreadsheetID, spreadsheetName, sheetName, sheetID, values);
                 });
 
             });
@@ -661,7 +664,7 @@ export class SheetRoute extends BaseRoute {
                                         var i = 0;
                                         for (const col of data.table.cols) {
                                             if (row.c[i] && row.c[i].v !== undefined) {
-                                                if (col.type === 'date' && row.c[i].v !== undefined)
+                                                if (col.type === 'date' && row.c[i].v !== undefined && row.c[i].v !== null)
                                                     ent[col.label] = BaseEntity.toDateStructFormat(eval('new ' + row.c[i].v));
                                                 else
                                                     ent[col.label] = row.c[i].v;
@@ -748,7 +751,7 @@ export class SheetRoute extends BaseRoute {
 
                     }).catch(r => {
                         res.send(r);
-                    });;
+                    });
             });
 
 
@@ -769,153 +772,293 @@ export class SheetRoute extends BaseRoute {
         return oauth2Client;
     }
 
-    static clean(req: Request, res: Response, spreadsheetID, sheetName, sheetID, ID, rowid, callback) {
-
-        var oauth2Client = SheetRoute.getAuth(req);
-        var createMetadataReq = {
-            spreadsheetId: spreadsheetID,
-            auth: oauth2Client,
-            resource: {
-                requests: [
-                    {
-
-                        "deleteDeveloperMetadata": {
-                            "dataFilter": {
-                                "developerMetadataLookup": {
-                                    "metadataKey": "lock_key",
-                                    "metadataValue": ID,
-                                    "locationType": "ROW"
-                                }
-                            }
-                        }
-                    },
-                    {
-
-                        "createDeveloperMetadata": {
-                            "developerMetadata": {
-                                "location": {
-                                    "dimensionRange": {
-                                        "sheetId": sheetID,
-                                        "dimension": "ROWS",
-                                        "startIndex": rowid,
-                                        "endIndex": rowid + 1
-                                    }
-                                },
-                                "metadataKey": "lock_key",
-                                "metadataValue": ID,
-                                "visibility": "DOCUMENT"
-                            }
-                        }
-                    }
-                ]
-            }
-
+    static clean(req: Request, res: Response, spreadsheetID, sheetName, sheetID, ID, selectEntity, callback) {
+        
+        let selectObj: ISelectObj = {
+            spreadsheetName: '',
+            sheetName: sheetName,
+            entityName : '',
+            select: selectEntity,
+            addSchema: false
         };
 
-        sheets.spreadsheets.batchUpdate(createMetadataReq, function (err, result) {
-            if (err) {
-                console.log(err);
-                res.send({ error: err });
-                return;
-            }
 
-            var getReq = {
-                spreadsheetId: spreadsheetID,
-                auth: oauth2Client,
-                resource: {
-                    "dataFilters": [{
-                        "developerMetadataLookup": {
-                            "metadataKey": "lock_key",
-                            "metadataValue": ID,
-                            "locationType": "ROW",
-                            "visibility": "DOCUMENT"
-                        }
-                    }]
-                }
-            };
-
-            sheets.spreadsheets.values.batchGetByDataFilter(getReq, function (err, result) {
-                if (err) {
-                    console.log(err);
-                    res.send({ error: err });
+        SheetRoute.selectID(req, spreadsheetID, selectObj)
+            .then(rowID => {
+                if (rowID <= 1) {
+                    res.send({ error: 'record is missing' });
                     return;
                 }
 
-                if (result.valueRanges.length !== 1) {
-                    res.send({ error: "ERROR_METADATA_CREATION" });
-                    return;
-                }
-
-                var markedRowID = result.valueRanges[0].valueRange.values[0][1];
-                if (markedRowID !== ID) {
-                    res.send({ error: "ERROR_METADATA_CREATION" });
-                    return;
-                }
-
-                var cleanReq = {
+                var oauth2Client = SheetRoute.getAuth(req);
+                var createMetadataReq = {
                     spreadsheetId: spreadsheetID,
                     auth: oauth2Client,
                     resource: {
-                        "dataFilters": [{
-                            "developerMetadataLookup": {
-                                "metadataKey": "lock_key",
-                                "metadataValue": ID,
-                                "locationType": "ROW",
-                                "visibility": "DOCUMENT"
+                        requests: [
+                            {
+
+                                "deleteDeveloperMetadata": {
+                                    "dataFilter": {
+                                        "developerMetadataLookup": {
+                                            "metadataKey": "lock_key",
+                                            "metadataValue": ID,
+                                            "locationType": "ROW"
+                                        }
+                                    }
+                                }
+                            },
+                            {
+
+                                "createDeveloperMetadata": {
+                                    "developerMetadata": {
+                                        "location": {
+                                            "dimensionRange": {
+                                                "sheetId": sheetID,
+                                                "dimension": "ROWS",
+                                                "startIndex": rowID -1,
+                                                "endIndex": rowID
+                                            }
+                                        },
+                                        "metadataKey": "lock_key",
+                                        "metadataValue": ID,
+                                        "visibility": "DOCUMENT"
+                                    }
+                                }
                             }
-                        }]
+                        ]
                     }
+
                 };
 
-                sheets.spreadsheets.values.batchClearByDataFilter(cleanReq, function (err, result) {
+                sheets.spreadsheets.batchUpdate(createMetadataReq, function (err, result) {
                     if (err) {
                         console.log(err);
                         res.send({ error: err });
                         return;
                     }
 
-                    if (callback)
-                        callback();
-                    else
-                        res.send({ error: null });
+                    var getReq = {
+                        spreadsheetId: spreadsheetID,
+                        auth: oauth2Client,
+                        resource: {
+                            "dataFilters": [{
+                                "developerMetadataLookup": {
+                                    "metadataKey": "lock_key",
+                                    "metadataValue": ID,
+                                    "locationType": "ROW",
+                                    "visibility": "DOCUMENT"
+                                }
+                            }]
+                        }
+                    };
 
-                }
-                );
-            }
-            );
+                    sheets.spreadsheets.values.batchGetByDataFilter(getReq, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                            res.send({ error: err });
+                            return;
+                        }
 
-        });
+                        if (result.valueRanges.length !== 1) {
+                            res.send({ error: "ERROR_METADATA_CREATION" });
+                            return;
+                        }
+
+                        var markedRowID = null;
+                        if (result.valueRanges[0].valueRange.values)
+                            markedRowID = result.valueRanges[0].valueRange.values[0][1];
+                        if (markedRowID !== ID) {
+                            res.send({ error: "ERROR_METADATA_CREATION" });
+                            return;
+                        }
+
+                        var cleanReq = {
+                            spreadsheetId: spreadsheetID,
+                            auth: oauth2Client,
+                            resource: {
+                                "dataFilters": [{
+                                    "developerMetadataLookup": {
+                                        "metadataKey": "lock_key",
+                                        "metadataValue": ID,
+                                        "locationType": "ROW",
+                                        "visibility": "DOCUMENT"
+                                    }
+                                }]
+                            }
+                        };
+
+                        sheets.spreadsheets.values.batchClearByDataFilter(cleanReq, function (err, result) {
+                            if (err) {
+                                console.log(err);
+                                res.send({ error: err });
+                                return;
+                            }
+
+                            sheets.spreadsheets.batchUpdate(
+                                {
+                                    spreadsheetId: spreadsheetID,
+                                    includeSpreadsheetInResponse: false,
+                                    resource: {
+                                        requests: [{
+                                            "sortRange": {
+                                                "range": {
+                                                    "sheetId": sheetID,  
+                                                    "startRowIndex": 1,
+                                                },
+                                                "sortSpecs": [{
+                                                    "dimensionIndex": 1,
+                                                    "sortOrder": "DESCENDING"
+                                                }]
+                                            }
+                                        }
+                                        ]
+                                    },
+                                    auth: oauth2Client,
+                                },
+                                function (err, result) {
+                                    if (err) {
+                                        console.log(err);
+                                        res.send({ error: err });
+                                        return;
+                                    }
+
+                                    if (callback)
+                                        callback();
+                                    else
+                                        res.send({ error: null });
+                                });
+
+                        }
+                        );
+                    }
+                    );
+
+                });
+            });
     }
 
-    static append(req: Request, res: Response, spreadsheetID: String, sheetName: String, sheetID: String, values) {
-        var spreadsheetReqDefinition = null;
-
-        var data = fs.readFileSync(path.join(__dirname, '../json/base-spreadsheet.json'), 'utf8');
-        spreadsheetReqDefinition = JSON.parse(data);
+    static append(req: Request, res: Response,
+        spreadsheetID: String, spreadsheetName: String, sheetName: String, sheetID: String, values) {
 
         var oauth2Client = SheetRoute.getAuth(req);
 
-        var request = {
-            spreadsheetId: spreadsheetID,
-            range: sheetName + '!1:1',
-            valueInputOption: 'USER_ENTERED',
-            insertDataOption: 'OVERWRITE',
-            auth: oauth2Client,
-            resource: {
-                "majorDimension": "ROWS",
-                "values": [values]
-            }
-        };
+        let data = fs.readFileSync(path.join(__dirname, ('../json/' + spreadsheetName + '.json')), 'utf8');
+        let spreadsheetDefinition = JSON.parse(data);
+        let sheet = null;
+        for (sheet of spreadsheetDefinition['sheets']) {
+            if (sheet.sheetName === sheetName)
+                break;
+        }
+        if (sheet === null)
+            return Promise.reject({ error: 'Sheets already created!' });
 
-        sheets.spreadsheets.values.append(request, function (err, result) {
+
+        let rowData = { values: [] };
+        rowData.values.push({
+            "userEnteredValue": {
+                "formulaValue": values[0]
+            },
+            "userEnteredFormat": {
+                "numberFormat": {
+                    "type": "TEXT"
+                }
+            }
+        });
+
+        rowData.values.push({
+            "userEnteredValue": {
+                "stringValue": values[1]
+            },
+            "userEnteredFormat": {
+                "numberFormat": {
+                    "type": "TEXT"
+                }
+            }
+        });
+        let ti = 0;
+        for (const field of sheet.fields) {
+            if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
+                rowData.values.push({
+                    "userEnteredValue": {
+                        "stringValue": values[ti + 2]
+                    },
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": "NUMBER",
+                            "pattern": "#,##0"
+                        }
+                    }
+                });
+            }
+            else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
+                rowData.values.push({
+                    "userEnteredValue": {
+                        "numberValue": values[ti + 2]
+                    },
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": "NUMBER",
+                            "pattern": "#,##0.00"
+                        }
+                    }
+                });
+            }
+            else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
+                rowData.values.push({
+                    "userEnteredValue": {
+                        "numberValue": values[ti + 2]
+                    },
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": "DATE",
+                            "pattern": "dd/MM/yyyy"
+                        }
+                    }
+                });
+            }
+            else {
+                rowData.values.push({
+                    "userEnteredValue": {
+                        "stringValue": values[ti + 2]
+                    },
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": "TEXT"
+                        }
+                    }
+                });
+            }
+            ti += 1;
+        }
+
+        sheets.spreadsheets.batchUpdate({
+            spreadsheetId: spreadsheetID,
+            resource: {
+                responseIncludeGridData: false,
+                includeSpreadsheetInResponse: false,
+                requests: [{
+                    "appendCells": {
+                        "sheetId": sheetID,
+                        "rows": [
+
+                            rowData
+                        ],
+                        "fields": "userEnteredValue,userEnteredFormat"
+                    }
+                }]
+
+            },
+            auth: oauth2Client,
+        }, function (err, result) {
             if (err) {
                 console.log(err);
                 res.send({ error: err });
                 return false;
             }
 
-            var rowIndex = parseInt(result.updates.updatedRange.split('!')[1].split(':')[1].replace(/[A-Z]/g, ''));
-            if (rowIndex < 0) {
+
+            if (!result.replies || result.replies.lenght === 0) {
                 res.send({ error: "ERROR_APPEND" });
                 return false;
             }
@@ -924,9 +1067,72 @@ export class SheetRoute extends BaseRoute {
             return true;
         });
 
+        // var request = {
+        //     spreadsheetId: spreadsheetID,
+        //     range: sheetName + '!1:1',
+        //     valueInputOption: 'USER_ENTERED',
+        //     insertDataOption: 'OVERWRITE',
+        //     auth: oauth2Client,
+        //     resource: {
+        //         "majorDimension": "ROWS",
+        //         "values": [values]
+        //     }
+        // };
+
+        // sheets.spreadsheets.values.append(request, function (err, result) {
+        //     if (err) {
+        //         console.log(err);
+        //         res.send({ error: err });
+        //         return false;
+        //     }
+
+        //     var rowIndex = parseInt(result.updates.updatedRange.split('!')[1].split(':')[1].replace(/[A-Z]/g, ''));
+        //     if (rowIndex < 0) {
+        //         res.send({ error: "ERROR_APPEND" });
+        //         return false;
+        //     }
+
+        //     res.send({ error: null });
+        //     return true;
+        // });
     }
 
 
+    static selectID(req, spreadsheetID, selectObj: ISelectObj) {
 
+        let promise = new Promise((result: (number) => void) => {
+            const { sheetName, select } = selectObj;
 
+            var googleApi = require('googleapis');
+            var googleAuth = require('google-auth-library');
+            var auth = new googleAuth();
+            var oauth2Client = new auth.OAuth2();
+            oauth2Client.credentials = {
+                access_token: req.session['google_access_token']
+            };
+
+            var jsonpClient = require('jsonp-client');
+            var url = "https://docs.google.com/spreadsheets/d/" + spreadsheetID +
+                "/gviz/tq?tqx=responseHandler:handleTqResponse" +
+                "&sheet=" + sheetName +
+                "&headers=1" +
+                "&tq=" + encodeURI(select) +
+                "&access_token=" + req.session['google_access_token']
+
+            jsonpClient(url,
+                function (err, data) {
+                    if (err || data.status === 'error') {
+                        result(-1);
+                    }
+                    else {
+                        for (const row of data.table.rows) {
+                            result(row.c[0].v);
+                        }
+                    }
+                });
+        }
+        );
+        return promise;
+
+    }
 }

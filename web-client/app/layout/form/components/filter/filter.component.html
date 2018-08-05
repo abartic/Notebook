@@ -5,7 +5,7 @@
             <div class="btn-group mr-2" role="group">
                 <button type="button" (click)="onApply()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-primary">Apply</button>
                 <button type="button" (click)="onClear()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-secondary">Clear</button>
-                <button type="button" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" (click)="isDetailsFilterCollapsed = !isDetailsFilterCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="detailsFilterArea">Details Filters</button>
+                <button type="button" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" (click)="package.isDetailsFilterCollapsed = !package.isDetailsFilterCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="detailsFilterArea">Details Filters</button>
                 <button type="button" (click)="onNew()" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}">New</button>
             </div>
         </div>
@@ -14,7 +14,7 @@
     <BR>
     <div class="row">
         <div class="col col-xl-12 col-lg-12 ">
-            <div id=" detailsFilterArea " [ngbCollapse]="isDetailsFilterCollapsed ">
+            <div id=" detailsFilterArea " [ngbCollapse]="package.isDetailsFilterCollapsed ">
 
                 <div *ngFor="let relation of (package.filter.entityInfo.relations) ">
                     {{relation}} filter:

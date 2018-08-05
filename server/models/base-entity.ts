@@ -2,6 +2,7 @@ import { IEntityInfo } from './base-entity';
 import { ModelInfos } from "./modelProperties";
 import "reflect-metadata"
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import * as uuidv1 from 'uuid/v1';
 
 function padNumber(value: number) {
     if (isNumber(value)) {
@@ -50,6 +51,12 @@ export enum eEntityStatus {
     Updated = 4
 }
 
+export enum eEntityAction {
+    None = 0,
+    Create = 1,
+    Delete = 2,
+    Update = 3,
+}
 
 
 export function SheetInfo(spreadsheetName: string, sheetName: string, entityName: string, ukeyPropName?: string) {
@@ -108,6 +115,7 @@ export class BaseEntity {
         return this.ukey_prop_name;
     }
 
+
     public get entityInfo(): IEntityInfo {
         return ModelInfos.uniqueInstance.get(this.entityName);
     }
@@ -125,7 +133,7 @@ export class BaseEntity {
 
         if (this.properties) {
             for (let p of this.properties) {
-                if ((this.status === eEntityStatus.New && (p.propName === 'uid' || p.propName === 'rowid')) === false)
+                if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
                     array.push(this[p.propName])
             }
         }
@@ -191,7 +199,7 @@ export class BaseEntity {
     public static parseNumber(value: string): Number {
         if (value) {
             value = value.trim().replace(',', '');
-            if (value.indexOf(".")>=0)
+            if (value.indexOf(".") >= 0)
                 return Number.parseFloat(value);
             else
                 return Number.parseInt(value);
@@ -207,6 +215,16 @@ export class BaseEntity {
             stringDate += date.year;
         }
         return stringDate;
+    }
+
+    private static SHEETS_EPOCH_DIFFERENCE = -2209161600000;
+    private static DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
+
+    public static toGoogleSheetsAPIDate(date: NgbDateStruct) {
+        let utcdate = new Date(date.year, date.month, date.day, 0, 0, 0, 0);
+        let millisSinceUnixEpoch = utcdate.getTime() + -1 * utcdate.getTimezoneOffset() * 60 * 1000;
+        let millisSinceSheetsEpoch = millisSinceUnixEpoch - BaseEntity.SHEETS_EPOCH_DIFFERENCE;
+        return millisSinceSheetsEpoch / BaseEntity.DAY_IN_MILISECONDS;
     }
 
     public static toUKeyFilter(entityInfo: IEntityInfo, uid: any): string {
@@ -244,6 +262,22 @@ export class BaseEntity {
             return '';
         }
 
+    }
+
+    public static getFilterByUkey(entity: BaseEntity): string {
+        let entityInfo = entity.entityInfo;
+        let cell_id, cell_uid;
+        for (let p of entityInfo.properties) {
+            if (p.propName === 'uid')
+                cell_uid = p.cellName;
+            else if (p.propName === 'rowid')
+                cell_id = p.cellName;
+            else
+                continue;
+        }
+
+        let query = "select " + cell_id + " where " + cell_uid + " = '" + entity.uid + "'";
+        return query;
     }
 
     public static toFilter(entity: BaseEntity, keys, offset: number, limit: number, forFkey?: string): string {
@@ -287,10 +321,10 @@ export class BaseEntity {
                 //number
                 else if (p.dataType === 'NUMBER') {
                     if (li >= 0) {
-                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) +  BaseEntity.parseNumber(fvalue.substring(li + 1)).toString(); 
+                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
                     }
                     else {
-                        where = where + ' and ' + p.cellName + ' = ' +  BaseEntity.parseNumber(fvalue).toString();
+                        where = where + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
                     }
                 }
                 //string
@@ -355,10 +389,10 @@ export class BaseEntity {
                 //number
                 else if (p.dataType === 'NUMBER') {
                     if (li >= 0) {
-                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) +   BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
+                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
                     }
                     else {
-                        query = query + ' and ' + p.cellName + ' = ' +  BaseEntity.parseNumber(fvalue).toString();
+                        query = query + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
                     }
                 }
                 //string
@@ -387,7 +421,10 @@ export class BaseEntity {
         return query;
     }
 
-    static createInstance<T extends BaseEntity>(type: new () => T, instance?: Object, forceClone?: boolean, parent?: BaseEntity): T {
+    static createInstance<T extends BaseEntity>(type: new () => T,
+        instance?: Object,
+        forceClone?: boolean,
+        parent?: BaseEntity): T {
         let new_instance: T;
         if ((instance instanceof type) === true && forceClone !== true) {
             new_instance = <T>instance;
@@ -399,10 +436,24 @@ export class BaseEntity {
         }
 
         if (parent && parent.ukeyPropName) //copy the unique key
+        {
             new_instance[parent.ukeyPropName] = parent[parent.ukeyPropName];
+        }
+
+        if (instance === null) {
+
+            new_instance['uid'] = uuidv1();
+        }
+
+        if (instance===null)
+        {
+            new_instance.onNew(parent);
+        }
 
         return new_instance;
     }
+
+    public onNew(parent: BaseEntity) { }
 }
 
 
