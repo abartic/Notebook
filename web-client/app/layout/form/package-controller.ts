@@ -54,6 +54,8 @@ export interface IPackageController {
     getRelationProperties(entity: BaseEntity, relation: string);
 
     onCreateEntityByRelation(relation: string);
+
+    isDisabled(entity, property);
 }
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
