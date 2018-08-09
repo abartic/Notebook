@@ -1,3 +1,4 @@
+
 import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog/selectEntityDialogWnd';
 import { ModelInfos } from './../../../../server/models/modelProperties';
 import { ModelFactory } from './../../../../server/models/modelFactory';
@@ -10,6 +11,9 @@ import { AlertDialogWnd } from '../../dialog/alertDialog/alertDialogWnd';
 import { AskDialogWnd } from '../../dialog/askDialog/askDialogWnd';
 import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { EditEntityDialogWnd } from '../../dialog/editEntityDialog/editEntityDialogWnd';
+import { KeyedCollection } from '../../../../server/utils/dictionary';
+import { ISelectObj } from '../../../../server/common/select-obj';
+import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
 
 
 
@@ -38,6 +42,8 @@ export interface IPackageController {
     onDelete();
 
     onUndo();
+
+    onPrint();
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo);
 
@@ -249,6 +255,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             null, null, entity.uid, null,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
+                this.package.validations = new KeyedCollection<ISelectObj>();
                 this.package.show_filter = false;
 
                 if (entity.entityInfo.relations) {
@@ -261,6 +268,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                             }, () => { this.package.show_filter = true; });
                     }
                 }
+
 
                 if (cb)
                     cb();
@@ -426,9 +434,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     let entities = [];
                     for (let row of rows) {
                         let entity = BaseEntity.createInstance(
-                            ModelFactory.uniqueInstance.get(entityInfo.entityName), 
-                            row, 
-                            false, 
+                            ModelFactory.uniqueInstance.get(entityInfo.entityName),
+                            row,
+                            false,
                             null);
                         entity.status = eEntityStatus.Loaded;
                         entities.push(entity)
@@ -446,6 +454,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     onNew() {
         this.package.entity = BaseEntity.createInstance(this.type, null, false, null);
+        this.package.validations = new KeyedCollection<ISelectObj>();
         this.package.entity.status = eEntityStatus.New;
         this.package.entity_status_msg = '';
         this.package.error_msg = '';
@@ -466,12 +475,20 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         else
             action = eEntityAction.Update;
 
-        this.saveEntity(action, this.package.entity, () => {
-            if (this.package.entity.status === eEntityStatus.Loaded)
-                Object.assign(this.package.selected_entity, this.package.entity);
-            this.package.entity_status_msg = 'Entity saved.';
+        this.validateEntity((validationResult) => {
 
-            this.readPackageEntity(this.package.entity, () => { this.package.entity_status_msg = 'Entity saved & refetched.'; });
+            if (validationResult && validationResult.length > 0) {
+                this.showAlert("Invalid fields:" + validationResult);
+                return;
+            }
+
+            this.saveEntity(action, this.package.entity, () => {
+                if (this.package.entity.status === eEntityStatus.Loaded)
+                    Object.assign(this.package.selected_entity, this.package.entity);
+                this.package.entity_status_msg = 'Entity saved.';
+
+                this.readPackageEntity(this.package.entity, () => { this.package.entity_status_msg = 'Entity saved & refetched.'; });
+            });
         });
     }
 
@@ -485,7 +502,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             url = '/sheetdata/delete';
 
         let entityInfo = entity.entityInfo;
-        let select = BaseEntity.getFilterByUkey(entity);
+        let select = BaseEntity.getFilterByUID(entity);
         if (action === eEntityAction.Delete)
             return [url,
                 {
@@ -507,6 +524,30 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     select: select
                 }];
 
+    }
+
+    private validateEntity(cb?: (validationResult) => void) {
+        let packs = [];
+        if (this.package.validations.Count() === 0) {
+            if (cb)
+                cb(null);
+        }
+
+        for (let validation_item of this.package.validations.Values()) {
+            packs.push(
+                ['/sheetdata/validate', validation_item]
+            );
+        }
+
+        this.httpCaller.callPosts(
+            packs,
+            result => {
+                if (cb)
+                    cb(result);
+            },
+            err => {
+                this.package.error_msg = this.getError(err);
+            });
     }
 
     private saveEntity(action: eEntityAction, entity: BaseEntity, cb?: () => void) {
@@ -612,6 +653,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.message = message;
     }
 
+    private showReport(reportUrl: string) {
+
+        const modalRef = this.modalService.open(ReportDialogWnd, 
+            { windowClass: 'report-modal' }
+        );
+        modalRef.componentInstance.reportUrl = reportUrl;
+    }
+
     private askYesNo(message: string) {
 
         const modalRef = this.modalService.open(AskDialogWnd);
@@ -683,7 +732,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     public onCreateEntityByRelation(relation: string) {
 
         this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation), null,
-         false, this.package.entity);
+            false, this.package.entity);
         this.package.entity_relation.status = eEntityStatus.New;
         this.openEditDialog('New: ' + relation).then(result => {
             if (result === 'Save') {
@@ -703,7 +752,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     public onEditEntityByRelation(entity: BaseEntity, relation: string) {
         let index = this.package.entity[relation + '_relation'].indexOf(entity);
         this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation),
-         entity, true, null);
+            entity, true, null);
         this.openEditDialog('Edit: ' + relation).then(result => {
             if (result === 'Save') {
                 if (this.package.entity_relation.status !== eEntityStatus.New)
@@ -782,6 +831,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty: string, lookupEntity: BaseEntity, lookupTargetProperty: string) {
 
         lookupSource[lookupSourceProperty] = lookupEntity[lookupTargetProperty];
+        this.removeValidation(lookupSource, lookupSourceProperty);
     }
 
     onLookupFilterChange() {
@@ -799,5 +849,57 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             case 'TIME':
                 return 'time';
         }
+    }
+
+
+    onEditorValueChanged(entity: BaseEntity, property: IPropInfo) {
+
+        if (entity.ukeyPropName === property.propName && entity.entityInfo.relations) {
+            for (let relation of entity.entityInfo.relations) {
+                if (entity[relation + '_relation']) {
+                    for (let item of entity[relation + '_relation']) {
+                        item[entity.ukeyPropName] = entity[entity.ukeyPropName];
+                        if (item.status !== eEntityStatus.New)
+                            item.status = eEntityStatus.Updated
+                    }
+                }
+            }
+        }
+        else if (property.lookup_entity_name) {
+            if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0)
+                this.removeValidation(entity, property.propName);
+            else
+                this.addValidation(entity, property.propName);
+        }
+    }
+
+    addValidation(entity: BaseEntity, propName: string) {
+        let validation_item: ISelectObj;
+
+        this.removeValidation(entity, propName);
+        validation_item = <ISelectObj>{};
+        validation_item.spreadsheetName = entity.spreadsheetName;
+        validation_item.sheetName = entity.sheetName;
+        validation_item.select = BaseEntity.getFilterByUKey(entity, propName);
+        validation_item.addSchema = false;
+        this.package.validations.Add(entity.uid + propName, validation_item);
+
+    }
+
+    removeValidation(entity: BaseEntity, propName: string) {
+        if (this.package.validations.ContainsKey(entity.uid + propName))
+            this.package.validations.Remove(entity.uid + propName)
+    }
+
+    onPrint() {
+        this.httpCaller.callPdf(
+            '/sheetdata/report  ',
+            {},
+            reportUrl => {
+                this.showReport(reportUrl); 
+            },
+            err => {
+                this.package.error_msg = this.getError(err);
+            });
     }
 }

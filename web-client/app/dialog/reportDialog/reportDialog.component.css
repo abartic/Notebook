@@ -1,0 +1,15 @@
+.report-modal .modal-content {
+    background-color: #292b2c;
+    color: white;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+.report-modal .modal-body {
+    width: 1000px;
+    height: 800px;
+}
+
+.report-modal .close {
+    color: white;
+}

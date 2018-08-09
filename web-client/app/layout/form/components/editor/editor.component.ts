@@ -8,7 +8,6 @@ import { Package } from './../../package';
 import { Component, OnInit, Input } from '@angular/core';
 import { Jsonp, Response } from '@angular/http';
 import { routerTransition } from "../../../../router.animations";
-
 import { IPackageController } from '../../package-controller';
 
 @Component({
@@ -41,6 +40,10 @@ export class EditorComponent implements OnInit {
 
   onNew() {
     this.packageCtrl.onNew();
+  }
+
+  onPrint() {
+    this.packageCtrl.onPrint();
   }
 }
 

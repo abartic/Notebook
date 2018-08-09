@@ -1,5 +1,8 @@
+
 import { ModelFactory } from './../../../../server/models/modelFactory';
 import { BaseEntity, eEntityStatus, IPropInfo } from '../../../../server/models/base-entity';
+import { KeyedCollection } from '../../../../server/utils/dictionary';
+import { ISelectObj } from '../../../../server/common/select-obj';
 
 
 export class Package<T extends BaseEntity> {
@@ -32,6 +35,9 @@ export class Package<T extends BaseEntity> {
     public filter_loading : boolean= false;
     public lookup_loading : boolean= false;
     public isDetailsFilterCollapsed = true;
+
+    public validations : KeyedCollection<ISelectObj>;
+
     public constructor(type : new() => T) {
         this.rows = [];
         this.filter = BaseEntity.createInstance<T>(type);

@@ -264,7 +264,7 @@ export class BaseEntity {
 
     }
 
-    public static getFilterByUkey(entity: BaseEntity): string {
+    public static getFilterByUID(entity: BaseEntity): string {
         let entityInfo = entity.entityInfo;
         let cell_id, cell_uid;
         for (let p of entityInfo.properties) {
@@ -277,6 +277,20 @@ export class BaseEntity {
         }
 
         let query = "select " + cell_id + " where " + cell_uid + " = '" + entity.uid + "'";
+        return query;
+    }
+
+    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string): string {
+        let entityInfo = entity.entityInfo;
+        let cell_ukey;
+        for (let p of entityInfo.properties) {
+            if (p.propName === ukey_prop_name)
+                cell_ukey = p.cellName;
+            else
+                continue;
+        }
+
+        let query = 'select ' + cell_ukey + ' where ' + cell_ukey + ' = "' + entity[ukey_prop_name].trim() + '" limit 1';
         return query;
     }
 
@@ -445,8 +459,7 @@ export class BaseEntity {
             new_instance['uid'] = uuidv1();
         }
 
-        if (instance===null)
-        {
+        if (instance === null) {
             new_instance.onNew(parent);
         }
 

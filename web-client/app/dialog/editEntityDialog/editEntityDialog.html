@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="input-group" *ngSwitchDefault>
-                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]">
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity_relation, property)">
                     <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
                         <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity_relation, property)">...</button>
                     </div>

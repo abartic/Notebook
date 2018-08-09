@@ -1,3 +1,4 @@
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BaseEntity } from './../models/base-entity';
 import { ModelFactory } from './../models/modelFactory';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
@@ -16,19 +17,17 @@ import { AccountsMgr } from '../common/accounts-mgr';
 import { DriverRoute } from './driver_route';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { ModelInfos } from '../models/modelProperties';
+import { ISelectObj } from '../common/select-obj';
 
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
+const jsreport = require('jsreport-core')({
+    templatingEngines: { strategy: 'in-process' },
+
+})
 
 
 
-export interface ISelectObj {
-    spreadsheetName: string;
-    sheetName: string;
-    entityName: string;
-    select: string;
-    addSchema: boolean;
-}
 
 export enum eFileOperationType {
     folder = "f",
@@ -45,10 +44,15 @@ export class SheetRoute extends BaseRoute {
 
     constructor() {
         super();
+
     }
 
 
     public static create(router: Router) {
+
+        //jsreport.use(require('jsreport-handlebars')())
+        //jsreport.use(require('jsreport-jsrender')());
+        jsreport.init().then(() => console.log('reports init...'));
 
         router.post('/sheetdata/create-spreadsheet',
             AppAcl.Instance.getAclRequest(),
@@ -582,7 +586,7 @@ export class SheetRoute extends BaseRoute {
         router.post('/sheetdata/update',
             (req: Request, res: Response, next: NextFunction) => {
                 const { spreadsheetID, spreadsheetName, sheetName, sheetID, values, select } = req.body;
-                
+
                 values[0] = "=ROW()";
                 var rowid = values[1];
 
@@ -683,6 +687,100 @@ export class SheetRoute extends BaseRoute {
 
                     }).catch(r => res.send(r));
             });
+        router.post('/sheetdata/validate',
+            (req: Request, res: Response, next: NextFunction) => {
+                let token = req.session['google_access_token'];
+                const { spreadsheetName, sheetName, entityName, select, addSchema } = req.body as ISelectObj;
+
+                let p_spreadsheets = undefined, p_spreadsheet = undefined, p_sheet = undefined;
+                SheetsMgr.uniqueInstance.get(token)
+                    .then(spreadsheetsSet => {
+
+                        if (spreadsheetsSet === null) {
+                            return Promise.reject({ error: 'Sheets not created!' });
+                        }
+
+
+                        p_spreadsheets = spreadsheetsSet.spreadsheets;
+
+                        p_spreadsheet = <ISpreadsheet>p_spreadsheets.find(s => s.spreadsheetName === spreadsheetName);
+                        if (p_spreadsheet !== undefined) {
+                            p_sheet = <ISheet>p_spreadsheet.sheets.find(s => s.sheetName === sheetName);
+                            return Promise.resolve()
+                        }
+
+                        if (p_sheet === undefined) {
+                            return Promise.reject({ error: 'Sheets missing!' });
+                        }
+                    }).then(() => {
+
+
+                        var googleApi = require('googleapis');
+                        var googleAuth = require('google-auth-library');
+                        var auth = new googleAuth();
+                        var oauth2Client = new auth.OAuth2();
+                        oauth2Client.credentials = {
+                            access_token: req.session['google_access_token']
+                        };
+
+                        var jsonpClient = require('jsonp-client');
+                        var url = "https://docs.google.com/spreadsheets/d/" + p_spreadsheet.spreadsheetID +
+                            "/gviz/tq?tqx=responseHandler:handleTqResponse" +
+                            "&sheet=" + sheetName +
+                            "&headers=1" +
+                            "&tq=" + encodeURI(select) +
+                            "&access_token=" + req.session['google_access_token']
+
+                        jsonpClient(url,
+                            function (err, data) {
+                                if (err) {
+                                    res.json({ error: err });
+                                }
+                                else if (data.status === 'error') {
+                                    res.json({
+                                        error: data.errors
+                                    });
+                                }
+                                else {
+                                    let result = null;
+                                    if (data.table.cols.length > 0 && data.table.rows.length === 0)
+                                        result = data.table.cols[0].label
+                                    res.json(result);
+                                }
+                            });
+
+                    }).catch(r => res.send(r));
+            });
+
+        router.post('/sheetdata/report',
+            (req: Request, res: Response, next: NextFunction) => {
+
+                return jsreport.render({
+                    template: {
+                        content: `<html>
+                        <head>
+                            <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+                                  
+                        </head>
+                        <body>hello {{foo}}</body>
+                        </html>`,
+                        engine: 'handlebars',
+                        recipe: 'chrome-pdf'
+                    },
+                    data: {
+                        foo: "world"
+                    }
+                }).then((out) => {
+                    res.setHeader('Content-Type', 'application/pdf');
+                    out.stream.pipe(res);
+
+                }).catch((e) => {
+                    res.end(e.message);
+                });
+
+
+
+            });
 
         router.post('/sheetdata/getscalar',
             (req: Request, res: Response, next: NextFunction) => {
@@ -773,11 +871,11 @@ export class SheetRoute extends BaseRoute {
     }
 
     static clean(req: Request, res: Response, spreadsheetID, sheetName, sheetID, ID, selectEntity, callback) {
-        
+
         let selectObj: ISelectObj = {
             spreadsheetName: '',
             sheetName: sheetName,
-            entityName : '',
+            entityName: '',
             select: selectEntity,
             addSchema: false
         };
@@ -816,7 +914,7 @@ export class SheetRoute extends BaseRoute {
                                             "dimensionRange": {
                                                 "sheetId": sheetID,
                                                 "dimension": "ROWS",
-                                                "startIndex": rowID -1,
+                                                "startIndex": rowID - 1,
                                                 "endIndex": rowID
                                             }
                                         },
@@ -903,7 +1001,7 @@ export class SheetRoute extends BaseRoute {
                                         requests: [{
                                             "sortRange": {
                                                 "range": {
-                                                    "sheetId": sheetID,  
+                                                    "sheetId": sheetID,
                                                     "startRowIndex": 1,
                                                 },
                                                 "sortSpecs": [{
@@ -1058,7 +1156,7 @@ export class SheetRoute extends BaseRoute {
             }
 
 
-            if (!result.replies || result.replies.lenght === 0) {
+            if (!result.replies || result.replies.length === 0) {
                 res.send({ error: "ERROR_APPEND" });
                 return false;
             }

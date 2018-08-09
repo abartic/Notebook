@@ -28,6 +28,8 @@ import { EditEntityDialogWnd } from './dialog/editEntityDialog/editEntityDialogW
 import { SelectEntityDialogWnd } from './dialog/selectEntityDialog/selectEntityDialogWnd';
 import { CheckLoginService } from './services/check-login-service';
 import { CommonModule } from '@angular/common';
+import { SafePipe } from './shared/pipes/safeurl';
+import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -50,7 +52,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     AlertDialogWnd,
     AskDialogWnd,
     EditEntityDialogWnd,
-    SelectEntityDialogWnd
+    SelectEntityDialogWnd,
+    ReportDialogWnd,
+    SafePipe
     
   ],
   imports: [
@@ -91,6 +95,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AskDialogWnd,
     EditEntityDialogWnd,
     SelectEntityDialogWnd,
+    ReportDialogWnd
     
   ],
   exports : [

@@ -6,6 +6,7 @@
                 <button type="button" (click)="onSave()" class="btn btn-primary">Save</button>
                 <button type="button" (click)="onDelete()" class="btn btn-secondary">Delete</button>
                 <button type="button" (click)="onUndo()" class="btn btn-secondary">Undo</button>
+                <button type="button" (click)="onPrint()" class="btn btn-secondary">Print</button>
             </div>
         </div>
     </div>
@@ -26,7 +27,7 @@
                 </div>
 
                 <div class="input-group" *ngSwitchDefault>
-                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]">
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)">
                     <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
                         <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
                     </div>
