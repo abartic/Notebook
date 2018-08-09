@@ -22,8 +22,7 @@ import { ISelectObj } from '../common/select-obj';
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 const jsreport = require('jsreport-core')({
-    templatingEngines: { allowedModules: '*', strategy: 'in-process' },
-
+    templatingEngines: { strategy: 'in-process' },
 })
 
 
@@ -53,7 +52,7 @@ export class SheetRoute extends BaseRoute {
         jsreport.use(require('jsreport-handlebars')())
         jsreport.use(require('jsreport-jsrender')());
         jsreport.use(require('jsreport-phantom-pdf')({ strategy: 'phantom-server' }))
-        jsreport.init().then(() => console.log('reports init...'));
+        jsreport.init().then(() => console.log('js reports initiated.'));
 
         router.post('/sheetdata/create-spreadsheet',
             AppAcl.Instance.getAclRequest(),
