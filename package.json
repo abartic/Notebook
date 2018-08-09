@@ -94,7 +94,6 @@
         "typescript": "2.5.3",
         "uuid": "^3.2.1",
         "zone.js": "^0.8.20"
-
     },
     "devDependencies": {
         "@types/jasmine": "^2.8.6",
