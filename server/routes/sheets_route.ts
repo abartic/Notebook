@@ -22,7 +22,7 @@ import { ISelectObj } from '../common/select-obj';
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 const jsreport = require('jsreport-core')({
-    templatingEngines: { strategy: 'in-process' },
+    templatingEngines: { allowedModules: '*', strategy: 'in-process' },
 
 })
 
