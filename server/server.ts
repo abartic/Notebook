@@ -9,7 +9,7 @@ import * as path from 'path';
 
 import * as ejs from 'ejs';
 import * as methodOverride from 'method-override';
-import * as session from 'express-session';
+//import * as session from 'express-session';
 import { IndexRoute } from './routes/index';
 import { PassportManager } from './passport-manager/passport-manager';
 import * as Config from 'config';
@@ -110,23 +110,28 @@ export class Server {
         // use cookie parker middleware middlware
         this.app.use(cookieParser(Config.get<string>('cookieSecret')));
 
-        this.app.use(cookieSession({ name: 'session', keys: [Config.get<string>('cookieSecret')] }));
+        let cookieSessionConfing = <CookieSessionInterfaces.CookieSessionOptions>{
+             name: 'session', 
+             keys: [Config.get<string>('cookieSecret')],
+             maxAge : 60 * 60 * 1000 // 1 hour,
+        };
+        this.app.use(cookieSession(cookieSessionConfing));
 
         this.app.set('trust proxy', 1) // trust first proxy
-        var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-        this.app.use(session({
-            secret: Config.get<string>("cookieSecret"),
-            resave: true,
-            saveUninitialized: true,
-            name: 'sessionId',
-            cookie: {
-                secure: true,
-                httpOnly: true,
-                //domain: 'example.com',
-                //path: 'foo/bar',
-                expires: expiryDate
-            }
-        }));
+        //var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+        // this.app.use(session({
+        //     secret: Config.get<string>("cookieSecret"),
+        //     resave: true,
+        //     saveUninitialized: true,
+        //     name: 'sessionId',
+        //     cookie: {
+        //         secure: true,
+        //         httpOnly: true,
+        //         //domain: 'example.com',
+        //         //path: 'foo/bar',
+        //         expires: expiryDate
+        //     }
+        // }));
 
         // use override middlware
         this.app.use(methodOverride());
