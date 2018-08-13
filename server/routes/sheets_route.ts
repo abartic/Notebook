@@ -329,7 +329,10 @@ export class SheetRoute extends BaseRoute {
                             });
                     })
                     .catch(r => {
-                        res.send(r);
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
                     })
             });
 
@@ -449,7 +452,12 @@ export class SheetRoute extends BaseRoute {
                         return Promise.all(calls);
                     })
                     .then(r => { return res.send({ error: null }); })
-                    .catch(r => res.send(r))
+                    .catch(r => {
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
+                    });
             });
 
         router.post('/sheetdata/spreadsheet-info',
@@ -556,7 +564,10 @@ export class SheetRoute extends BaseRoute {
 
 
                     }).catch(r => {
-                        res.send(r);
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
                     });
             });
 
@@ -685,7 +696,12 @@ export class SheetRoute extends BaseRoute {
                                 }
                             });
 
-                    }).catch(r => res.send(r));
+                    }).catch(r => {
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
+                    });
             });
         router.post('/sheetdata/validate',
             (req: Request, res: Response, next: NextFunction) => {
@@ -749,7 +765,12 @@ export class SheetRoute extends BaseRoute {
                                 }
                             });
 
-                    }).catch(r => res.send(r));
+                    }).catch(r => {
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
+                    });
             });
 
         router.post('/sheetdata/report',
@@ -774,8 +795,11 @@ export class SheetRoute extends BaseRoute {
                     res.setHeader('Content-Type', 'application/pdf');
                     out.stream.pipe(res);
 
-                }).catch((e) => {
-                    res.end(e.message);
+                }).catch(r => {
+                    if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                        res.send({ error: { code: 401 } });
+                    else
+                        res.send(r);
                 });
 
 
@@ -848,7 +872,10 @@ export class SheetRoute extends BaseRoute {
 
 
                     }).catch(r => {
-                        res.send(r);
+                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                            res.send({ error: { code: 401 } });
+                        else
+                            res.send(r);
                     });
             });
 
@@ -1033,6 +1060,11 @@ export class SheetRoute extends BaseRoute {
                     );
 
                 });
+            }).catch(r => {
+                if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                    res.send({ error: { code: 401 } });
+                else
+                    res.send(r);
             });
     }
 
@@ -1150,8 +1182,11 @@ export class SheetRoute extends BaseRoute {
             auth: oauth2Client,
         }, function (err, result) {
             if (err) {
-                console.log(err);
-                res.send({ error: err });
+                if (err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                    res.send({ error: { code: 401 } });
+                else
+
+                    res.send({ error: err });
                 return false;
             }
 
@@ -1165,34 +1200,7 @@ export class SheetRoute extends BaseRoute {
             return true;
         });
 
-        // var request = {
-        //     spreadsheetId: spreadsheetID,
-        //     range: sheetName + '!1:1',
-        //     valueInputOption: 'USER_ENTERED',
-        //     insertDataOption: 'OVERWRITE',
-        //     auth: oauth2Client,
-        //     resource: {
-        //         "majorDimension": "ROWS",
-        //         "values": [values]
-        //     }
-        // };
 
-        // sheets.spreadsheets.values.append(request, function (err, result) {
-        //     if (err) {
-        //         console.log(err);
-        //         res.send({ error: err });
-        //         return false;
-        //     }
-
-        //     var rowIndex = parseInt(result.updates.updatedRange.split('!')[1].split(':')[1].replace(/[A-Z]/g, ''));
-        //     if (rowIndex < 0) {
-        //         res.send({ error: "ERROR_APPEND" });
-        //         return false;
-        //     }
-
-        //     res.send({ error: null });
-        //     return true;
-        // });
     }
 
 

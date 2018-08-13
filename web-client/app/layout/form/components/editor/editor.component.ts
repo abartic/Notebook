@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { Package } from './../../package';
 import { Component, OnInit, Input } from '@angular/core';
-import { Jsonp, Response } from '@angular/http';
+
 import { routerTransition } from "../../../../router.animations";
 import { IPackageController } from '../../package-controller';
 

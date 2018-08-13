@@ -1,6 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
-import { Http, Jsonp, Response } from '@angular/http';
+
 
 @Component({
     selector: 'app-dashboard',
@@ -11,7 +12,7 @@ import { Http, Jsonp, Response } from '@angular/http';
 export class DashboardComponent implements OnInit {
     
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
     
     }
 

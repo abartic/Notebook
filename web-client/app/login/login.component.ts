@@ -9,10 +9,11 @@ import { routerTransition } from '../router.animations';
 import { NgModule, Injectable, AfterContentInit } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { Http, Jsonp, Response } from '@angular/http';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms'
 
 import { CookieService } from 'ngx-cookie-service';
+import { HttpClient } from '@angular/common/http';
+
 
 
 
@@ -30,8 +31,7 @@ export class LoginComponent implements OnInit, AfterContentInit {
 
 
     constructor(public router: Router,
-        private http: Http,
-        private jsonp: Jsonp,
+        private http: HttpClient,
         private cookieService: CookieService) {
     }
 

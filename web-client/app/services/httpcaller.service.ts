@@ -1,21 +1,35 @@
 
 import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptionsArgs, ResponseContentType } from '@angular/http';
+//import { Http, Response, RequestOptionsArgs, ResponseContentType } from '@angular/http';
 import { Router } from '@angular/router';
 //import { forkJoin } from 'rxjs/observable/forkJoin';
 import 'rxjs/add/observable/forkJoin';
+import { HttpClient } from '@angular/common/http';
+
+
+interface HttpResponse {
+  error: HttpResponseError;
+  errors: HttpResponseError[];
+  code : number
+}
+
+interface HttpResponseError {
+  status: number;
+  code: number;
+}
+
 
 @Injectable()
 export class HttpCallerService {
 
-  constructor(private router: Router, private http: Http) { }
+  constructor(private router: Router, private http: HttpClient) { }
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    this.http.post(url, pack)
-      .subscribe(resp => {
-        const result = resp.json();
+    this.http.post<HttpResponse>(url, pack, {responseType : 'json'})
+      .subscribe(result => {
+        
         if ((result.error === undefined || result.error === null) &&
           (result.errors === undefined || result.errors === null)) {
           cb(result);
@@ -38,11 +52,12 @@ export class HttpCallerService {
 
   public callPdf(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    let options: RequestOptionsArgs = <RequestOptionsArgs>{};
-    options.responseType = ResponseContentType.Blob;
-    this.http.post(url, pack, options)
+    // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
+    // options.responseType = ResponseContentType.Blob;
+    this.http.post(url, pack, {responseType : 'blob'})
       .subscribe(result => {
-        var file = new Blob([result.blob()], { type: 'application/pdf' });
+        //var file = new Blob([result.blob()], { type: 'application/pdf' });
+        var file = new Blob([result], { type: 'application/pdf' });
         var fileURL = URL.createObjectURL(file);
         cb(fileURL);
       }, error => {
@@ -54,9 +69,9 @@ export class HttpCallerService {
 
   public callPosts(packs: Array<[string, Object]>, cb: ((result: any) => void), errcb: ((result: any) => void)) {
 
-    let calls: Array<Observable<Response>> = [];
+    let calls: Array<Observable<HttpResponse>> = [];
     for (let pack of packs) {
-      calls.push(this.http.post(pack["0"], pack["1"]));
+      calls.push(this.http.post<HttpResponse>(pack["0"], pack["1"]));
     }
 
     Observable.forkJoin(calls)
@@ -64,8 +79,7 @@ export class HttpCallerService {
         let results = [];
         let navigate = false;
         let error = null;
-        for (let resp of resps) {
-          const result = resp.json();
+        for (let result of resps) {
           if (!result)
             continue;
 
@@ -95,9 +109,9 @@ export class HttpCallerService {
 
   public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
 
-    this.http.get(url)
-      .subscribe(resp => {
-        const result = resp.json();
+    this.http.get<HttpResponse>(url)
+      .subscribe(result => {
+        
         if ((result.error === undefined || result.error === null) &&
           (result.errors === undefined || result.errors === null)) {
           cb(result);
@@ -112,3 +126,4 @@ export class HttpCallerService {
       });
   }
 }
+

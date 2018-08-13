@@ -2,7 +2,7 @@ import { HttpCallerService } from './httpcaller.service';
 
 import { timer } from 'rxjs/observable/timer';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+
 
 
 @Injectable()

@@ -6,7 +6,7 @@ import { LoadingModule } from 'ngx-loading';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Http, HttpModule } from '@angular/http';
+//import { Http, HttpModule } from '@angular/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -14,7 +14,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthGuard, SharedModule } from './shared';
-import { JsonpModule, Jsonp, Response } from '@angular/http';
+//import { JsonpModule } from '@angular/http';
 import { CookieService } from 'ngx-cookie-service';
 import { HttpCallerService } from './services/httpcaller.service';
 
@@ -32,9 +32,19 @@ import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 
 // AoT requires an exported function for factories
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
-}
+// export function HttpLoaderFactory(http: HttpClient) {
+//   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
+// }
+
+export const createTranslateLoader = (http: HttpClient) => {
+  /* for development
+  return new TranslateHttpLoader(
+      http,
+      '/start-angular/SB-Admin-BS4-Angular-6/master/dist/assets/i18n/',
+      '.json'
+  ); */
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+};
 
 // let gapiClientConfig: NgGapiClientConfig = {
 //   client_id: "533137817690-qtlt9od45g6l37oj8mts6v6b4feo1he0.apps.googleusercontent.com",
@@ -64,17 +74,25 @@ export function HttpLoaderFactory(http: HttpClient) {
     FormsModule,
     ReactiveFormsModule,
     
-    HttpModule,
-    AppRoutingModule,
+    //HttpModule,
+    HttpClientModule,
     TranslateModule.forRoot({
       loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [Http]
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpClient]
       }
-    }),
+  }),
+    AppRoutingModule,
+    // TranslateModule.forRoot({
+    //   loader: {
+    //     provide: TranslateLoader,
+    //     useFactory: HttpLoaderFactory,
+    //     deps: [Http]
+    //   }
+    // }),
     LoadingModule,
-    JsonpModule,
+    //JsonpModule,
     SharedModule,
     NgbModule.forRoot()
     

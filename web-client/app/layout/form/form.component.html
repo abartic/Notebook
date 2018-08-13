@@ -5,8 +5,8 @@
         <div class="col-md-12">
             <div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="(package.entity_status_msg + package.error_msg).length > 0" [ngClass]="{'alert-success':(package.entity_status_msg.length > 0), 'alert-danger':(package.error_msg.length > 0)}">
                 <button type="button" class="close" aria-label="Close" (click)="packageCtrl.clearMsg()">
-                          <span aria-hidden="true">&times;</span>
-                </button>
+          <span aria-hidden="true">&times;</span>
+        </button>
                 <strong>{{package.entity_status_msg + package.error_msg}}</strong>
             </div>
 
@@ -28,8 +28,7 @@
         </div>
     </div>
 
-
-</div>
-<div class="my-container">
-    <ngx-loading [show]="package.filter_loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
+    <div>
+        <ngx-loading [show]="package.filter_loading"></ngx-loading>
+    </div>
 </div>
