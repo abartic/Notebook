@@ -15,13 +15,14 @@ export class HeaderComponent implements OnInit {
 
     userSession : UserSession;
     pushRightClass: string = 'push-right';
+    navigationSubscription;
 
     constructor(private translate: TranslateService,
         public router: Router,
         private cookieService: CookieService,
         @Inject(CheckLoginService) private checkLogin, 
         @Inject(HttpCallerService) private httpCaller: HttpCallerService) {
-        this.router.events.subscribe((val) => {
+        this.navigationSubscription = this.router.events.subscribe((val) => {
             if (val instanceof NavigationEnd && window.innerWidth <= 992 && this.isToggled()) {
                 this.toggleSidebar();
             }
@@ -64,6 +65,15 @@ export class HeaderComponent implements OnInit {
 
     changeLang(language: string) {
         this.translate.use(language);
+    }
+
+    ngOnDestroy() {
+        // avoid memory leaks here by cleaning up after ourselves. If we  
+        // don't then we will continue to run our initialiseInvites()   
+        // method on every navigationEnd event.
+        if (this.navigationSubscription) {
+            this.navigationSubscription.unsubscribe();
+        }
     }
 }
 

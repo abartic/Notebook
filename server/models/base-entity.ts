@@ -162,7 +162,7 @@ export class BaseEntity {
     }
 
     public static dateStructToStandardDate(date: NgbDateStruct): string {
-        var mm = date.month + 1;
+        var mm = date.month;
         var dd = date.day;
 
         return [
@@ -176,7 +176,7 @@ export class BaseEntity {
 
         return {
             day: date.getDate(),
-            month: date.getMonth(),
+            month: date.getMonth() + 1 ,
             year: date.getFullYear()
         };
 
@@ -188,9 +188,9 @@ export class BaseEntity {
             if (dateParts.length === 1 && isNumber(dateParts[0])) {
                 return { year: toInteger(dateParts[0]), month: null, day: null };
             } else if (dateParts.length === 2 && isNumber(dateParts[0]) && isNumber(dateParts[1])) {
-                return { year: toInteger(dateParts[1]), month: toInteger(dateParts[0]) - 1, day: null };
+                return { year: toInteger(dateParts[1]), month: toInteger(dateParts[0]), day: null };
             } else if (dateParts.length === 3 && isNumber(dateParts[0]) && isNumber(dateParts[1]) && isNumber(dateParts[2])) {
-                return { year: toInteger(dateParts[2]), month: toInteger(dateParts[1]) - 1, day: toInteger(dateParts[0]) };
+                return { year: toInteger(dateParts[2]), month: toInteger(dateParts[1]), day: toInteger(dateParts[0]) };
             }
         }
         return null;
@@ -211,7 +211,7 @@ export class BaseEntity {
         let stringDate: string = "";
         if (date) {
             stringDate += isNumber(date.day) ? padNumber(date.day) + "/" : "";
-            stringDate += isNumber(date.month) ? padNumber(date.month + 1) + "/" : "";
+            stringDate += isNumber(date.month) ? padNumber(date.month) + "/" : "";
             stringDate += date.year;
         }
         return stringDate;
@@ -221,7 +221,7 @@ export class BaseEntity {
     private static DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
 
     public static toGoogleSheetsAPIDate(date: NgbDateStruct) {
-        let utcdate = new Date(date.year, date.month, date.day, 0, 0, 0, 0);
+        let utcdate = new Date(date.year, date.month - 1, date.day, 0, 0, 0, 0);
         let millisSinceUnixEpoch = utcdate.getTime() + -1 * utcdate.getTimezoneOffset() * 60 * 1000;
         let millisSinceSheetsEpoch = millisSinceUnixEpoch - BaseEntity.SHEETS_EPOCH_DIFFERENCE;
         return millisSinceSheetsEpoch / BaseEntity.DAY_IN_MILISECONDS;

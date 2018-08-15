@@ -1,20 +1,19 @@
+
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './shared';
+import { MessagesComponent } from './shared/components/messages/messages.component';
 
 const routes: Routes = [
-    {
-        path: '',
-        loadChildren: './layout/layout.module#LayoutModule',canActivate: [AuthGuard]
-    },
     { path: 'login', loadChildren: './login/login.module#LoginModule' },
-    //{ path: 'signup', loadChildren: './signup/signup.module#SignupModule' },
-    //{ path: 'not-found', loadChildren: './not-found/not-found.module#NotFoundModule' },
-    //{ path: '**', redirectTo: 'not-found' }
+    { path: '', loadChildren: './layout/layout.module#LayoutModule',canActivate: [AuthGuard] },
+    //{ path: 'message/:value', component: MessagesComponent , runGuardsAndResolvers: 'always' },
+   
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
-})
+
+    imports: [RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'})],
+    exports: [RouterModule],
+    })
 export class AppRoutingModule { }

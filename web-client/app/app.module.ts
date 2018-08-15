@@ -31,6 +31,10 @@ import { CommonModule } from '@angular/common';
 import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 
+import {Location, HashLocationStrategy, LocationStrategy} from '@angular/common'
+import { Routes, RouterModule } from '@angular/router';
+
+//import { LoginComponent } from './login/login.component';
 // AoT requires an exported function for factories
 // export function HttpLoaderFactory(http: HttpClient) {
 //   return new TranslateHttpLoader(http, '/assets/i18n/', '.json');
@@ -55,6 +59,10 @@ export const createTranslateLoader = (http: HttpClient) => {
 //   ].join(" ")
 // };
 
+// const appRoutes: Routes = [
+
+//   { path: 'login1', component: LoginComponent },
+// ];
 
 @NgModule({
   declarations: [
@@ -64,10 +72,12 @@ export const createTranslateLoader = (http: HttpClient) => {
     EditEntityDialogWnd,
     SelectEntityDialogWnd,
     ReportDialogWnd,
-    SafePipe
+    SafePipe,
+    
     
   ],
   imports: [
+    //RouterModule.forRoot(appRoutes),
     CommonModule,
     BrowserModule,
     BrowserAnimationsModule,
@@ -84,6 +94,7 @@ export const createTranslateLoader = (http: HttpClient) => {
       }
   }),
     AppRoutingModule,
+    
     // TranslateModule.forRoot({
     //   loader: {
     //     provide: TranslateLoader,
@@ -91,6 +102,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     //     deps: [Http]
     //   }
     // }),
+
     LoadingModule,
     //JsonpModule,
     SharedModule,
@@ -106,6 +118,8 @@ export const createTranslateLoader = (http: HttpClient) => {
     CookieService,
     HttpCallerService,
     CheckLoginService,
+   //Location, 
+    //{provide: LocationStrategy, useClass: HashLocationStrategy}
   ],
   bootstrap: [AppComponent],
   entryComponents: [

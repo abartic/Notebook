@@ -1,23 +1,18 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { LayoutComponent } from './layout.component';
+import { MessagesComponent } from '../shared/components/messages/messages.component';
 
 const routes: Routes = [
     {
-        path: '', component: LayoutComponent,
+        path: '', 
+        component: LayoutComponent,
         children: [
             { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
-            //     { path: 'charts', loadChildren: './charts/charts.module#ChartsModule' },
-            //     { path: 'tables', loadChildren: './tables/tables.module#TablesModule' },
-            { path: 'form/partner/:id', loadChildren: './form/form.module#FormModule' },
-            { path: 'form/document/:id', loadChildren: './form/form.module#FormModule' },
-            { path: 'form/article/:id', loadChildren: './form/form.module#FormModule' },
-            { path: 'form/store/:id', loadChildren: './form/form.module#FormModule' },
-            { path: 'sheets-creation', loadChildren: './sheets/sheets.module#SheetsModule' },
-            //     { path: 'bs-element', loadChildren: './bs-element/bs-element.module#BsElementModule' },
-            //     { path: 'grid', loadChildren: './grid/grid.module#GridModule' },
-            //     { path: 'components', loadChildren: './bs-component/bs-component.module#BsComponentModule' },
-            //     { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' },
+            { path: 'sheets-creation', loadChildren: './sheets/sheets.module#SheetsModule', runGuardsAndResolvers: 'always' },
+            { path: 'form/:id', loadChildren: './form/form.module#FormModule', runGuardsAndResolvers: 'always'  },
+            { path: 'not-found', component: MessagesComponent, data: { message: 'Page not found!' } },
+            { path: '**', component: MessagesComponent, data: { message: 'Page not found!' } }
         ]
     }
 ];

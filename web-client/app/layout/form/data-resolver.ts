@@ -23,19 +23,23 @@ export class DataResolver implements Resolve<IPackageController> {
 
         let param = route.paramMap.get('id');
         let type = ModelFactory.uniqueInstance.get(param);
-        let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller);
+        if (type === undefined || type === null) {
+            console.log('screen missing...');
+            this.router.navigate(['/not-found']);
+            return Observable.of(null);
+        }
+        else {
+            let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller);
 
-        return new Observable<IPackageController>((observer) => {
-            packageCtrl.fetchEntityInfo().then(() => {
-                observer.next(packageCtrl);
-                observer.complete();
-            }).catch((err) => {
-                observer.next(err);
-                observer.complete();
+            return new Observable<IPackageController>((observer) => {
+                packageCtrl.fetchEntityInfo().then(() => {
+                    observer.next(packageCtrl);
+                    observer.complete();
+                }).catch((err) => {
+                    observer.next(err);
+                    observer.complete();
+                });
             });
-        });
-
-
-
+        }
     }
 }
