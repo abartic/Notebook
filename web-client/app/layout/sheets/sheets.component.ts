@@ -61,4 +61,25 @@ export class SheetsComponent implements OnInit {
         this.response = 'Error - ' + err;
       });
   }
+
+  onDeleteMetadata() {
+    this.response = null;
+    this.httpCaller.callPost(
+      '/sheetdata/delete-metadata',
+      {
+        spreadsheetNames: ['inventory', 'movements', 'partners']
+      },
+      result => {
+        if (result.error)
+          this.response = result.error;
+        else
+        {
+          this.response = 'Metadata deleted!';
+        }
+      },
+      err => {
+        this.response = 'Error - ' + err;
+      });
+  }
+  
 }

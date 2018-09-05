@@ -24,5 +24,10 @@
         "googleAuthCallbackURL": "http://localhost:8080/login/google/return",
         "clientID": "533137817690-qtlt9od45g6l37oj8mts6v6b4feo1he0.apps.googleusercontent.com",
         "clientSecret": "bEB8zIRM5U8ONLXSesgSp0J4"
+    },
+
+    "reportsConfig": {
+        "rootURL": "http://localhost:8080"
+
     }
 }

@@ -280,7 +280,7 @@ export class BaseEntity {
         return query;
     }
 
-    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string): string {
+    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value): string {
         let entityInfo = entity.entityInfo;
         let cell_ukey;
         for (let p of entityInfo.properties) {
@@ -290,7 +290,7 @@ export class BaseEntity {
                 continue;
         }
 
-        let query = 'select ' + cell_ukey + ' where ' + cell_ukey + ' = "' + entity[ukey_prop_name].trim() + '" limit 1';
+        let query = 'select ' + cell_ukey + ' where ' + cell_ukey + ' = "' + (ukey_prop_value || '').trim() + '" limit 1';
         return query;
     }
 

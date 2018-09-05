@@ -88,7 +88,7 @@ export class Server {
         
         // add static paths
         this.app.use(express.static(path.join(__dirname, 'app')));
-        // this.app.use(express.static(__dirname));
+        this.app.use(express.static(path.join(__dirname)));
 
         this.app.set('views', path.join(__dirname, 'app/views'));
         // this.app.set("views",__dirname);

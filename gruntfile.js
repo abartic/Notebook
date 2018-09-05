@@ -16,6 +16,12 @@ module.exports = function(grunt) {
                         cwd: "./server/json",
                         src: ["*.json"],
                         dest: "./dist/middletier/json"
+                    },
+                    {
+                        expand: true,
+                        cwd: "./server/reports_assets",
+                        src: ["assets/\*\*/\*.*"],
+                        dest: "./dist/middletier"
                     }
                 ],
 

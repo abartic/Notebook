@@ -1,3 +1,4 @@
+import { IEntityPackage } from './../../../../server/common/select-obj';
 
 import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog/selectEntityDialogWnd';
 import { ModelInfos } from './../../../../server/models/modelProperties';
@@ -280,8 +281,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             let entityInfo: IEntityInfo = filter.entityInfo;
             let query = BaseEntity.toFilter(filter, null, null, null, parent.ukeyPropName);
             if (query === null) {
-                result([]);
-                return;
+                return result([]);
             }
 
             this.httpCaller.callPost('/sheetdata/select',
@@ -302,7 +302,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                             ukeys.push(ukey);
                         }
                     }
-                    result(ukeys);
+                    return result(ukeys);
                 },
                 err => {
                     reject(err);
@@ -329,7 +329,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 },
                 r => {
                     let rows_count: number = r.scalar;
-                    result(rows_count);
+                    return result(rows_count);
 
                 },
                 err => {
@@ -493,36 +493,29 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     private getEntitySaveCallPack(action: eEntityAction, entity: BaseEntity) {
-        let url = '';
-        if (action === eEntityAction.Update)
-            url = '/sheetdata/update';
-        else if (action === eEntityAction.Create)
-            url = '/sheetdata/create';
-        else if (action === eEntityAction.Delete)
-            url = '/sheetdata/delete';
 
         let entityInfo = entity.entityInfo;
         let select = BaseEntity.getFilterByUID(entity);
-        if (action === eEntityAction.Delete)
-            return [url,
-                {
-                    spreadsheetID: entityInfo.spreadsheetID,
-                    sheetName: entityInfo.sheetName,
-                    sheetID: entityInfo.sheetID,
-                    ID: entity.uid,
-                    rowid: entity.rowid,
-                    select: select
-                }];
-        else
-            return [url,
-                {
-                    spreadsheetID: entityInfo.spreadsheetID,
-                    spreadsheetName: entityInfo.spreadsheetName,
-                    sheetName: entityInfo.sheetName,
-                    sheetID: entityInfo.sheetID,
-                    values: entity.toArray(),
-                    select: select
-                }];
+        if (action === eEntityAction.Delete) {
+            return <IEntityPackage>{
+                sheetName: entityInfo.sheetName,
+                sheetID: entityInfo.sheetID,
+                ID: entity.uid,
+                rowid: entity.rowid,
+                selectEntity: select,
+                action: action
+            };
+        }
+        else {
+            return <IEntityPackage>{
+                sheetName: entityInfo.sheetName,
+                sheetID: entityInfo.sheetID,
+                ID: entity.uid,
+                values: entity.toArray(),
+                selectEntity: select,
+                action: action
+            };
+        }
 
     }
 
@@ -586,8 +579,22 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         }
         packs.push(this.getEntitySaveCallPack(action, entity));
 
-        this.httpCaller.callPosts(
-            packs,
+        let url = '';
+        if (action === eEntityAction.Update)
+            url = '/sheetdata/update';
+        else if (action === eEntityAction.Create)
+            url = '/sheetdata/create';
+        else if (action === eEntityAction.Delete)
+            url = '/sheetdata/delete';
+
+        this.httpCaller.callPost(
+            url,
+            {
+                spreadsheetID: entityInfo.spreadsheetID,
+                spreadsheetName: entityInfo.spreadsheetName,
+                entityPackages: packs,
+                action: action
+            },
             result => {
                 if (cb)
                     cb();
@@ -655,7 +662,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     private showReport(reportUrl: string) {
 
-        const modalRef = this.modalService.open(ReportDialogWnd, 
+        const modalRef = this.modalService.open(ReportDialogWnd,
             { windowClass: 'report-modal' }
         );
         modalRef.componentInstance.reportUrl = reportUrl;
@@ -869,18 +876,19 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0)
                 this.removeValidation(entity, property.propName);
             else
-                this.addValidation(entity, property.propName);
+                this.addValidation(entity, property.lookup_entity_name, property.propName);
         }
     }
 
-    addValidation(entity: BaseEntity, propName: string) {
+    addValidation(entity: BaseEntity, lookup_entity_name: string, propName: string) {
         let validation_item: ISelectObj;
 
+        let lookup_entity = ModelFactory.uniqueInstance.create(lookup_entity_name);
         this.removeValidation(entity, propName);
         validation_item = <ISelectObj>{};
-        validation_item.spreadsheetName = entity.spreadsheetName;
-        validation_item.sheetName = entity.sheetName;
-        validation_item.select = BaseEntity.getFilterByUKey(entity, propName);
+        validation_item.spreadsheetName = lookup_entity.spreadsheetName;
+        validation_item.sheetName = lookup_entity.sheetName;
+        validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName]);
         validation_item.addSchema = false;
         this.package.validations.Add(entity.uid + propName, validation_item);
 
@@ -892,11 +900,15 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     onPrint() {
+        let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
+        pack.values = this.package.entity;
+        if (this.package.entity.entityName === 'Document')
+            pack['reportType'] = 'invoice';
         this.httpCaller.callPdf(
             '/sheetdata/report  ',
-            {},
+            pack,
             reportUrl => {
-                this.showReport(reportUrl); 
+                this.showReport(reportUrl);
             },
             err => {
                 this.package.error_msg = this.getError(err);

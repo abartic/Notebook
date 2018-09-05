@@ -12,8 +12,11 @@
             {
                 "resources": "/sheetdata/enrolle-user-spreadsheet",
                 "permissions": "post"
+            },
+            {
+                "resources": "/sheetdata/delete-metadata",
+                "permissions": "post"
             }
-
         ]
     }]
 }

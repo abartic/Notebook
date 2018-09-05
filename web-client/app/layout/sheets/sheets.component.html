@@ -14,6 +14,12 @@
         </div>
     </div>
     <div class="form-group row">
+        <div class="col-md-2">
+            <button class="btn btn-outline-primary" (click)="onDeleteMetadata()">Delete metadata...</button>
+
+        </div>
+    </div>
+    <div class="form-group row">
         <div class="col-md-12">
             <div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="response !== null" [ngClass]="alert-danger">
                 <button type="button" class="close" aria-label="Close" (click)="response=null">

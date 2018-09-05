@@ -5,3 +5,22 @@ export interface ISelectObj {
     select: string;
     addSchema: boolean;
 }
+
+export interface IEntityPackage
+{ 
+    sheetName, 
+    sheetID, 
+    ID, 
+    rowid,
+    selectEntity, 
+    values,
+    action
+}
+
+export interface IEntitiesPackage
+{ 
+    spreadsheetID,
+    spreadsheetName,
+    entityPackages : IEntityPackage[],
+    action,
+}
