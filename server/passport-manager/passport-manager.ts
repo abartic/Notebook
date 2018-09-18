@@ -8,7 +8,7 @@ import { NextFunction, Request, Response, Router, RequestHandler } from 'express
 import * as fs from 'fs';
 import * as path from 'path';
 import refresh = require('passport-oauth2-refresh')
-import { SheetRoute, eFileOperationType } from "../routes/sheets_route";
+import { SheetRoute } from "../routes/sheets_route";
 import { SheetsMgr } from "../common/sheets-mgr";
 import { AccountsMgr } from "../common/accounts-mgr";
 import { AppAcl } from "../acl/app-acl";

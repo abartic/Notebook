@@ -3,7 +3,7 @@
     "spreadsheetName": "partners",
     "sheets": [{
             "sheetName": "partners",
-            "fields": ["code_part", "name", "descr", "type", "unit"],
+            "fields": ["code_part", "name_partner", "descr_partner", "type_partner", "unit", "reg_number", "fiscal_reg_number", "name_admin", "name_rep", "email", "www_address", "IBAN", "IBAN_bank"],
             "entity": {
                 "entityName": "Partner",
                 "ukey": "code_part",
@@ -12,7 +12,7 @@
         },
         {
             "sheetName": "addresses",
-            "fields": ["code_part", "line1", "line2", "city", "county", "zip", "country"],
+            "fields": ["code_part", "line_address", "city", "county", "zip", "country"],
             "entity": {
                 "entityName": "Address"
             }
@@ -20,7 +20,7 @@
         },
         {
             "sheetName": "contacts",
-            "fields": ["code_part", "name", "email", "phone1", "phone2"],
+            "fields": ["code_part", "name_contact", "email", "phone1", "phone2"],
             "entity": {
                 "entityName": "Contact"
             }

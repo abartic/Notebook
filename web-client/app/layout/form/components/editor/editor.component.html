@@ -27,7 +27,10 @@
                 </div>
 
                 <div class="input-group" *ngSwitchDefault>
-                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)">
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)"
+                        (focusout)="packageCtrl.onEditorFocusChanged(package.entity, property)">
+
+                    <input class="form-control" [(ngModel)]="package.entity[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
                     <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
                         <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
                     </div>

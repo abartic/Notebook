@@ -1,8 +1,9 @@
-import { SheetRoute, eFileOperationType } from "../routes/sheets_route";
+import { SheetRoute } from "../routes/sheets_route";
 import { IMgrItem } from "./sheets-mgr";
 import * as fs from 'fs';
 import * as path from 'path';
 import { DriverRoute } from "../routes/driver_route";
+import { eFileOperationType } from "../sheets/sheets_common_operations";
 
 
 export class AccountsMgr {

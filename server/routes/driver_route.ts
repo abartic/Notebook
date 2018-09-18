@@ -3,7 +3,8 @@ import { NextFunction, Request, Response, Router, RequestHandler } from 'express
 import { BaseRoute } from './route';
 import * as request from 'request-promise';
 import * as Config from "config";
-import { eFileOperationType } from './sheets_route';
+import { eFileOperationType } from '../sheets/sheets_common_operations';
+
 
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
@@ -11,7 +12,7 @@ var sheets = googleApi.sheets('v4');
 
 export class DriverRoute extends BaseRoute {
 
-    static writeConfigFile(req: Request,
+    static writeConfigFile(accessToken: string,
         fileoperationtype: eFileOperationType,
         fileId: string,
         folderId: string,
@@ -25,7 +26,7 @@ export class DriverRoute extends BaseRoute {
         var auth = new googleAuth();
         var oauth2Client = new auth.OAuth2();
         oauth2Client.credentials = {
-            access_token: req.session['google_access_token']
+            access_token: accessToken
         };
         const drive = googleApi.drive({ version: 'v3' });
 

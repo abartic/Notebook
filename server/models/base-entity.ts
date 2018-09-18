@@ -1,3 +1,4 @@
+import { ISelectObj } from './../common/select-obj';
 import { IEntityInfo } from './base-entity';
 import { ModelInfos } from "./modelProperties";
 import "reflect-metadata"
@@ -34,6 +35,7 @@ export interface IEntityInfo {
 
 export interface IPropInfo {
     propName: string,
+    path: string,
     cellName: string;
     onlyEdit: boolean;
     dataType: string;
@@ -176,7 +178,7 @@ export class BaseEntity {
 
         return {
             day: date.getDate(),
-            month: date.getMonth() + 1 ,
+            month: date.getMonth() + 1,
             year: date.getFullYear()
         };
 
@@ -227,7 +229,7 @@ export class BaseEntity {
         return millisSinceSheetsEpoch / BaseEntity.DAY_IN_MILISECONDS;
     }
 
-    public static toUKeyFilter(entityInfo: IEntityInfo, uid: any): string {
+    public static toUIDFilter(entityInfo: IEntityInfo, uid: any): string {
 
         let query = 'select ';
         for (let p of entityInfo.properties) {
@@ -239,6 +241,22 @@ export class BaseEntity {
             query = query + ' where ' + p_uid.cellName + ' = ' + uid;
         else
             query = query + ' where ' + p_uid.cellName + ' = "' + uid + '"';
+        return query;
+    }
+
+
+    public static toUKeyFilter(entityInfo: IEntityInfo, ukey_prop_name: string, ukey_value: any): string {
+
+        let query = 'select ';
+        for (let p of entityInfo.properties) {
+            query = query + p.cellName + ',';
+        }
+        let p_ukey = entityInfo.properties.find(p => p.propName === ukey_prop_name)
+        query = query.slice(0, query.length - 1);
+        if (ukey_value instanceof Number)
+            query = query + ' where ' + p_ukey.cellName + ' = ' + ukey_value;
+        else
+            query = query + ' where ' + p_ukey.cellName + ' = "' + ukey_value + '"';
         return query;
     }
 
@@ -280,17 +298,21 @@ export class BaseEntity {
         return query;
     }
 
-    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value): string {
+    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value, allFields: boolean): string {
         let entityInfo = entity.entityInfo;
         let cell_ukey;
+        let query = 'select '
         for (let p of entityInfo.properties) {
             if (p.propName === ukey_prop_name)
                 cell_ukey = p.cellName;
-            else
+            if (allFields === false && p.propName !== ukey_prop_name)
                 continue;
+
+            query = query + p.cellName + ',';
         }
 
-        let query = 'select ' + cell_ukey + ' where ' + cell_ukey + ' = "' + (ukey_prop_value || '').trim() + '" limit 1';
+        query = query.slice(0, query.length - 1);
+        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value || '').trim().toUpperCase() + '" limit 1';
         return query;
     }
 
@@ -467,6 +489,8 @@ export class BaseEntity {
     }
 
     public onNew(parent: BaseEntity) { }
+
+    public preparePackForReportPreloads(): Array<{ entity_name: string, ukey_prop_name: string, cb: (p) => void }> { return null; }
 }
 
 

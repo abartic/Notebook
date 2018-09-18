@@ -3,7 +3,7 @@
     "spreadsheetName": "movements",
     "sheets": [{
             "sheetName": "documents",
-            "fields": ["code_doc", "code_part", "type", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"],
+            "fields": ["code_doc", "code_part", "type_doc", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"],
             "fields_types": ["", "", "", "d", "d", "d", "", "", ""],
             "entity": {
                 "entityName": "Document",

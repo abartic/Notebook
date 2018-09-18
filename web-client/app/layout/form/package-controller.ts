@@ -15,6 +15,7 @@ import { EditEntityDialogWnd } from '../../dialog/editEntityDialog/editEntityDia
 import { KeyedCollection } from '../../../../server/utils/dictionary';
 import { ISelectObj } from '../../../../server/common/select-obj';
 import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
+import { Observable } from 'rxjs/Observable';
 
 
 
@@ -58,7 +59,7 @@ export interface IPackageController {
 
     lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
 
-    getRelationProperties(entity: BaseEntity, relation: string);
+    getRelationProperties(entity: BaseEntity, relation: string, addLookups: boolean);
 
     onCreateEntityByRelation(relation: string);
 
@@ -253,27 +254,47 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     private readPackageEntity(entity: T, cb?: () => void) {
         this.readEntitiesByUkey(entity.entityInfo,
-            null, null, entity.uid, null,
+            null, null, entity.uid, null, null,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
                 this.package.validations = new KeyedCollection<ISelectObj>();
                 this.package.show_filter = false;
 
+                this.readEntityLookups(this.package.entity);
+
                 if (entity.entityInfo.relations) {
                     for (let relation of entity.entityInfo.relations) {
                         let relation_entityInfo = ModelInfos.uniqueInstance.get(relation);
                         this.readEntitiesByUkey(relation_entityInfo, null,
-                            null, entity[this.package.entity.ukeyPropName], relation,
+                            null, entity[this.package.entity.ukeyPropName], null, relation,
                             (entities_count, entities) => {
                                 this.package.entity[relation + '_relation'] = entities;
-                            }, () => { this.package.show_filter = true; });
+                                for (let entity of entities) {
+                                    this.readEntityLookups(entity);
+                                }
+                            },
+                            () => { this.package.show_filter = true; });
                     }
                 }
-
 
                 if (cb)
                     cb();
             }, () => { this.package.show_filter = true; });
+    }
+
+    private readEntityLookups(entity: BaseEntity) {
+        for (let prop of entity.properties) {
+            if (prop.lookup_entity_name) {
+                let lookup_entityInfo = ModelInfos.uniqueInstance.get(prop.lookup_entity_name);
+                this.readEntitiesByUkey(lookup_entityInfo, null,
+                    null, null, [prop.lookup_properties[0], entity[prop.propName]], null,
+                    (lk_entities_count, lk_entities) => {
+                        if (lk_entities && lk_entities.length > 0)
+                            entity[prop.lookup_entity_name + '_lookup_entity'] = lk_entities[0];
+                    },
+                    null);
+            }
+        }
     }
 
     executeDetailFilterQuery(filter: BaseEntity, parent: BaseEntity) {
@@ -380,7 +401,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 .then(count => {
                     cb(count, null);
                     if (count > 0)
-                        this.readEntitiesByUkey(entityInfo, keys, filter, null, null, cb, cerr);
+                        this.readEntitiesByUkey(entityInfo, keys, filter, null, null, null, cb, cerr);
                     else
                         this.package.rows = [];
                 })
@@ -390,24 +411,28 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 });
         }
         else {
-            this.readEntitiesByUkey(entityInfo, keys, filter, null, null, cb, cerr);
+            this.readEntitiesByUkey(entityInfo, keys, filter, null, null, null, cb, cerr);
         }
     }
 
     private readEntitiesByUkey(entityInfo: IEntityInfo,
         keys,
         filter: BaseEntity,
-        ukey: any,
+        uid: any,
+        ukey: [string, any],
         relation: string,
         cb: (rows_count: number, rows: Array<any>) => void,
         cerr: () => void) {
 
         let query = undefined;
         if (relation) {
-            query = BaseEntity.toFKeyFilter(entityInfo, this.package.entity.ukeyPropName, ukey);
+            query = BaseEntity.toFKeyFilter(entityInfo, this.package.entity.ukeyPropName, uid);
         }
         else if (ukey) {
-            query = BaseEntity.toUKeyFilter(entityInfo, ukey);
+            query = BaseEntity.toUKeyFilter(entityInfo, ukey[0], ukey[1]);
+        }
+        else if (uid) {
+            query = BaseEntity.toUIDFilter(entityInfo, uid);
         }
         else {
             let offset = 0;
@@ -721,7 +746,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_properties;
     }
 
-    public getRelationProperties(entity: BaseEntity, relation: string) {
+    public getRelationProperties(entity: BaseEntity, relation: string, addLookups: boolean) {
         let properties = [];
         let info = ModelInfos.uniqueInstance.get(relation.toLowerCase());
         if (!info.properties)
@@ -731,7 +756,15 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (property.propName === 'uid' || property.propName === 'rowid'
                 || property.propName === entity.ukeyPropName)
                 continue;
+
             properties.push(property);
+
+            if (property.lookup_entity_name && addLookups === true)
+                properties.push(<IPropInfo>{
+                    propName: property.lookup_properties[1],
+                    path: property.lookup_entity_name + '_lookup_entity',
+                    dataType: 'TEXT'
+                });
         }
         return properties;
     }
@@ -837,6 +870,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty: string, lookupEntity: BaseEntity, lookupTargetProperty: string) {
 
+        lookupSource[lookupEntity.entityName.toLowerCase() + '_lookup_entity'] = lookupEntity;
         lookupSource[lookupSourceProperty] = lookupEntity[lookupTargetProperty];
         this.removeValidation(lookupSource, lookupSourceProperty);
     }
@@ -873,12 +907,40 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             }
         }
         else if (property.lookup_entity_name) {
-            if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0)
+            if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0) {
                 this.removeValidation(entity, property.propName);
-            else
+            }
+            else {
                 this.addValidation(entity, property.lookup_entity_name, property.propName);
+            }
         }
     }
+    onEditorFocusChanged(entity: BaseEntity, property: IPropInfo) {
+        if (property.lookup_entity_name) {
+            if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0) {
+
+                entity[property.lookup_entity_name + '_lookup_entity'] = '';
+            }
+            else {
+                let selectItem = this.getLookupSelect(entity, property.lookup_entity_name, property.propName);
+
+                this.httpCaller.callPost(
+                    '/sheetdata/select',
+                    selectItem,
+                    result => {
+                        let entities = result.rows as Array<any>;
+                        if (entities && entities.length > 0)
+                            entity[property.lookup_entity_name + '_lookup_entity'] = entities[0];
+                        else
+                            entity[property.lookup_entity_name + '_lookup_entity'] = '';
+                    },
+                    err => {
+                        ;//show error if code wrong
+                    });
+            }
+        }
+    }
+
 
     addValidation(entity: BaseEntity, lookup_entity_name: string, propName: string) {
         let validation_item: ISelectObj;
@@ -888,10 +950,21 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         validation_item = <ISelectObj>{};
         validation_item.spreadsheetName = lookup_entity.spreadsheetName;
         validation_item.sheetName = lookup_entity.sheetName;
-        validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName]);
+        validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName], false);
         validation_item.addSchema = false;
         this.package.validations.Add(entity.uid + propName, validation_item);
+        return validation_item;
+    }
 
+    getLookupSelect(entity: BaseEntity, lookup_entity_name: string, propName: string) {
+        let select_item: ISelectObj;
+        let lookup_entity = ModelFactory.uniqueInstance.create(lookup_entity_name);
+        select_item = <ISelectObj>{};
+        select_item.spreadsheetName = lookup_entity.spreadsheetName;
+        select_item.sheetName = lookup_entity.sheetName;
+        select_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName], true);
+        select_item.addSchema = false;
+        return select_item;
     }
 
     removeValidation(entity: BaseEntity, propName: string) {
@@ -902,16 +975,76 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     onPrint() {
         let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
         pack.values = this.package.entity;
-        if (this.package.entity.entityName === 'Document')
-            pack['reportType'] = 'invoice';
-        this.httpCaller.callPdf(
-            '/sheetdata/report  ',
-            pack,
-            reportUrl => {
-                this.showReport(reportUrl);
+        let preloadObs = new Observable((observer) => {
+
+            if (this.package.entity.entityName === 'Document') {
+                pack['reportType'] = 'invoice';
+
+                let packs = this.package.entity.preparePackForReportPreloads();
+                let index = 0;
+                for (let ppack of packs) {
+                    let p: Promise<IEntityInfo> = null;
+                    let einfo = ModelInfos.uniqueInstance.get(ppack.entity_name);
+                    if (!einfo) {
+                        let lentity = <BaseEntity>ModelFactory.uniqueInstance.create(ppack.entity_name.toLowerCase());
+                        if (lentity)
+                            p = this.readEntityInfo(lentity);
+
+                    }
+                    else {
+                        p = Promise.resolve(einfo);
+                    }
+                    p.then(ei => {
+                        let spack: ISelectObj = {
+                            spreadsheetName: ei.spreadsheetName,
+                            sheetName: ei.sheetName,
+                            entityName: ei.entityName,
+                            select: BaseEntity.toUKeyFilter(ei, ppack.ukey_prop_name, this.package.entity[ppack.ukey_prop_name]),
+                        };
+
+                        this.httpCaller.callPost(
+                            '/sheetdata/select',
+                            spack,
+                            r => {
+                                index += 1;
+                                let entity = {};
+                                if (r.rows && r.rows.length > 0) {
+                                    //call callback
+                                    entity = r.rows[0];
+                                }
+                                ppack.cb(entity);
+                                if (index >= packs.length)
+                                    observer.complete();
+                            },
+                            err => {
+                                observer.error();
+                            });
+                    }).catch((err) => {
+                        observer.error();
+                    })
+
+                }
+            }
+            else {
+                observer.complete();
+            }
+        });
+
+        preloadObs.subscribe(() => { },
+            () => {
+                this.package.error_msg = 'report error...';
             },
-            err => {
-                this.package.error_msg = this.getError(err);
-            });
+            () => {
+                this.httpCaller.callPdf(
+                    '/sheetdata/report  ',
+                    pack,
+                    reportUrl => {
+                        this.showReport(reportUrl);
+                    },
+                    err => {
+                        this.package.error_msg = this.getError(err);
+                    });
+            })
+
     }
 }

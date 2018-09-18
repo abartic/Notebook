@@ -7,6 +7,7 @@ import { Document } from './document';
 import { Store } from './store';
 import { Contact } from './contact';
 import { ArticleInventory } from './article-inventory';
+import { Company } from './company';
 
 export class ModelFactory {
     private static _uniqueInstance: ModelFactory;
@@ -28,6 +29,7 @@ export class ModelFactory {
          else if (type === "store") return Store;
          else if (type === "document") return Document;
          else if (type === "documentline") return DocumentLine;
+         else if (type === "company") return Company;
     }
 
     public static get uniqueInstance() : ModelFactory {

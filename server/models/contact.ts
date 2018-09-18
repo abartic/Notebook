@@ -1,7 +1,7 @@
 
 import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
-@SheetInfo("partners", "contacts", "Contact")  
+@SheetInfo("partners", "contacts", "Contact", "code_part")  
 export class Contact extends BaseEntity {
 
     public code_part : String;

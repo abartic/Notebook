@@ -107,6 +107,8 @@ export class HttpCallerService {
       });
   }
 
+  
+
   public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
 
     this.http.get<HttpResponse>(url)

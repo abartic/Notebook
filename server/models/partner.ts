@@ -7,13 +7,29 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
     public code_part: String;
 
-    public name: String;
+    public name_partner: String;
 
-    public descr: String;
+    public descr_partner: String;
 
-    public type: String;
+    public type_partner: String;
 
     public unit: String;
+
+    public www_address : string;
+
+    public email : string;
+
+    public reg_number : string;
+
+    public fiscal_reg_number: string;
+
+    public name_admin : string;
+
+    public name_rep : string;
+
+    public IBAN : string;
+
+    public IBAN_bank : string;
 
     public address_relation: (Address)[];
 

@@ -22,12 +22,12 @@
 
                         <thead>
                             <tr>
-                                <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation) ">{{property.propName}}</th>
+                                <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation,false) ">{{property.propName}}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation) ">
+                                <td *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation,false) ">
                                     <input type="text " class="form-control " [(ngModel)]="package.filter_details[relation][property.propName] " placeholder="{{property.propName}} " />
                                 </td>
                             </tr>

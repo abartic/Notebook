@@ -7,9 +7,7 @@ export class Address extends BaseEntity {
 
     public code_part : String;
 
-    public line1 : String;
-    
-    public line2 : String;
+    public line_address : String;
     
     public city : String;
     
@@ -18,4 +16,6 @@ export class Address extends BaseEntity {
     public country : String;
 
     public zip : String;
+
+    public email : String;
 }

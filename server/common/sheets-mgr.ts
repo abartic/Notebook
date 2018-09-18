@@ -1,5 +1,6 @@
-import { SheetRoute, eFileOperationType } from "../routes/sheets_route";
+import { SheetRoute } from "../routes/sheets_route";
 import { DriverRoute } from "../routes/driver_route";
+import { eFileOperationType } from "../sheets/sheets_common_operations";
 
 export interface IMgrItem<T> {
     token: string;

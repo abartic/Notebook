@@ -10,7 +10,7 @@
                         <th scope="col">
                             <button class="btn btn-secondary" (click)="packageCtrl.onCreateEntityByRelation(relation)" [disabled]="packageCtrl.isDisabled(package.entity, null)">+</button>
                         </th>
-                        <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(this.package.entity, relation)">{{property.propName}}</th>
+                        <th scope="col" *ngFor=" let property of packageCtrl.getRelationProperties(this.package.entity, relation,true)">{{property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -19,11 +19,12 @@
                             <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)">=</button>
                             <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)">-</button>
                         </th>
-                        <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation) ">
+                        <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation,true) ">
                             <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
-                                <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                                <div class="input-group" *ngSwitchDefault>{{property.path && row[property.path] ? row[property.path][property.propName] : row[property.propName]}}</div>
                             </div>
+
                         </td>
                     </tr>
                 </tbody>

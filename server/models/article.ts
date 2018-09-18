@@ -2,12 +2,12 @@ import { ArticleInventory } from './article-inventory';
 
 import { BaseEntity, SheetInfo } from "./base-entity";
 
-@SheetInfo("inventory", "articles", "Article")  
+@SheetInfo("inventory", "articles", "Article", "code_art")  
 export class Article extends BaseEntity {
 
     public code_art : String;
 
-    public descr : String;
+    public descr_art : String;
     
     public UM : String;
     

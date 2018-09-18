@@ -11,7 +11,7 @@
     <div class="invoice-box">
         <table cellpadding="0" cellspacing="0">
             <tr class="top">
-                <td colspan="2">
+                <td colspan="4">
                     <table>
                         <tr>
                             <td class="title">
@@ -27,11 +27,25 @@
                 </td>
             </tr>
             <tr class="information ">
-                <td colspan="2 ">
-
+                <td colspan="4 ">
+                    <table>
+                        <tr>
+                            <td>
+                                {{company.name_comp}}<br> {{company.address}}
+                                <br> {{company.city}},{{company.county}},{{company.zip_code}}
+                            </td>
+                            <td>
+                                {{partner.name_partner}}<br> {{partner_address.line_address}}
+                                <br> {{partner_address.city}} {{partner_address.county}} {{partner_address.zip_code}}
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
             <tr class="heading ">
+                <td>
+                    Code Item
+                </td>
                 <td>
                     Item
                 </td>
@@ -48,6 +62,9 @@
                     {{code_art}}
                 </td>
                 <td>
+                    {{article_lookup_entity.descr}}
+                </td>
+                <td>
                     {{price_out}}
                 </td>
                 <td>
@@ -57,6 +74,7 @@
             {{/each}}
 
             <tr class="total ">
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>

@@ -3,7 +3,8 @@ export interface ISelectObj {
     sheetName: string;
     entityName: string;
     select: string;
-    addSchema: boolean;
+    addSchema?: boolean;
+    //cb? : (r) => void;
 }
 
 export interface IEntityPackage
