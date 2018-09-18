@@ -13,11 +13,12 @@ process
 var server = require("./dist/middletier/server");
 var debug = require("debug")("express:server");
 var http = require("http");
+var https = require("https");
 
 console.log("root my" + __dirname);
 
 setInterval(function() {
-    http.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
+    https.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
 }, 300000); // every 5 minutes (300000)
 
 //create http server
