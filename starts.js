@@ -4,6 +4,11 @@
 process.env.NODE_CONFIG_DIR = "./server/config";
 
 
+process
+    .on('SIGTERM', shutdown('SIGTERM'))
+    .on('SIGINT', shutdown('SIGINT'))
+    .on('uncaughtException', shutdown('uncaughtException'));
+
 //module dependencies
 var server = require("./dist/middletier/server");
 var debug = require("debug")("express:server");
@@ -11,6 +16,9 @@ var http = require("http");
 
 console.log("root my" + __dirname);
 
+setInterval(function() {
+    http.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
+}, 300000); // every 5 minutes (300000)
 
 //create http server
 var httpPort = normalizePort(process.env.PORT || 8080);
@@ -27,6 +35,16 @@ httpServer.on("error", onError);
 //start listening on port
 httpServer.on("listening", onListening);
 
+function shutdown(signal) {
+    return (err) => {
+        console.log(`${ signal }...`);
+        if (err) console.error(err.stack || err);
+        setTimeout(() => {
+            console.log('...waited 5s, exiting.');
+            process.exit(err ? 1 : 0);
+        }, 5000).unref();
+    };
+}
 
 /**
  * Normalize a port into a number, string, or false.

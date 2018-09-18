@@ -501,59 +501,64 @@ export class SheetsManagementOperations {
 
 
                 let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
-                sheets.spreadsheets.get(
-                    {
-                        spreadsheetId: spreadsheet.spreadsheetID,
-                        ranges: [sheet.sheetName + '!1:1'],
-                        includeGridData: true,
-                        fields: "sheets(properties.title,data.rowData.values(effectiveValue.stringValue,effectiveFormat.numberFormat))",
-                        auth: oauth2Client,
-                    },
-                    function (err, result) {
-                        if (err) {
-                            return Promise.reject({ error: err });
-                        }
-                        let columns = undefined;
-                        try {
-                            columns = result.sheets[0]['data'][0]['rowData'][0]['values'];
+                return new Promise((cb) => {
 
-                            let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
-                            let cellName = 'A';
-                            for (let column of columns) {
-                                if (column['effectiveValue'] === undefined)
-                                    continue;
-
-                                let propInfo: IPropInfo = {
-                                    propName: column['effectiveValue']['stringValue'],
-                                    cellName: cellName,
-                                    onlyEdit: true,
-                                    dataType: column['effectiveFormat'] === undefined ? 'TEXT' : column['effectiveFormat']['numberFormat']['type'],
-                                    mask: column['effectiveFormat'] === undefined ? '' : column['effectiveFormat']['numberFormat']['pattern'],
-                                    path: ''
-                                };
-                                cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
-                                propInfos.push(propInfo);
+                    sheets.spreadsheets.get(
+                        {
+                            spreadsheetId: spreadsheet.spreadsheetID,
+                            ranges: [sheet.sheetName + '!1:1'],
+                            includeGridData: true,
+                            fields: "sheets(properties.title,data.rowData.values(effectiveValue.stringValue,effectiveFormat.numberFormat))",
+                            auth: oauth2Client,
+                        },
+                        function (err, result) {
+                            if (err) {
+                                return Promise.reject({ error: err });
                             }
+                            let columns = undefined;
+                            try {
+                                columns = result.sheets[0]['data'][0]['rowData'][0]['values'];
 
-                            return Promise.resolve({
-                                spreadsheetID: spreadsheet.spreadsheetID,
-                                sheetID: sheet.sheetID,
-                                properties: propInfos,
-                                spreadsheetName: spreadsheet.spreadsheetName,
-                                sheetName: sheet.sheetName,
-                                entityName: entityName,
-                                relations: sheet.entity.relations !== undefined ? sheet.entity.relations : []
-                            });
-                        }
-                        catch (e) {
-                            return Promise.reject({ error: e });
+                                let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
+                                let cellName = 'A';
+                                for (let column of columns) {
+                                    if (column['effectiveValue'] === undefined)
+                                        continue;
 
-                        }
-                    });
+                                    let propInfo: IPropInfo = {
+                                        propName: column['effectiveValue']['stringValue'],
+                                        cellName: cellName,
+                                        onlyEdit: true,
+                                        dataType: column['effectiveFormat'] === undefined ? 'TEXT' : column['effectiveFormat']['numberFormat']['type'],
+                                        mask: column['effectiveFormat'] === undefined ? '' : column['effectiveFormat']['numberFormat']['pattern'],
+                                        path: ''
+                                    };
+                                    cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
+                                    propInfos.push(propInfo);
+                                }
+
+                                return cb({
+                                    spreadsheetID: spreadsheet.spreadsheetID,
+                                    sheetID: sheet.sheetID,
+                                    properties: propInfos,
+                                    spreadsheetName: spreadsheet.spreadsheetName,
+                                    sheetName: sheet.sheetName,
+                                    entityName: entityName,
+                                    relations: sheet.entity.relations !== undefined ? sheet.entity.relations : []
+                                });
+                            }
+                            catch (e) {
+                                return Promise.reject({ error: e });
+
+                            }
+                        });
 
 
 
 
+
+
+                });
             }).catch(r => {
                 if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
