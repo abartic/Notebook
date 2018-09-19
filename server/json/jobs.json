@@ -5,6 +5,7 @@
         "https://www.googleapis.com/auth/drive"
     ],
     "jobs": [{
+        "isActive": false,
         "name": "min_stock",
         "spreadsheetName": "movements",
         "sheetName": "art_inventory",

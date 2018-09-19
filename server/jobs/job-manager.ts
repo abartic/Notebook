@@ -24,6 +24,9 @@ export class JobManager {
                     return;
                 } else {
                     for (let job of jobDefinition.jobs) {
+                        if (job.isActive === false)
+                            continue;
+
                         let props = job.notify_body_list_info.split(',');
 
                         SheetsSelectOperations.selectEntity(tokens['access_token'],
@@ -31,6 +34,9 @@ export class JobManager {
                             job.sheetName,
                             job.entityName, job.select, false, false)
                             .then(result => {
+                                if (!result)
+                                    return;
+                                    
                                 let body = job.notify_body + '\n';
 
                                 for (let prop of props) {
