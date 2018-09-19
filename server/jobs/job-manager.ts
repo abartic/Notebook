@@ -31,7 +31,7 @@ export class JobManager {
                             job.sheetName,
                             job.entityName, job.select, false, false)
                             .then(result => {
-                                let body = job.notify_body;
+                                let body = job.notify_body + '\n';
 
                                 for (let prop of props) {
                                     body += prop + ', ';
