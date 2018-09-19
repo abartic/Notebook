@@ -16,8 +16,9 @@ import * as Config from 'config';
 import { AppAcl } from './acl/app-acl'
 import helmet = require('helmet');
 import csrf = require('csurf');
+import { JobManager } from './jobs/job-manager';
 var CronJob = require('cron').CronJob;
-let google = require('googleapis');
+
 
 /**
  * The server.
@@ -172,25 +173,7 @@ export class Server {
 
         new CronJob('20 * * * * *', function () {
 
-            // configure a JWT auth client
-            let jwtClient = new google.auth.JWT(
-                "test-service@reporter-184014.iam.gserviceaccount.com",
-                null,
-                "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDe8fopalEtTtZl\nM2wT4s/sMVSSyfJ6TRlfHvIOVcAidQL6CU7KwH85gHPCreWuGaIRkVYpZckFcFtw\n/QQEmSlDWeT/zwYmUfzNaIpNI77kWgAaxrYC94v+KBQJEiyQxz4ptZs6wAEYwuGy\niQrv5yUivrTfcGBZbvYvHrsiNBChq5KJNXL7jVMogd3r3LmkP8HHFgUJMF1fK+ZJ\na29PWqbTXLqLzrHNN3me8T/5B4ACRoDBUtG8qm2oja0WkpimFTKvgu0WWsTjGfF/\noLryBeMsrukmpUZMe/fS3ccPbE9boQYs+lNqBpnH5PG+OJhTeP7zxjya6q2oMVmh\nIrRwRlufAgMBAAECggEAXa86S7gA97SW1Dz5EBwx+lM6clqJWcpXPIkA93QiQniA\nMTjDEuE0NSIcwvSXPQNJfu9fURMUF4SA8GhqDVKdK8+1Mqe4slamkFx7LXI1b7jA\nLYBOEM4cVkdaL/uinY4UOau2WMhBTbnq5L7AyVIM4V5ZHEGZQ0ulCOT1hyhwyrZJ\nE7FcVe91KOsmyH0TMqFahWQHZtOtTq3j7tNkiltOOPiKSzQRWmHJJXzjekvl8lCx\nTf/kKCikZJr2gLo5aeSeCVd2gYzq8PlbdVtR64JIEJl6onx8tE+x2W2F8FKAjHmG\nm+VxEtkTKMApm7hEhBVdI5jW/7Qzg+cqeWCbLm7ozQKBgQDzK4kjCaVO6QYrXjlu\nijeKM0qY86og4tSxrHJrCyowUiCLqahb43K2GFKz2A4Nrk566A26EG/JOSopsqZW\n7EajEau3VqYu8GvkkUkZeUOuBeij/RTcvLhMZNg7XjvOQnIe5dshYemUExv3AnWN\n5FWuFQUmlGp90Ueuhx2CQYpKYwKBgQDqtUR1xDz/UogrpJXxZVmwLY9DGbreFFtO\n/OIUpwXloM9uCVBhNAt/2uAl0XSFGUiWgKgMfoKFabXamLYVopE25M3pNladfOGq\nbT7B5sf3NK0FUJ1H0LW/bt02c5/UzVRMpgkYWEmpDXMRzBmswynK/3dVL1SVSs9z\nbKY9UFewlQKBgQCrqp5jp9mVvZfnYdt1mAnhfJg7JjmCgd/Zln4n53ffKPtk3V7H\nj+hZeQ5ZfDtfmSA6UDvwkM355mtHiKE5WA/96umownkLRhtE/vP2Ec+fuPglXPMv\naeNJux+TudDKqcna2jY6eN7m9B6X4JqQkxORk7FRLRGIxQevxB8m55HzNQKBgQDl\nwyWNk9mSqJyc/LW8ZlbyXOdN7LY+CPeJz40SYp8nN9FYCs4hGe3X79BVtUG3uhSR\nIMlh0ca8C8v2fmBhtY8qibn5fzQzX7kaOW+iKeW/XlWySkRttSb2i/UKBQ6GJ6tK\njY+BwYv6biwjVAYeVb9n9cZAIeFPdLi4abgjda8iMQKBgQDTa/Oj+cH3npNkDQiR\nRIJJ7wfGw1D1kXX2dyO9bNIe6KN3lDVKSrm3LXIpvQLfkMzcb9E83RpqoDGSXAri\nyh0wGOF2rOGuWLahlLseKtD6WPaN6VEr+zx4cAtjlRRH58/4QF3FUIzB3sw2lSm5\nKtUvW5+pMtLpfjPhH/uIRucHvQ==\n-----END PRIVATE KEY-----\n",
-                ['https://www.googleapis.com/auth/spreadsheets',
-                    'https://www.googleapis.com/auth/drive']);
-
-            //authenticate request
-            jwtClient.authorize(function (err, tokens) {
-                if (err) {
-                    console.log(err);
-                    return;
-                } else {
-                    console.log(tokens);
-
-
-                }
-            });
+            JobManager.startJobs();
 
         }, null, true, 'America/Los_Angeles');
     }

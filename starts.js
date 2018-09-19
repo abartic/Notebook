@@ -18,7 +18,13 @@ var https = require("https");
 console.log("root my" + __dirname);
 
 setInterval(function() {
-    https.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
+    var env = process.env.NODE_ENV || 'dev';
+    if (env === 'dev') {
+        console.log('fake ping...');
+    } else {
+        console.log('real ping...');
+        https.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
+    }
 }, 300000); // every 5 minutes (300000)
 
 //create http server

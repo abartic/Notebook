@@ -50,7 +50,7 @@ export class SheetsSelectOperations {
         return SheetsSelectOperations.selectEntity(access_token, spreadsheetName, sheetName, entityName);
     }
 
-    static selectEntity(access_token, spreadsheetName, sheetName, entityName, select?, addSchema?, scalar?) {
+    static selectEntity(access_token: string, spreadsheetName: string, sheetName: string, entityName: string, select?: string, addSchema?: boolean, scalar?: boolean) {
         if (!select)
             select = "select * limit 1";
         if (!addSchema)
