@@ -9,7 +9,7 @@ interface ISheet
 {
     sheetName : string;
     sheetID : string;
-    entity: IEntity;
+    entities: IEntity[];
 }
 
 interface ISpreadsheet

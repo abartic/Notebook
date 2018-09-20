@@ -17,7 +17,7 @@ import { AppAcl } from './acl/app-acl'
 import helmet = require('helmet');
 import csrf = require('csurf');
 import { JobManager } from './jobs/job-manager';
-var CronJob = require('cron').CronJob;
+
 
 
 /**
@@ -171,11 +171,7 @@ export class Server {
         // use router middleware
         this.app.use(router);
 
-        new CronJob('20 * * * * *', function () {
-
-            JobManager.startJobs();
-
-        }, null, true, 'America/Los_Angeles');
+        JobManager.startJobs();
     }
 
     setErrorHandler() {

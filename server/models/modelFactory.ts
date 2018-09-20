@@ -2,8 +2,8 @@ import { BaseEntity } from './base-entity';
 import { Article } from './article';
 import { Partner } from './partner';
 import { Address } from './address';
-import { DocumentLine } from './document-line';
-import { Document } from './document';
+import { InvoiceLine } from './invoice-line';
+import { Invoice } from './invoice';
 import { Store } from './store';
 import { Contact } from './contact';
 import { ArticleInventory } from './article-inventory';
@@ -27,8 +27,8 @@ export class ModelFactory {
          else if (type === "articleinventory") return ArticleInventory;
          else if (type === "contact") return Contact;
          else if (type === "store") return Store;
-         else if (type === "document") return Document;
-         else if (type === "documentline") return DocumentLine;
+         else if (type === "invoice") return Invoice;
+         else if (type === "invoiceline") return InvoiceLine;
          else if (type === "company") return Company;
     }
 

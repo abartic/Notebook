@@ -1,12 +1,13 @@
+import { InvoiceLine } from './invoice-line';
 import { ModelInfos } from './modelProperties';
 import { ISelectObj } from './../common/select-obj';
-import { DocumentLine } from './document-line';
+
 
 import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 import { Partner } from './partner';
 
-@SheetInfo("movements", "documents", "Document", "code_doc")
-export class Document extends BaseEntity {
+@SheetInfo("movements", "documents", "Invoice", "code_doc")
+export class Invoice extends BaseEntity {
 
     public code_doc: String;
 
@@ -29,7 +30,7 @@ export class Document extends BaseEntity {
     @LookupProp("store", ["code_store", "descr_store"])
     public store_out: String;
 
-    public documentline_relation: (DocumentLine)[];
+    public invoiceline_relation: (InvoiceLine)[];
 
 
     public preparePackForReportPreloads() {
@@ -37,13 +38,13 @@ export class Document extends BaseEntity {
 
             {
                 entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                    this['partner'] = p;
+                    this['partner_lookup_entity'] = p;
                 }
             },
 
             {
                 entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                    this['partner_address'] = pa;
+                    this['partner_address_lookup_entity'] = pa;
                 }
             }
         ];

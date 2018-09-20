@@ -35,8 +35,8 @@
                                 <br> {{company.city}},{{company.county}},{{company.zip_code}}
                             </td>
                             <td>
-                                {{partner.name_partner}}<br> {{partner_address.line_address}}
-                                <br> {{partner_address.city}} {{partner_address.county}} {{partner_address.zip_code}}
+                                {{partner_lookup_entity.name_partner}}<br> {{partner_address_lookup_entity.line_address}}
+                                <br> {{partner_address_lookup_entity.city}} {{partner_address_lookup_entity.county}} {{partner_address_lookup_entity.zip_code}}
                             </td>
                         </tr>
                     </table>
@@ -56,13 +56,13 @@
                     Qty
                 </td>
             </tr>
-            {{#each documentline_relation}}
+            {{#each invoiceline_relation}}
             <tr class="item">
                 <td>
                     {{code_art}}
                 </td>
                 <td>
-                    {{article_lookup_entity.descr}}
+                    {{article_lookup_entity.descr_art}}
                 </td>
                 <td>
                     {{price_out}}
@@ -78,7 +78,7 @@
                 <td></td>
                 <td></td>
                 <td>
-                    Total: {{total documentline_relation}}
+                    Total: {{total invoiceline_relation}}
                 </td>
             </tr>
         </table>

@@ -1,9 +1,9 @@
 
 import { BaseEntity, LookupProp, SheetInfo } from "./base-entity";
-import { Document } from "./document";
+import { Invoice } from "./invoice";
 
-@SheetInfo("movements", "document_lines","DocumentLine")
-export class DocumentLine extends BaseEntity {
+@SheetInfo("movements", "document_lines","InvoiceLine")
+export class InvoiceLine extends BaseEntity {
 
     public code_doc : String;
 
@@ -23,6 +23,6 @@ export class DocumentLine extends BaseEntity {
     public onNew(parent : BaseEntity)
     {
         if (parent)
-            this.move_date = (<Document>parent).creation_date;
+            this.move_date = (<Invoice>parent).creation_date;
     }
 }

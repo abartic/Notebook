@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { SheetsSelectOperations } from '../sheets/sheets_select_operations';
 let google = require('googleapis');
+let CronJob = require('cron').CronJob;
 
 export class JobManager {
 
@@ -12,51 +13,56 @@ export class JobManager {
         let jobDefinitions = JSON.parse(data);
         for (let jobDefinition of jobDefinitions) {
 
-            let jwtClient = new google.auth.JWT(
-                jobDefinition.account,
-                null,
-                jobDefinition.private_key,
-                jobDefinition.scope);
+            let cj = null;
+            for (let job of jobDefinition.jobs) {
+                if (job.isActive === false)
+                    continue;
 
-            jwtClient.authorize(function (err, tokens) {
-                if (err) {
-                    console.log(err);
-                    return;
-                } else {
-                    for (let job of jobDefinition.jobs) {
-                        if (job.isActive === false)
-                            continue;
+                cj = new CronJob(job.schedule, function () {
 
-                        let props = job.notify_body_list_info.split(',');
+                    let jwtClient = new google.auth.JWT(
+                        jobDefinition.account,
+                        null,
+                        jobDefinition.private_key,
+                        jobDefinition.scope);
 
-                        SheetsSelectOperations.selectEntity(tokens['access_token'],
-                            job.spreadsheetName,
-                            job.sheetName,
-                            job.entityName, job.select, false, false)
-                            .then(result => {
-                                if (!result)
-                                    return;
-                                    
-                                let body = job.notify_body + '\n';
+                    jwtClient.authorize(function (err, tokens) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        } else {
+                            let props = job.notify_body_list_info.split(',');
 
-                                for (let prop of props) {
-                                    body += prop + ', ';
-                                }
-                                body += '\n';
+                            SheetsSelectOperations.selectEntity(tokens['access_token'],
+                                job.spreadsheetName,
+                                job.sheetName,
+                                job.entityName, job.select, false, false)
+                                .then(result => {
+                                    if (!result)
+                                        return;
 
-                                for (let item of <Array<any>>result['rows']) {
+                                    let body = job.notify_body + '\n';
+
                                     for (let prop of props) {
-                                        body += item[prop] + ', ';
+                                        body += prop + ', ';
                                     }
                                     body += '\n';
-                                }
-                                JobManager.sendEmail(job.notify_recepients, job.notify_subject, body);
-                            });
-                    }
-                }
-            });
-        }
 
+                                    for (let item of <Array<any>>result['rows']) {
+                                        for (let prop of props) {
+                                            body += item[prop] + ', ';
+                                        }
+                                        body += '\n';
+                                    }
+                                    JobManager.sendEmail(job.notify_recepients, job.notify_subject, body);
+                                });
+                        }
+
+                    });
+                }, null, true, job.schedule_TZ);
+
+            }
+        }
     }
 
     private static sendEmail(to, subject, body) {

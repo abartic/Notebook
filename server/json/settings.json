@@ -11,10 +11,10 @@
       "", "", "", "", "",
       "", "", "", "", "",
       "","","","",""],
-    "entity": {
+    "entities": [{
       "entityName": "Company",
       "ukey": "code_comp"
 
-    }
+    }]
   }]
 }

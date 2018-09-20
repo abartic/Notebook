@@ -977,7 +977,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         pack.values = this.package.entity;
         let preloadObs = new Observable((observer) => {
 
-            if (this.package.entity.entityName === 'Document') {
+            if (this.package.entity.entityName === 'Invoice') {
                 pack['reportType'] = 'invoice';
 
                 let packs = this.package.entity.preparePackForReportPreloads();

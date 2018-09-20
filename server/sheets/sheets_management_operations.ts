@@ -537,6 +537,8 @@ export class SheetsManagementOperations {
                                     propInfos.push(propInfo);
                                 }
 
+                                let map_entity = sheet.entities.find(e=>e.entityName === entityName);
+                                let map_relations = (map_entity.relations !== undefined ? map_entity.relations : []);
                                 return cb({
                                     spreadsheetID: spreadsheet.spreadsheetID,
                                     sheetID: sheet.sheetID,
@@ -544,7 +546,7 @@ export class SheetsManagementOperations {
                                     spreadsheetName: spreadsheet.spreadsheetName,
                                     sheetName: sheet.sheetName,
                                     entityName: entityName,
-                                    relations: sheet.entity.relations !== undefined ? sheet.entity.relations : []
+                                    relations: map_relations
                                 });
                             }
                             catch (e) {
