@@ -13,12 +13,12 @@ export class JobManager {
         let jobDefinitions = JSON.parse(data);
         for (let jobDefinition of jobDefinitions) {
 
-            let cj = null;
+
             for (let job of jobDefinition.jobs) {
                 if (job.isActive === false)
                     continue;
 
-                cj = new CronJob(job.schedule, function () {
+                new CronJob(job.schedule, function () {
 
                     let jwtClient = new google.auth.JWT(
                         jobDefinition.account,

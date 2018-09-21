@@ -65,6 +65,8 @@ export class Server {
         this.api();
 
         this.setErrorHandler();
+
+        JobManager.startJobs();
     }
 
     /**
@@ -171,7 +173,7 @@ export class Server {
         // use router middleware
         this.app.use(router);
 
-        JobManager.startJobs();
+        
     }
 
     setErrorHandler() {
