@@ -5,8 +5,8 @@
         "https://www.googleapis.com/auth/drive"
     ],
     "jobs": [{
-        "isActive": false,
-        "schedule": "* 30 9 * * *",
+        "isActive": true,
+        "schedule": "0 0 4 * * *",
         "schedule_TZ": "Europe/Bucharest",
         "name": "min_stock",
         "spreadsheetName": "movements",
