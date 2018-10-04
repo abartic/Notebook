@@ -32,6 +32,11 @@ export class FormComponent implements OnInit {
     return this.packageCtrl === null ? null : this.packageCtrl.package;
   }
 
+  get entityType()
+  {
+    return this.packageCtrl.entityType; 
+  }
+
   ngOnInit() {
     this.route.data
       .subscribe(data => {
