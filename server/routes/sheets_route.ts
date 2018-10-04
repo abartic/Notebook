@@ -108,7 +108,7 @@ export class SheetRoute extends BaseRoute {
         router.post('/sheetdata/validate',
             (req: Request, res: Response, next: NextFunction) => {
                 let token = req.session['google_access_token'];
-                const { spreadsheetName, sheetName, entityName, select, addSchema } = req.body as ISelectObj;
+                const { spreadsheetName, sheetName, entityName, select, addSchema, checkUnique } = req.body as ISelectObj;
 
                 let p_spreadsheets = undefined, p_spreadsheet = undefined, p_sheet = undefined;
                 SheetsMgr.uniqueInstance.get(token)
@@ -152,8 +152,14 @@ export class SheetRoute extends BaseRoute {
                                 }
                                 else {
                                     let result = null;
-                                    if (data.table.cols.length > 0 && data.table.rows.length === 0)
-                                        result = data.table.cols[0].label
+                                    if (checkUnique === true) {
+                                        if (data.table.cols.length > 0 && data.table.rows.length !== 0)
+                                            result = data.table.cols[0].label + ' not unique! '
+                                    }
+                                    else {
+                                        if (data.table.cols.length > 0 && data.table.rows.length === 0)
+                                            result = data.table.cols[0].label
+                                    }
                                     res.json(result);
                                 }
                             });

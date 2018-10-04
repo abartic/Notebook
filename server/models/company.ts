@@ -4,39 +4,39 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 @SheetInfo("settings", "companies", "Company", "code_comp")
 export class Company extends BaseEntity {
 
-    public code_comp: String;
+    public code_comp: string;
 
-    public name_comp: String;
+    public name_comp: string;
 
-    public descr_comp: String;
+    public descr_comp: string;
 
-    public type_comp: String;
+    public type_comp: string;
 
-    public country: String;
+    public country: string;
 
-    public county: String;
+    public county: string;
 
-    public city: String;
+    public city: string;
 
-    public zip_code: String;
+    public zip_code: string;
 
-    public address: String;
+    public address: string;
 
-    public reg_number: String;
+    public reg_number: string;
 
-    public fiscal_reg_number: String;
+    public fiscal_reg_number: string;
 
-    public name_admin: String;
+    public name_admin: string;
 
-    public name_rep: String;
+    public name_rep: string;
 
-    public email: String;
+    public email: string;
 
-    public www_address: String;
+    public www_address: string;
 
-    public phone1: String;
+    public phone1: string;
 
-    public phone2: String;
+    public phone2: string;
 
     public IBAN : string;
 

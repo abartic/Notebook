@@ -1,4 +1,4 @@
-import { InvoiceLine } from './invoice-line';
+import { PurchaseLine } from './purchase-line';
 import { ModelInfos } from './modelProperties';
 import { ISelectObj } from './../common/select-obj';
 
@@ -6,10 +6,10 @@ import { ISelectObj } from './../common/select-obj';
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
 import { Partner } from './partner';
 
-@SheetInfo("movements", "documents", "Invoice", "code_doc")
-export class Invoice extends BaseEntity {
+@SheetInfo("movements", "documents", "Purchase", "code_doc")
+export class Purchase extends BaseEntity {
 
-    public code_doc: String;
+    public code_doc: string;
 
     @LookupProp("partner", ["code_part", "name_partner", "descr_partner"])
     public code_part: string;
@@ -27,7 +27,7 @@ export class Invoice extends BaseEntity {
     @LookupProp("store", ["code_store", "descr_store"])
     public code_store: string;
 
-    public has_movements : boolean;
+    public has_movements: boolean;
 
     public has_payments: boolean;
 
@@ -39,27 +39,12 @@ export class Invoice extends BaseEntity {
 
     public partner_notes : string;
 
-    public invoiceline_relation: (InvoiceLine)[];
-
-    public onPropValueChanged(property: IPropInfo, propValue : any)
-    {
-        let cascade_values = false;
-        if (property.propName === 'has_movements' || property.propName === 'creation_date')
-        {
-            this.invoiceline_relation.map(i=> {
-                i.has_movements = this.has_movements;
-                i.move_date = this.creation_date;
-            });
-            cascade_values = true;
-        }
-
-        return cascade_values;
-    }
+    public purchaseline_relation: (PurchaseLine)[];
 
     public onPrepareSave()
     {
-        this.debit_value = 0;
-        this.invoiceline_relation.map(i=>this.debit_value += i.price_out * i.qty_out);
+        this.credit_value = 0;
+        this.purchaseline_relation.map(i=>this.credit_value += i.price_in * i.qty_in);
     }
 
     public getShellInfo(): IShellInfo {
@@ -71,7 +56,6 @@ export class Invoice extends BaseEntity {
                 },
                 static_filter: []
             },
-            
             commands: {
                 add: ['print'],
                 remove: []
@@ -94,7 +78,7 @@ export class Invoice extends BaseEntity {
 
         };
     }
-   
+
     public onInit(parent: BaseEntity)
     {
         super.onInit(parent);
@@ -102,6 +86,20 @@ export class Invoice extends BaseEntity {
         this.has_payments = true;
         this.debit_value = 0;
         this.credit_value = 0;
-        this.invoiceline_relation = [];
+        this.purchaseline_relation = [];
+    }
+   
+    public onPropValueChanged(property: IPropInfo, propValue : any)
+    {
+        let cascade_values = false;
+        if (property.propName === 'has_movements' || property.propName === 'creation_date')
+        {
+            this.purchaseline_relation.map(i=> {
+                i.has_movements = this.has_movements;
+                i.move_date = this.creation_date;
+            });
+             cascade_values = true;
+        }
+        return cascade_values;
     }
 }

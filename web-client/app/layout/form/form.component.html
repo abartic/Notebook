@@ -14,21 +14,31 @@
         </div>
     </div>
 
+    <div class="row justify-content-between">
+        <div class="col-md-6 ">
+            <button type="button " class="btn btn-link " (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false">Filter</button>
+        </div>
+        <div class="col-md-3">
+            <u>
+            <H1>{{packageCtrl.entityType}}</H1>
+            </u>
+        </div>
+    </div>
     <div class="row" *ngIf="package.show_filter">
         <div class="col-md-12">
             <form-filter [package]="package" [packageCtrl]="packageCtrl"></form-filter>
         </div>
     </div>
-    <div class="row" *ngIf="package.show_filter===false">
-        <div class="col-md-12 ">
-            <button type="button " class="btn btn-link " (click)="packageCtrl.clearMsg(true)">Filter</button>
-        </div>
-        <div class="col-xl-6 col-lg-6 col-md-9 col-xs-12">
-            <form-editor [package]="package" [packageCtrl]="packageCtrl"></form-editor>
+    <div *ngIf="package.show_filter===false">
+
+        <div class="row ">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-xs-12">
+                <form-editor [package]="package " [packageCtrl]="packageCtrl "></form-editor>
+            </div>
         </div>
     </div>
 
     <div>
-        <ngx-loading [show]="package.filter_loading"></ngx-loading>
+        <ngx-loading [show]="package.filter_loading "></ngx-loading>
     </div>
 </div>

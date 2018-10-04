@@ -1,3 +1,5 @@
+
+import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
 import { DateUserFormatPipe } from './shared/pipes/shared-pipes.module';
 
 import { ChartsModule } from 'ng2-charts/ng2-charts';
@@ -31,8 +33,9 @@ import { CommonModule } from '@angular/common';
 import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 
-import {Location, HashLocationStrategy, LocationStrategy} from '@angular/common'
+import { Location, HashLocationStrategy, LocationStrategy } from '@angular/common'
 import { Routes, RouterModule } from '@angular/router';
+
 
 //import { LoginComponent } from './login/login.component';
 // AoT requires an exported function for factories
@@ -72,9 +75,10 @@ export const createTranslateLoader = (http: HttpClient) => {
     EditEntityDialogWnd,
     SelectEntityDialogWnd,
     ReportDialogWnd,
+    CalendarDialogWnd,
     SafePipe,
-    
-    
+
+
   ],
   imports: [
     //RouterModule.forRoot(appRoutes),
@@ -83,18 +87,18 @@ export const createTranslateLoader = (http: HttpClient) => {
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    
+
     //HttpModule,
     HttpClientModule,
     TranslateModule.forRoot({
       loader: {
-          provide: TranslateLoader,
-          useFactory: createTranslateLoader,
-          deps: [HttpClient]
+        provide: TranslateLoader,
+        useFactory: createTranslateLoader,
+        deps: [HttpClient]
       }
-  }),
+    }),
     AppRoutingModule,
-    
+
     // TranslateModule.forRoot({
     //   loader: {
     //     provide: TranslateLoader,
@@ -107,18 +111,19 @@ export const createTranslateLoader = (http: HttpClient) => {
     //JsonpModule,
     SharedModule,
     NgbModule.forRoot()
-    
+
     // GoogleApiModule.forRoot({
     //   provide: NG_GAPI_CONFIG,
     //   useValue: gapiClientConfig
     // })
+
   ],
   providers: [
     AuthGuard,
     CookieService,
     HttpCallerService,
     CheckLoginService,
-   //Location, 
+    //Location, 
     //{provide: LocationStrategy, useClass: HashLocationStrategy}
   ],
   bootstrap: [AppComponent],
@@ -127,12 +132,14 @@ export const createTranslateLoader = (http: HttpClient) => {
     AskDialogWnd,
     EditEntityDialogWnd,
     SelectEntityDialogWnd,
-    ReportDialogWnd
-    
+    ReportDialogWnd,
+    CalendarDialogWnd
+
+
   ],
-  exports : [
-    
+  exports: [
+
   ]
-  
+
 })
 export class AppModule { }

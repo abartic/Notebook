@@ -4,24 +4,22 @@ export interface ISelectObj {
     entityName: string;
     select: string;
     addSchema?: boolean;
-    //cb? : (r) => void;
+    checkUnique?: boolean;
 }
 
-export interface IEntityPackage
-{ 
-    sheetName, 
-    sheetID, 
-    ID, 
+export interface IEntityPackage {
+    sheetName,
+    sheetID,
+    ID,
     rowid,
-    selectEntity, 
+    selectEntity,
     values,
     action
 }
 
-export interface IEntitiesPackage
-{ 
+export interface IEntitiesPackage {
     spreadsheetID,
     spreadsheetName,
-    entityPackages : IEntityPackage[],
+    entityPackages: IEntityPackage[],
     action,
 }

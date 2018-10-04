@@ -5,6 +5,8 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 @SheetInfo("partners", "partners", "Partner", "code_part") export
     class Partner extends BaseEntity {
 
+       
+
     public code_part: String;
 
     public name_partner: String;
@@ -34,5 +36,13 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
     public address_relation: (Address)[];
 
     public contact_relation: (Contact)[];
+
+    public onInit(parent: BaseEntity) 
+    {
+        super.onInit(parent);
+     
+        this.address_relation = [];
+        this.contact_relation = [];
+    }
 
 }

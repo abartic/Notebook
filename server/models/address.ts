@@ -5,17 +5,17 @@ import { BaseEntity, SheetInfo } from "./base-entity";
 export class Address extends BaseEntity {
 
 
-    public code_part : String;
+    public code_part : string;
 
-    public line_address : String;
+    public line_address : string;
     
-    public city : String;
+    public city : string;
     
-    public county : String;
+    public county : string;
 
-    public country : String;
+    public country : string;
 
-    public zip : String;
+    public zip : string;
 
-    public email : String;
+    public email : string;
 }

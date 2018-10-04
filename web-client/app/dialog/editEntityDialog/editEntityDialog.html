@@ -13,29 +13,33 @@
 
                 <div class="input-group" *ngSwitchCase="'date'">
                     <input class="form-control" placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity_relation[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity_relation,property)" ngbDatepicker #d="ngbDatepicker" placement="top">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
-              ...
-            </button>
-                    </div>
+                    <button class="input-group-addon" (click)="d.toggle()" type="button">
+                        <span class="fa fa-calendar"></span>
+                    </button>
+                </div>
+
+                <div class="input-group" *ngSwitchCase="'checkbox'">
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" type="checkbox" [checked]="package.entity_relation[property.propName]" (change)="package.entity_relation[property.propName] = !package.entity_relation[property.propName]; packageCtrl.onEditorValueChanged(package.entity_relation, property)">
                 </div>
 
                 <div class="input-group" *ngSwitchDefault>
                     <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity_relation, property)"
                         (focusout)="packageCtrl.onEditorFocusChanged(package.entity_relation, property)">
                     <input class="form-control" [(ngModel)]="package.entity_relation[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity_relation[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
-                    <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
-                        <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity_relation, property)">...</button>
-                    </div>
+
+                    <button type="button" class="input-group-addon" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)">
+                        ...
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
-<div class="modal-footer">
+<div class="modal-footer ">
     <div class="row justify-content-end ">
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group mr-2" role="group">
+        <div class="btn-toolbar " role="toolbar ">
+            <div class="btn-group mr-2 " role="group ">
                 <button (click)="activeModal.close( 'Save') " class="btn btn-primary ">Save</button>
                 <button (click)="activeModal.close( 'Cancel') " class="btn btn-secondary ">Cancel</button>
             </div>

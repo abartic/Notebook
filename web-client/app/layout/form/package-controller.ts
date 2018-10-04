@@ -16,6 +16,8 @@ import { KeyedCollection } from '../../../../server/utils/dictionary';
 import { ISelectObj } from '../../../../server/common/select-obj';
 import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
 import { Observable } from 'rxjs/Observable';
+import { CalendarDialogWnd } from '../../dialog/calendarDialog/calendarDialogWnd';
+import { UserSession } from '../../app.component';
 
 
 
@@ -47,6 +49,8 @@ export interface IPackageController {
 
     onPrint();
 
+    onCustomCommand(command);
+
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo);
 
     package;
@@ -64,9 +68,12 @@ export interface IPackageController {
     onCreateEntityByRelation(relation: string);
 
     isDisabled(entity, property);
+
+    userSession: UserSession;
 }
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
+    userSession: UserSession;
 
     public package: Package<T>;
     public package_initialized: boolean = undefined;
@@ -148,7 +155,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                             }
                         }
 
-                        ModelInfos.uniqueInstance.add(entity.entityName, info);
+                        ModelInfos.uniqueInstance.add(entity.entityName, entity.adjustProperties(info));
                     }
                     cb(info);
                 },
@@ -500,6 +507,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         else
             action = eEntityAction.Update;
 
+        this.package.entity.onPrepareSave();
         this.validateEntity((validationResult) => {
 
             if (validationResult && validationResult.length > 0) {
@@ -723,7 +731,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     isVisible(property: IPropInfo, entityParent: T, entity: BaseEntity) {
         if (property === undefined
             || (property.propName === 'uid' || property.propName === 'rowid')
-            || (entityParent && entityParent.ukeyPropName === property.propName)) {
+            || (entityParent && entityParent.ukeyPropName === property.propName)
+            || property.isHidden === true) {
             return false;
         }
         else {
@@ -754,7 +763,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         for (let property of info.properties) {
             if (property.propName === 'uid' || property.propName === 'rowid'
-                || property.propName === entity.ukeyPropName)
+                || property.propName === entity.ukeyPropName || property.isHidden === true)
                 continue;
 
             properties.push(property);
@@ -763,7 +772,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 properties.push(<IPropInfo>{
                     propName: property.lookup_properties[1],
                     path: property.lookup_entity_name + '_lookup_entity',
-                    dataType: 'TEXT'
+                    dataType: 's'
                 });
         }
         return properties;
@@ -861,7 +870,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         let entityInfo: IEntityInfo = lookupEntity.entityInfo;
         let properties = [];
         for (let property of entityInfo.properties) {
-            if (lookupProperties.includes(property.propName)) {
+            if (property.isHidden !== true && lookupProperties.includes(property.propName)) {
                 properties.push(property);
             }
         }
@@ -881,30 +890,41 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     public getInputType(dataType: string) {
         switch (dataType) {
-            case 'NUMBER':
+            case 'n':
+            case 'i':
                 return 'number';
-            case 'TEXT':
-                return 'text';
-            case 'DATE':
+            case 'b':
+                return 'checkbox';
+            case 'd':
                 return 'date';
-            case 'TIME':
+            case 't':
                 return 'time';
+            case 's':
+            default:
+                return 'text';
         }
     }
 
 
     onEditorValueChanged(entity: BaseEntity, property: IPropInfo) {
 
-        if (entity.ukeyPropName === property.propName && entity.entityInfo.relations) {
-            for (let relation of entity.entityInfo.relations) {
-                if (entity[relation + '_relation']) {
-                    for (let item of entity[relation + '_relation']) {
-                        item[entity.ukeyPropName] = entity[entity.ukeyPropName];
-                        if (item.status !== eEntityStatus.New)
-                            item.status = eEntityStatus.Updated
+        let cascaded_value = false;
+        if (entity)
+            cascaded_value = entity.onPropValueChanged(property, entity[property.propName]);
+
+        if (entity.ukeyPropName === property.propName || cascaded_value) {
+            if (entity.entityInfo.relations) {
+                for (let relation of entity.entityInfo.relations) {
+                    if (entity[relation + '_relation']) {
+                        for (let item of entity[relation + '_relation']) {
+                            item[entity.ukeyPropName] = entity[entity.ukeyPropName];
+                            if (item.status !== eEntityStatus.New)
+                                item.status = eEntityStatus.Updated
+                        }
                     }
                 }
             }
+            this.addValidation(entity, entity.entityName, property.propName);
         }
         else if (property.lookup_entity_name) {
             if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0) {
@@ -945,13 +965,17 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     addValidation(entity: BaseEntity, lookup_entity_name: string, propName: string) {
         let validation_item: ISelectObj;
 
-        let lookup_entity = ModelFactory.uniqueInstance.create(lookup_entity_name);
+        let checkUnique = (entity.entityName === lookup_entity_name);
+         
+
+        let lookup_entity = checkUnique ? entity : ModelFactory.uniqueInstance.create(lookup_entity_name);
         this.removeValidation(entity, propName);
         validation_item = <ISelectObj>{};
         validation_item.spreadsheetName = lookup_entity.spreadsheetName;
         validation_item.sheetName = lookup_entity.sheetName;
-        validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName], false);
+        validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName], false, checkUnique);
         validation_item.addSchema = false;
+        validation_item.checkUnique = checkUnique;
         this.package.validations.Add(entity.uid + propName, validation_item);
         return validation_item;
     }
@@ -980,7 +1004,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (this.package.entity.entityName === 'Invoice') {
                 pack['reportType'] = 'invoice';
 
-                let packs = this.package.entity.preparePackForReportPreloads();
+                let packs = this.package.entity.getShellInfo().report.preloads;
                 let index = 0;
                 for (let ppack of packs) {
                     let p: Promise<IEntityInfo> = null;
@@ -1046,5 +1070,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     });
             })
 
+    }
+
+    public onCustomCommand(command) {
+        if (command === 'show_calendar') {
+            window.open("https://calendar.google.com/calendar");
+
+        } else if (command === 'print') {
+            this.onPrint();
+        }
     }
 }

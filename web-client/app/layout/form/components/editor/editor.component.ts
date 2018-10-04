@@ -45,6 +45,10 @@ export class EditorComponent implements OnInit {
   onPrint() {
     this.packageCtrl.onPrint();
   }
+
+  onCustomCommand(command) {
+    this.packageCtrl.onCustomCommand(command);
+  }
 }
 
 

@@ -9,6 +9,8 @@ import { PackageController, IPackageController } from './package-controller';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModelFactory } from '../../../../server/models/modelFactory';
+import { CookieService } from 'ngx-cookie-service';
+import { UserSession } from '../../app.component';
 
 
 
@@ -22,7 +24,8 @@ import { ModelFactory } from '../../../../server/models/modelFactory';
 export class FormComponent implements OnInit {
 
   private packageCtrl: IPackageController
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(private route: ActivatedRoute, private router: Router, private cookieService: CookieService,) {
+   
   }
 
   get package() {
@@ -36,6 +39,8 @@ export class FormComponent implements OnInit {
             this.router.navigate(['/login']);
 
         this.packageCtrl = <IPackageController>data['packCtrl'];
+        this.packageCtrl.userSession = new UserSession();
+        this.packageCtrl.userSession.Username = this.cookieService.get("userId")
       });
   }
 

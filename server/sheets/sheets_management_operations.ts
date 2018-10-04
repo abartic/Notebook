@@ -169,30 +169,43 @@ export class SheetsManagementOperations {
                                         }
                                     };
 
-                                    if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
-                                        fieldDef['userEnteredFormat'] = {
-                                            "numberFormat": {
-                                                "type": "NUMBER",
-                                                "pattern": "#,##0"
-                                            }
-                                        };
-                                    }
-                                    else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
-                                        fieldDef['userEnteredFormat'] = {
-                                            "numberFormat": {
-                                                "type": "NUMBER",
-                                                "pattern": "#,##0.00"
-                                            }
-                                        };
-                                    }
-                                    else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
-                                        fieldDef['userEnteredFormat'] = {
-                                            "numberFormat": {
-                                                "type": "DATE",
-                                                "pattern": "dd/MM/yyyy"
-                                            }
-                                        };
-                                    }
+                                    // if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
+                                    //     fieldDef['userEnteredFormat'] = {
+                                    //         "numberFormat": {
+                                    //             "type": "NUMBER",
+                                    //             "pattern": "#,##0"
+                                    //         }
+                                    //     };
+                                    // }
+                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'b') {
+                                    //     fieldDef['userEnteredFormat'] = {
+                                    //         "numberFormat": {
+                                    //             "type": "NUMBER",
+                                    //             "pattern": "#,##0"
+                                    //         }
+                                    //     };
+                                    //     fieldDef['dataValidation'] = {
+                                    //         "condition": {
+                                    //             "type": "BOOLEAN"
+                                    //         }
+                                    //     };
+                                    // }
+                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
+                                    //     fieldDef['userEnteredFormat'] = {
+                                    //         "numberFormat": {
+                                    //             "type": "NUMBER",
+                                    //             "pattern": "#,##0.00"
+                                    //         }
+                                    //     };
+                                    // }
+                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
+                                    //     fieldDef['userEnteredFormat'] = {
+                                    //         "numberFormat": {
+                                    //             "type": "DATE",
+                                    //             "pattern": "dd/MM/yyyy"
+                                    //         }
+                                    //     };
+                                    // }
                                     sheetReq.data[0].rowData[0].values.push(fieldDef);
 
                                     ti += 1;
@@ -310,7 +323,7 @@ export class SheetsManagementOperations {
                 };
                 let folderId;
                 let calls_file = [];
-                DriverRoute.writeConfigFile(accessToken, eFileOperationType.folder, null, null, null)
+                return DriverRoute.writeConfigFile(accessToken, eFileOperationType.folder, null, null, null)
                     .then(fileId => {
                         folderId = fileId;
                         // accountsSet.accounts.push({
@@ -499,68 +512,52 @@ export class SheetsManagementOperations {
                 spreadsheet.spreadsheetID = p_spreadsheet.spreadsheetID;
                 sheet.sheetID = p_sheet.sheetID;
 
+                //add static fields
+                sheet.fields.splice(0, 0, 'rowid', 'uid');
+                if (sheet.fields_types)
+                    sheet.fields_types.splice(0, 0, 's', 's');
 
-                let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
-                return new Promise((cb) => {
+                let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
+                let cellName = 'A';
+                for (let index = 0; index < sheet.fields.length; index++) {
 
-                    sheets.spreadsheets.get(
-                        {
-                            spreadsheetId: spreadsheet.spreadsheetID,
-                            ranges: [sheet.sheetName + '!1:1'],
-                            includeGridData: true,
-                            fields: "sheets(properties.title,data.rowData.values(effectiveValue.stringValue,effectiveFormat.numberFormat))",
-                            auth: oauth2Client,
-                        },
-                        function (err, result) {
-                            if (err) {
-                                return Promise.reject({ error: err });
-                            }
-                            let columns = undefined;
-                            try {
-                                columns = result.sheets[0]['data'][0]['rowData'][0]['values'];
+                    let propInfo: IPropInfo = {
+                        propName: sheet.fields[index],
+                        cellName: cellName,
+                        onlyEdit: true,
+                        dataType: !sheet.fields_types ? 's' : sheet.fields_types[index],
+                        mask: '',
+                        path: '',
+                        isHidden: false
+                    };
+                    if (propInfo.dataType === 'n') {
+                        propInfo.mask = "#,##0.00"
+                    }
+                    else if (propInfo.dataType === 'i') {
+                        propInfo.mask = "#,##0"
+                    }
+                    else if (propInfo.dataType === 'd') {
+                        propInfo.mask = "dd/MM/yyyy"
+                    }
+                    if (sheet.hidden_fields && sheet.hidden_fields.findIndex(i => i === sheet.fields[index]) >= 0)
+                        propInfo.isHidden = true;
 
-                                let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
-                                let cellName = 'A';
-                                for (let column of columns) {
-                                    if (column['effectiveValue'] === undefined)
-                                        continue;
+                    cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
+                    propInfos.push(propInfo);
+                }
 
-                                    let propInfo: IPropInfo = {
-                                        propName: column['effectiveValue']['stringValue'],
-                                        cellName: cellName,
-                                        onlyEdit: true,
-                                        dataType: column['effectiveFormat'] === undefined ? 'TEXT' : column['effectiveFormat']['numberFormat']['type'],
-                                        mask: column['effectiveFormat'] === undefined ? '' : column['effectiveFormat']['numberFormat']['pattern'],
-                                        path: ''
-                                    };
-                                    cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
-                                    propInfos.push(propInfo);
-                                }
+                let map_entity = sheet.entities.find(e => e.entityName === entityName);
+                let map_relations = (map_entity.relations !== undefined ? map_entity.relations : []);
+                return {
+                    spreadsheetID: spreadsheet.spreadsheetID,
+                    sheetID: sheet.sheetID,
+                    properties: propInfos,
+                    spreadsheetName: spreadsheet.spreadsheetName,
+                    sheetName: sheet.sheetName,
+                    entityName: entityName,
+                    relations: map_relations
+                };
 
-                                let map_entity = sheet.entities.find(e=>e.entityName === entityName);
-                                let map_relations = (map_entity.relations !== undefined ? map_entity.relations : []);
-                                return cb({
-                                    spreadsheetID: spreadsheet.spreadsheetID,
-                                    sheetID: sheet.sheetID,
-                                    properties: propInfos,
-                                    spreadsheetName: spreadsheet.spreadsheetName,
-                                    sheetName: sheet.sheetName,
-                                    entityName: entityName,
-                                    relations: map_relations
-                                });
-                            }
-                            catch (e) {
-                                return Promise.reject({ error: e });
-
-                            }
-                        });
-
-
-
-
-
-
-                });
             }).catch(r => {
                 if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });

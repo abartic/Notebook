@@ -3,28 +3,61 @@
     "spreadsheetName": "movements",
     "sheets": [{
             "sheetName": "documents",
-            "fields": ["code_doc", "code_part", "type_doc", "creation_date", "due_date", "register_date", "internal_reference", "store_in", "store_out"],
-            "fields_types": ["", "", "", "d", "d", "d", "", "", ""],
+            "fields": ["code_doc", "code_part", "type_doc",
+                "creation_date", "due_date", "register_date",
+                "internal_reference", "code_store",
+                "has_movements", "has_payments",
+                "credit_value", "debit_value",
+                "notes", "partner_notes"
+            ],
+            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "", ""],
+            "hidden_fields": ["credit_value", "debit_value"],
             "entities": [{
-                "entityName": "Invoice",
-                "ukey": "code_doc",
-                "relations": ["invoiceline"]
-            }]
+                    "entityName": "Invoice",
+                    "ukey": "code_doc",
+                    "relations": ["invoiceline"]
+                },
+                {
+                    "entityName": "Purchase",
+                    "ukey": "code_doc",
+                    "relations": ["purchaseline"]
+                }
+            ]
 
         }, {
             "sheetName": "document_lines",
-            "fields": ["code_doc", "code_art", "price_in", "price_out", "qty", "discount", "move_date"],
-            "fields_types": ["", "", "n", "n", "n", "n", "d"],
+            "fields": ["code_doc", "code_art", "code_store",
+                "price_in", "price_out", "qty_in", "qty_out",
+                "discount", "move_date", "notes", "has_movements"
+            ],
+            "fields_types": ["", "", "", "n", "n", "n", "n", "n", "d", "", "b"],
+            "hidden_fields": ["has_movements", "move_date"],
             "entities": [{
-                "entityName": "InvoiceLine"
-            }]
+                    "entityName": "InvoiceLine"
+                },
+                {
+                    "entityName": "PurchaseLine"
+                }
+            ]
         },
         {
             "sheetName": "art_inventory",
-            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(G) WHERE D <> '' group by D,E\", 1)",
-            "fields": ["code_art", "code_store", "price_in", "qty"],
+            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I) WHERE D <> '' AND M = true group by D, E\", 1)",
+            "fields": ["code_art", "code_store", "qty_in", "qty_out"],
             "fields_types": ["", "", "n", "n"],
-            "entities": [{ "entityName": "ArticleInventory" }]
+            "entities": [{
+                "entityName": "ArticleInventory"
+            }]
+
+        },
+        {
+            "sheetName": "accounts_inventory",
+            "formula": "QUERY(documents!A:Z,\"select D, SUM(M), SUM(N) WHERE D <> '' AND L = TRUE group by D\", 1)",
+            "fields": ["code_part", "credit_value", "debit_value"],
+            "fields_types": ["", "n", "n"],
+            "entities": [{
+                "entityName": "AccountInventory"
+            }]
 
         }
     ]

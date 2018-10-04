@@ -94,14 +94,14 @@ export class SheetsSelectOperations {
                     "&access_token=" + access_token
 
 
-                return new Promise((cb) => {
+                return new Promise((cb, cerr) => {
                     jsonpClient(url,
                         function (err, data) {
                             if (err) {
-                                Promise.reject({ error: err });
+                                cerr({ error: err });
                             }
                             else if (data.status === 'error') {
-                                Promise.reject({ error: data.errors });
+                                cerr({ error: data.errors });
                             }
                             else {
                                 if (scalar === true) {
@@ -147,9 +147,9 @@ export class SheetsSelectOperations {
 
             }).catch(r => {
                 if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
-                    Promise.reject({ error: { code: 401 } });
+                    return Promise.reject({ error: { code: 401 } });
                 else
-                    Promise.reject(r);
+                    return Promise.reject(r);
             });
     }
 }

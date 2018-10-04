@@ -42,8 +42,26 @@ export interface IPropInfo {
     mask: string;
     lookup_entity_name?: string;
     lookup_properties?: string[];
+    isHidden: boolean;
 }
 
+export interface IShellInfo {
+    filter: {
+        fields: {
+            add: string[],
+            remove: string[]
+        },
+        static_filter: { key: string, value: string }[]
+    },
+
+    commands: {
+        add: string[],
+        remove: string[]
+    },
+    report: {
+        preloads: { entity_name: string, ukey_prop_name: string, cb: (p) => void }[]
+    }
+}
 
 export enum eEntityStatus {
     None = 0,
@@ -82,6 +100,7 @@ export function LookupProp(entityName: string, propNames: (string)[]) {
 }
 
 export class BaseEntity {
+
 
 
     public rowid: number;
@@ -127,7 +146,13 @@ export class BaseEntity {
     }
 
     get properties(): Array<IPropInfo> {
-        return this.entityInfo.properties;
+        let props = this.entityInfo.properties;
+
+        return props;
+    }
+
+    public adjustProperties(entityInfo: IEntityInfo) {
+        return entityInfo;
     }
 
     public toArray(): (String | Number | Date)[] {
@@ -298,13 +323,15 @@ export class BaseEntity {
         return query;
     }
 
-    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value, allFields: boolean): string {
+    public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value, allFields: boolean, excludeCurrentUid?: boolean): string {
         let entityInfo = entity.entityInfo;
-        let cell_ukey;
+        let cell_ukey, additionalWhere = '';
         let query = 'select '
         for (let p of entityInfo.properties) {
             if (p.propName === ukey_prop_name)
                 cell_ukey = p.cellName;
+            if (excludeCurrentUid === true && p.propName === 'uid')
+                additionalWhere = " and " + p.cellName + "<> '" + entity.uid + "'";
             if (allFields === false && p.propName !== ukey_prop_name)
                 continue;
 
@@ -312,7 +339,7 @@ export class BaseEntity {
         }
 
         query = query.slice(0, query.length - 1);
-        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value || '').trim().toUpperCase() + '" limit 1';
+        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value || '').trim().toUpperCase() + '" ' + additionalWhere + ' limit 1';
         return query;
     }
 
@@ -341,7 +368,7 @@ export class BaseEntity {
         for (let p of entity.properties) {
             if (entity[p.propName] && entity[p.propName] !== '') {
                 exists_filter = true;
-                let fvalue = (<string>entity[p.propName]).toUpperCase();
+                let fvalue = entity[p.propName].toString().toUpperCase();
                 let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
                 //date, time
                 if (p.dataType === 'DATE' || p.dataType === 'TIME') {
@@ -362,6 +389,9 @@ export class BaseEntity {
                     else {
                         where = where + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
                     }
+                } //number
+                else if (p.dataType === 'BOOLEAN') {
+                    where = where + ' and ' + p.cellName + ' = ' + fvalue.toString();
                 }
                 //string
                 else if (fvalue.indexOf('%') >= 0)
@@ -391,6 +421,12 @@ export class BaseEntity {
 
         query = query + where + where_keys;
 
+        if (entity.getShellInfo().filter && entity.getShellInfo().filter.static_filter) {
+            let static_where = entity.getStaticFilter(entity.getShellInfo().filter.static_filter);
+            if (static_where)
+                query = query + static_where;
+        }
+
         if (forFkey) {
             query = query + ' group by ' + fkeycell;
         }
@@ -409,7 +445,7 @@ export class BaseEntity {
 
         for (let p of this.properties) {
             if (this[p.propName]) {
-                let fvalue = (<string>this[p.propName]).toUpperCase();
+                let fvalue = this[p.propName].toString().toUpperCase();
                 let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
                 //date or time
                 if (p.dataType === 'DATE' || p.dataType === 'TIME') {
@@ -430,6 +466,10 @@ export class BaseEntity {
                     else {
                         query = query + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
                     }
+                }
+                //boolean
+                else if (p.dataType === 'BOOLEAN') {
+                    query = query + ' and ' + p.cellName + ' = ' + fvalue.toString();
                 }
                 //string
                 else if (fvalue.indexOf('%') >= 0)
@@ -477,20 +517,68 @@ export class BaseEntity {
         }
 
         if (instance === null) {
-
-            new_instance['uid'] = uuidv1();
-        }
-
-        if (instance === null) {
-            new_instance.onNew(parent);
+            new_instance.onInit(parent);
         }
 
         return new_instance;
     }
 
-    public onNew(parent: BaseEntity) { }
+    //public onNew(parent: BaseEntity) { }
 
-    public preparePackForReportPreloads(): Array<{ entity_name: string, ukey_prop_name: string, cb: (p) => void }> { return null; }
+
+    public getStaticFilter(filter?: { key: string, value: any }[]): any {
+        let where = '';
+        if (filter) {
+            for (let item of filter) {
+                if (where.length > 0)
+                    where = where + ' and ';
+                for (let p of this.properties) {
+                    if (p.propName === item.key) {
+                        if (p.dataType === 'NUMBER') {
+                            where = where + p.cellName + ' = ' + BaseEntity.parseNumber(item.value).toString();
+                        }
+                        else if (p.dataType === 'BOOLEAN') {
+                            where = where + ' and ' + p.cellName + ' = ' + item.value.toString();
+                        }
+                        else {
+                            where = where + ' upper(' + p.cellName + ') = "' + item.value + '"';
+                        }
+                    }
+                }
+            }
+        }
+        return where;
+    }
+
+    public getShellInfo(): IShellInfo {
+
+        return {
+            filter: {
+                fields: {
+                    add: [],
+                    remove: []
+                },
+                static_filter: []
+            },
+            commands: {
+                add: [],
+                remove: []
+            },
+            report: {
+                preloads: []
+            }
+        };
+    }
+
+    public onPrepareSave() { }
+
+    public onInit(parent: BaseEntity) {
+        this.uid = uuidv1();
+    }
+
+    public onPropValueChanged(propName: IPropInfo, propValue: any): boolean {
+        return false;
+    }
 }
 
 

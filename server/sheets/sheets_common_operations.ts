@@ -229,18 +229,20 @@ export class SheetsCommonOperations {
                 }
 
                 let error = false;
+                let index = 0;
                 for (let entityID of entityIDs) {
                     let markedRowID = null;
-                    let index = entityID[1];
-                    let ID = entityID[2];
                     if (r['valueRanges'][index].valueRange.values)
                         markedRowID = r['valueRanges'][index].valueRange.values[0][1];
+                    let ID = r['valueRanges'][index].dataFilters[0].developerMetadataLookup.metadataValue;
                     if (markedRowID !== ID) {
                         console.log("ERROR_METADATA_CREATION");
                         entitiesPackage.entityPackages[index]['error'] = true;
                         error = true;
                     }
+                    index++;
                 }
+                
                 if (error)
                     return Promise.resolve(false);
                 else

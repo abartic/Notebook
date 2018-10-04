@@ -5,26 +5,27 @@ import { BaseEntity, SheetInfo } from "./base-entity";
 @SheetInfo("inventory", "articles", "Article", "code_art")  
 export class Article extends BaseEntity {
 
-    public code_art : String;
+    public code_art : string;
 
-    public descr_art : String;
+    public descr_art : string;
     
-    public UM : String;
+    public UM : string;
     
-    public EAN : String;
+    public EAN : string;
     
-    public SN : String;
+    public SN : string;
     
-    public attr1 : String;
+    public attr1 : string;
     
-    public attr2 : String;
+    public attr2 : string;
     
-    public attr3 : String;
+    public attr3 : string;
     
-    public attr4 : String;
+    public attr4 : string;
     
-    public attr5: String;
+    public attr5: string;
    
     public entry_date : Date;
+
     //public articleinventory_relation : (ArticleInventory)[];
 }

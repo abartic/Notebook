@@ -366,6 +366,22 @@ export class SheetsCrudOperations {
                         }
                     }
                 });
+            } else if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'b') {
+                rowData.values.push({
+                    "userEnteredValue": {
+                        "boolValue": values[ti + 2] === true ? "TRUE" : "FALSE"
+                    },
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": "NUMBER",
+                            "pattern": "#,##0.00"
+                        }
+                    }, "dataValidation": {
+                        "condition": {
+                            "type": "BOOLEAN"
+                        }
+                    }
+                });
             }
             else if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'd') {
                 rowData.values.push({
@@ -403,7 +419,7 @@ export class SheetsCrudOperations {
 
                     rowData
                 ],
-                "fields": "userEnteredValue,userEnteredFormat"
+                "fields": "userEnteredValue,userEnteredFormat,dataValidation"
             }
         });
 

@@ -2,15 +2,15 @@
     <thead class="thead-light">
         <tr>
             <th>code_art</th>
-            <th>price_in</th>
+            <th>code_store</th>
             <th>qty</th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let row of rows;">
             <td>{{row['code_art']}}</td>
-            <td>{{row['price_in']}}</td>
-            <td>{{row['qty']}}</td>
+            <td>{{row['code_store']}}</td>
+            <td>{{row['qty_in']-row['qty_out']}}</td>
         </tr>
     </tbody>
 </table>

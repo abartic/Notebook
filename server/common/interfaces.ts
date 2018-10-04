@@ -9,6 +9,9 @@ interface ISheet
 {
     sheetName : string;
     sheetID : string;
+    fields : string[],
+    fields_types : string[],
+    hidden_fields : string[],
     entities: IEntity[];
 }
 

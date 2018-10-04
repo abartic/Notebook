@@ -1,0 +1,15 @@
+.calendar-modal .modal-content {
+    background-color: #292b2c;
+    color: white;
+    width: 825px;
+    margin: 0 auto;
+}
+
+.calendar-modal .modal-body {
+    width: 825px;
+    height: 650px;
+}
+
+.calendar-modal .close {
+    color: white;
+}

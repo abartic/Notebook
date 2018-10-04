@@ -4,13 +4,13 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 export class ArticleInventory extends BaseEntity {
 
     @LookupProp("article", ["code_art","descr_art", "UM"])
-    public code_art : String;
+    public code_art : string;
 
     @LookupProp("store", ["code_store","descr_store"])
-    public code_store : String;
+    public code_store : string;
     
-    public price_in : Number;
-    
-    public qty : Number;
+    public qty_in : number;
+
+    public qty_out : number;
 
 }

@@ -71,12 +71,12 @@ export class ChartsComponent implements OnInit {
             '/sheetdata/select',
             {
                 spreadsheetName: 'movements',
-                sheetName: 'document_lines',
-                select: `select month(I), SUM(G) 
-                            where I > date "` + BaseEntity.dateToStandardDate(dateMinus6Months) + `"
-                            group by month(I)
-                            order by month(I)
-                            label month(I) "month", SUM(G) "value" `,
+                sheetName: 'documents',
+                select: `select month(F), SUM(N) 
+                            where L = TRUE AND F > date "` + BaseEntity.dateToStandardDate(dateMinus6Months) + `"
+                            group by month(F)
+                            order by month(F)
+                            label month(F) "month", SUM(N) "value" `,
                 addSchema: false
             },
             result => {

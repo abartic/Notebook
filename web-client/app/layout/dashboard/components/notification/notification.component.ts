@@ -21,7 +21,7 @@ export class NotificationComponent implements OnInit {
                 spreadsheetName: 'movements',
                 sheetName: 'art_inventory',
                 entityName: 'ArticleInventory',
-                select: 'select A, B, SUM(C) group by A, B label A "code_art", B "price_in", SUM(C) "qty"',
+                select: 'select A, B, SUM(C), SUM(D) group by A, B label A "code_art", B "code_store", SUM(C) "qty_in", SUM(D) "qty_out"',
                 addSchema: false
             },
             result => {

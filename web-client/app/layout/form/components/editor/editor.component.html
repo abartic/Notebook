@@ -1,45 +1,64 @@
 <div [@routerTransition]>
     <div class="row ">
+
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group mr-2" role="group">
                 <button type="button" (click)="onNew()" class="btn btn-secondary">New</button>
                 <button type="button" (click)="onSave()" class="btn btn-primary">Save</button>
                 <button type="button" (click)="onDelete()" class="btn btn-secondary">Delete</button>
                 <button type="button" (click)="onUndo()" class="btn btn-secondary">Undo</button>
-                <button type="button" (click)="onPrint()" class="btn btn-secondary">Print</button>
+                <!-- <button type="button" (click)="onPrint()" class="btn btn-secondary">Print</button> -->
+            </div>
+        </div>
+
+        <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle *ngIf="package.entity.getShellInfo().commands.add.length>0">Custom
+        actions</button>
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1" *ngFor="let command of (package.entity.getShellInfo().commands.add)">
+                <button class="dropdown-item" (click)="onCustomCommand(command)">{{command}}</button>
+
             </div>
         </div>
     </div>
 
-    <BR>
+    <br>
+    <div class="row ">
 
-    <div *ngFor="let property of (package.entity.properties)">
-        <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
-            <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
-            <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
-                <div class="input-group" *ngSwitchCase="'date'">
-                    <input class="form-control" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity, property)" #d="ngbDatepicker" placement="top">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" (click)="d.toggle()" type="button">
-              ...
-            </button>
-                    </div>
-                </div>
+        <div class="col-xl-6 col-lg-6 col-md-9 col-xs-12">
 
-                <div class="input-group" *ngSwitchDefault>
-                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)"
-                        (focusout)="packageCtrl.onEditorFocusChanged(package.entity, property)">
+            <div *ngFor="let property of (package.entity.properties)">
+                <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
+                    <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
+                    <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                        <div class="input-group datepicker-input" *ngSwitchCase="'date'">
+                            <input class="form-control" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity, property)" #d="ngbDatepicker" placement="top">
 
-                    <input class="form-control" [(ngModel)]="package.entity[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
-                    <div class="input-group-append" *ngIf="property.lookup_entity_name !== undefined">
-                        <button type="button" class="btn btn-outline-secondary" (click)="packageCtrl.openLookupWnd(package.entity, property)">...</button>
+                            <button class="input-group-addon" (click)="d.toggle()" type="button">
+                                        <span class="fa fa-calendar"></span>
+                            </button>
+
+                        </div>
+                        <div class="input-group" *ngSwitchCase="'checkbox'">
+                            <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" type="checkbox" [checked]="package.entity[property.propName]" (change)="package.entity[property.propName] = !package.entity[property.propName]; packageCtrl.onEditorValueChanged(package.entity, property)">
+                        </div>
+                        <div class="input-group" *ngSwitchDefault>
+                            <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)"
+                                (focusout)="packageCtrl.onEditorFocusChanged(package.entity, property)">
+
+                            <input class="form-control" [(ngModel)]="package.entity[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
+                            <button type="button" class="input-group-addon" (click)="packageCtrl.openLookupWnd(package.entity, property)" *ngIf="property.lookup_entity_name !== undefined">...</button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+
         </div>
     </div>
 
     <div *ngFor="let relation of (package.entity.entityInfo.relations)">
         <form-editor-relation [package]="package" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
     </div>
+
+
 </div>
