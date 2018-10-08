@@ -2,7 +2,8 @@
 interface IEntity
 {
     entityName: string;
-    relations: string[]
+    relations: string[],
+    hidden_fields : string[]
 }
 
 interface ISheet

@@ -8,19 +8,31 @@
                 "internal_reference", "code_store",
                 "has_movements", "has_payments",
                 "credit_value", "debit_value",
-                "notes", "partner_notes"
+                "notes", "partner_notes", "type_movement"
             ],
-            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "", ""],
-            "hidden_fields": ["credit_value", "debit_value"],
+            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "", "", ""],
+            "hidden_fields": ["type_movement"],
             "entities": [{
                     "entityName": "Invoice",
                     "ukey": "code_doc",
-                    "relations": ["invoiceline"]
+                    "relations": ["invoiceline"],
+                    "hidden_fields": ["credit_value", "debit_value"]
+                },
+                {
+                    "entityName": "Receivable",
+                    "ukey": "code_doc",
+                    "hidden_fields": ["debit_value"]
                 },
                 {
                     "entityName": "Purchase",
                     "ukey": "code_doc",
-                    "relations": ["purchaseline"]
+                    "relations": ["purchaseline"],
+                    "hidden_fields": ["credit_value", "debit_value"]
+                },
+                {
+                    "entityName": "Payment",
+                    "ukey": "code_doc",
+                    "hidden_fields": ["credit_value"]
                 }
             ]
 

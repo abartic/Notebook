@@ -424,7 +424,7 @@ export class BaseEntity {
         if (entity.getShellInfo().filter && entity.getShellInfo().filter.static_filter) {
             let static_where = entity.getStaticFilter(entity.getShellInfo().filter.static_filter);
             if (static_where)
-                query = query + static_where;
+                query = query + ' and ' + static_where;
         }
 
         if (forFkey) {
@@ -522,9 +522,6 @@ export class BaseEntity {
 
         return new_instance;
     }
-
-    //public onNew(parent: BaseEntity) { }
-
 
     public getStaticFilter(filter?: { key: string, value: any }[]): any {
         let where = '';

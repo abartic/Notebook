@@ -7,8 +7,8 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base
 import { Partner } from './partner';
 import { eTypeMovement } from '../common/enums';
 
-@SheetInfo("movements", "documents", "Invoice", "code_doc")
-export class Invoice extends BaseEntity {
+@SheetInfo("movements", "documents", "Payment", "code_doc")
+export class Payment extends BaseEntity {
 
     public code_doc: string;
 
@@ -42,29 +42,7 @@ export class Invoice extends BaseEntity {
 
     public type_movement : string;
 
-    public invoiceline_relation: (InvoiceLine)[];
-
-    public onPropValueChanged(property: IPropInfo, propValue : any)
-    {
-        let cascade_values = false;
-        if (property.propName === 'has_movements' || property.propName === 'creation_date')
-        {
-            this.invoiceline_relation.map(i=> {
-                i.has_movements = this.has_movements;
-                i.move_date = this.creation_date;
-            });
-            cascade_values = true;
-        }
-
-        return cascade_values;
-    }
-
-    public onPrepareSave()
-    {
-        this.debit_value = 0;
-        this.invoiceline_relation.map(i=>this.debit_value += i.price_out * i.qty_out);
-    }
-
+    
     public getShellInfo(): IShellInfo {
         return {
             filter: {
@@ -72,11 +50,11 @@ export class Invoice extends BaseEntity {
                     add: [],
                     remove: []
                 },
-                static_filter: [{ key: 'type_movement', value: eTypeMovement.StocksOutput }]
+                static_filter: [{ key: 'type_movement', value: eTypeMovement.Payment }]
             },
             
             commands: {
-                add: ['print'],
+                add: [],
                 remove: []
             },
             report: {
@@ -84,12 +62,6 @@ export class Invoice extends BaseEntity {
                     {
                         entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
                             this['partner_lookup_entity'] = p;
-                        }
-                    },
-
-                    {
-                        entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                            this['partner_address_lookup_entity'] = pa;
                         }
                     }
                 ]
@@ -105,7 +77,6 @@ export class Invoice extends BaseEntity {
         this.has_payments = true;
         this.debit_value = 0;
         this.credit_value = 0;
-        this.invoiceline_relation = [];
-        this.type_movement  = eTypeMovement.StocksOutput;
+        this.type_movement  = eTypeMovement.Payment;
     }
 }

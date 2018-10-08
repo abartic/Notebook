@@ -1,3 +1,5 @@
+import { Receivable } from './receivable';
+import { Payment } from './payment';
 import { BaseEntity } from './base-entity';
 import { Article } from './article';
 import { Partner } from './partner';
@@ -38,6 +40,8 @@ export class ModelFactory {
          else if (type === "purchase") return Purchase;
          else if (type === "purchaseline") return PurchaseLine;
          else if (type === "company") return Company;
+         else if (type === "payment") return Payment;
+         else if (type === "receivable") return Receivable;
          else throw 'type is missing'
     }
 

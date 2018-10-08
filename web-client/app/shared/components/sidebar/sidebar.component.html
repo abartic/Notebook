@@ -18,8 +18,14 @@
         <a routerLink="/form/invoice" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Invoices' | translate }}
         </a>
+        <a routerLink="/form/receivable" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Receivables' | translate }}
+        </a>
         <a routerLink="/form/purchase" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Purchase' | translate }}
+            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Purchases' | translate }}
+        </a>
+        <a routerLink="/form/payment" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Payments' | translate }}
         </a>
         <a routerLink="/sheets-creation" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-wrench"></i>&nbsp;{{ 'Generate Sheets' | translate }}

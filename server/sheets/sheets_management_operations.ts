@@ -517,6 +517,7 @@ export class SheetsManagementOperations {
                 if (sheet.fields_types)
                     sheet.fields_types.splice(0, 0, 's', 's');
 
+                let map_entity = sheet.entities.find(e => e.entityName === entityName);
                 let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
                 let cellName = 'A';
                 for (let index = 0; index < sheet.fields.length; index++) {
@@ -525,7 +526,7 @@ export class SheetsManagementOperations {
                         propName: sheet.fields[index],
                         cellName: cellName,
                         onlyEdit: true,
-                        dataType: !sheet.fields_types ? 's' : sheet.fields_types[index],
+                        dataType: !sheet.fields_types || sheet.fields_types[index] === '' ? 's' : sheet.fields_types[index],
                         mask: '',
                         path: '',
                         isHidden: false
@@ -542,11 +543,17 @@ export class SheetsManagementOperations {
                     if (sheet.hidden_fields && sheet.hidden_fields.findIndex(i => i === sheet.fields[index]) >= 0)
                         propInfo.isHidden = true;
 
+                    if (map_entity.hidden_fields && map_entity.hidden_fields.findIndex(i => i === sheet.fields[index]) >= 0)
+                        propInfo.isHidden = true;
+
                     cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
                     propInfos.push(propInfo);
                 }
 
-                let map_entity = sheet.entities.find(e => e.entityName === entityName);
+
+
+
+
                 let map_relations = (map_entity.relations !== undefined ? map_entity.relations : []);
                 return {
                     spreadsheetID: spreadsheet.spreadsheetID,

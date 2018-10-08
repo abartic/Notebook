@@ -32,6 +32,9 @@ export class InvoiceLine extends BaseEntity {
             this.move_date = (<Invoice>parent).creation_date;
             this.code_store = (<Invoice>parent).code_store;
             this.qty_in = 0;
+            this.has_movements = (<Invoice>parent).has_movements;
+            this.code_doc = (<Invoice>parent).code_doc;
+            
         }
     }
 

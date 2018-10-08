@@ -1,3 +1,4 @@
+
 import { PurchaseLine } from './purchase-line';
 import { ModelInfos } from './modelProperties';
 import { ISelectObj } from './../common/select-obj';
@@ -5,6 +6,7 @@ import { ISelectObj } from './../common/select-obj';
 
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
 import { Partner } from './partner';
+import { eTypeMovement } from '../common/enums';
 
 @SheetInfo("movements", "documents", "Purchase", "code_doc")
 export class Purchase extends BaseEntity {
@@ -39,6 +41,8 @@ export class Purchase extends BaseEntity {
 
     public partner_notes : string;
 
+    public type_movement : string;
+
     public purchaseline_relation: (PurchaseLine)[];
 
     public onPrepareSave()
@@ -54,10 +58,10 @@ export class Purchase extends BaseEntity {
                     add: [],
                     remove: []
                 },
-                static_filter: []
+                static_filter: [{ key: 'type_movement', value: eTypeMovement.StocksInput }]
             },
             commands: {
-                add: ['print'],
+                add: [],
                 remove: []
             },
             report: {
@@ -87,6 +91,7 @@ export class Purchase extends BaseEntity {
         this.debit_value = 0;
         this.credit_value = 0;
         this.purchaseline_relation = [];
+        this.type_movement  = eTypeMovement.StocksInput;
     }
    
     public onPropValueChanged(property: IPropInfo, propValue : any)
