@@ -46,7 +46,7 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
                 },
                 static_filter: [{ key: 'type_partner', value: 'PRP' }]
             },
-
+            properties: [],
             commands: {
                 add: [
                     'add_meeting', 'show_calendar'
@@ -60,8 +60,8 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
         };
     }
 
-    public onInit(parent: BaseEntity) {
-        super.onInit(parent);
+    public onNew(parent: BaseEntity) {
+        super.onNew(parent);
 
         this.address_relation = [];
         this.contact_relation = [];

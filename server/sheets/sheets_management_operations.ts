@@ -7,6 +7,7 @@ import { DriverRoute } from "../routes/driver_route";
 
 import { AccountsMgr } from "../common/accounts-mgr";
 import { IPropInfo } from "../models/base-entity";
+import { eFieldDataType } from "../common/enums";
 let googleApi = require('googleapis');
 let sheets = googleApi.sheets('v4');
 
@@ -169,43 +170,7 @@ export class SheetsManagementOperations {
                                         }
                                     };
 
-                                    // if (sheet.fields_types && sheet.fields_types[ti] === 'i') {
-                                    //     fieldDef['userEnteredFormat'] = {
-                                    //         "numberFormat": {
-                                    //             "type": "NUMBER",
-                                    //             "pattern": "#,##0"
-                                    //         }
-                                    //     };
-                                    // }
-                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'b') {
-                                    //     fieldDef['userEnteredFormat'] = {
-                                    //         "numberFormat": {
-                                    //             "type": "NUMBER",
-                                    //             "pattern": "#,##0"
-                                    //         }
-                                    //     };
-                                    //     fieldDef['dataValidation'] = {
-                                    //         "condition": {
-                                    //             "type": "BOOLEAN"
-                                    //         }
-                                    //     };
-                                    // }
-                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'n') {
-                                    //     fieldDef['userEnteredFormat'] = {
-                                    //         "numberFormat": {
-                                    //             "type": "NUMBER",
-                                    //             "pattern": "#,##0.00"
-                                    //         }
-                                    //     };
-                                    // }
-                                    // else if (sheet.fields_types && sheet.fields_types[ti] === 'd') {
-                                    //     fieldDef['userEnteredFormat'] = {
-                                    //         "numberFormat": {
-                                    //             "type": "DATE",
-                                    //             "pattern": "dd/MM/yyyy"
-                                    //         }
-                                    //     };
-                                    // }
+                                   
                                     sheetReq.data[0].rowData[0].values.push(fieldDef);
 
                                     ti += 1;
@@ -512,10 +477,12 @@ export class SheetsManagementOperations {
                 spreadsheet.spreadsheetID = p_spreadsheet.spreadsheetID;
                 sheet.sheetID = p_sheet.sheetID;
 
-                //add static fields
-                sheet.fields.splice(0, 0, 'rowid', 'uid');
-                if (sheet.fields_types)
-                    sheet.fields_types.splice(0, 0, 's', 's');
+                if (sheet.isView !== true) {
+                    //add static fields
+                    sheet.fields.splice(0, 0, 'rowid', 'uid');
+                    if (sheet.fields_types)
+                        sheet.fields_types.splice(0, 0, 's', 's');
+                }
 
                 let map_entity = sheet.entities.find(e => e.entityName === entityName);
                 let propInfos: Array<IPropInfo> = new Array<IPropInfo>();
@@ -525,19 +492,20 @@ export class SheetsManagementOperations {
                     let propInfo: IPropInfo = {
                         propName: sheet.fields[index],
                         cellName: cellName,
-                        onlyEdit: true,
+
                         dataType: !sheet.fields_types || sheet.fields_types[index] === '' ? 's' : sheet.fields_types[index],
                         mask: '',
                         path: '',
                         isHidden: false
                     };
-                    if (propInfo.dataType === 'n') {
+
+                    if (propInfo.dataType === eFieldDataType.Numeric) {
                         propInfo.mask = "#,##0.00"
                     }
-                    else if (propInfo.dataType === 'i') {
+                    else if (propInfo.dataType === eFieldDataType.Integer) {
                         propInfo.mask = "#,##0"
                     }
-                    else if (propInfo.dataType === 'd') {
+                    else if (propInfo.dataType === eFieldDataType.Date) {
                         propInfo.mask = "dd/MM/yyyy"
                     }
                     if (sheet.hidden_fields && sheet.hidden_fields.findIndex(i => i === sheet.fields[index]) >= 0)
@@ -551,9 +519,6 @@ export class SheetsManagementOperations {
                 }
 
 
-
-
-
                 let map_relations = (map_entity.relations !== undefined ? map_entity.relations : []);
                 return {
                     spreadsheetID: spreadsheet.spreadsheetID,
@@ -562,6 +527,7 @@ export class SheetsManagementOperations {
                     spreadsheetName: spreadsheet.spreadsheetName,
                     sheetName: sheet.sheetName,
                     entityName: entityName,
+                    isView : sheet.isView,
                     relations: map_relations
                 };
 

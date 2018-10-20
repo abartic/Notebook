@@ -18,6 +18,7 @@ import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
 import { Observable } from 'rxjs/Observable';
 import { CalendarDialogWnd } from '../../dialog/calendarDialog/calendarDialogWnd';
 import { UserSession } from '../../app.component';
+import { eFieldDataType } from '../../../../server/common/enums';
 
 
 
@@ -155,7 +156,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                             }
                         }
 
-                        ModelInfos.uniqueInstance.add(entity.entityName, entity.adjustProperties(info));
+                        ModelInfos.uniqueInstance.add(entity.entityName, info);
                     }
                     cb(info);
                 },
@@ -251,6 +252,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     onSelectEntity(entity: T) {
+        //if view do not open edit mode
+        if (entity.entityInfo.isView === true)
+            return;
 
         this.package.selected_entity = entity;
         this.package.entity_status_msg = '';
@@ -433,7 +437,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         let query = undefined;
         if (relation) {
-            query = BaseEntity.toFKeyFilter(entityInfo, this.package.entity.ukeyPropName, uid);
+            query = BaseEntity.toFKeyFilter(entityInfo, this.package.entity.ukeyPropName, uid, this.package.entity['relation_prop_' + relation + '_relation']);
         }
         else if (ukey) {
             query = BaseEntity.toUKeyFilter(entityInfo, ukey[0], ukey[1]);
@@ -751,8 +755,54 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (this.isVisible(p, undefined, this.package.filter))
                     this.filter_properties.push(p);
             }
+            for (let p of this.package.filter.getShellInfo().filter.fields.add) {
+                p.isCustom = true;
+                this.filter_properties.push(p);
+                
+            }
         }
+
+
         return this.filter_properties;
+    }
+
+    private entity_properties: IPropInfo[] = [];
+    public get entityProperties() {
+
+        if (this.package.entity === undefined || this.package.entity.properties === undefined)
+            return this.entity_properties;
+
+        if (this.entity_properties.length == 0) {
+            this.entity_properties.concat(this.package.entity.properties)
+
+            for (let prop of this.package.entity.getShellInfo().properties) {
+                this.entity_properties.push(<IPropInfo>{
+                    propName: prop.name,
+                    path: null,
+                    cellName: null,
+                    dataType: prop.datatype,
+                    mask: this.getMask(prop.datatype),
+                    isHidden: false,
+                    isReadOnly : prop.isReadOnly,
+                    isCustom : true
+                })
+            }
+        }
+        return this.entity_properties;
+    }
+
+    private getMask(dataType) {
+        let mask = '';
+        if (dataType === eFieldDataType.Numeric) {
+            mask = "#,##0.00"
+        }
+        else if (dataType === eFieldDataType.Integer) {
+            mask = "#,##0"
+        }
+        else if (dataType === eFieldDataType.Date) {
+            mask = "dd/MM/yyyy"
+        }
+        return mask;
     }
 
     public getRelationProperties(entity: BaseEntity, relation: string, addLookups: boolean) {
@@ -890,16 +940,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     public getInputType(dataType: string) {
         switch (dataType) {
-            case 'n':
-            case 'i':
+            case eFieldDataType.Numeric:
+            case eFieldDataType.Integer:
                 return 'number';
-            case 'b':
+            case eFieldDataType.Boolean:
                 return 'checkbox';
-            case 'd':
+            case eFieldDataType.Date:
                 return 'date';
-            case 't':
+            case eFieldDataType.Time:
                 return 'time';
-            case 's':
+            case eFieldDataType.String:
             default:
                 return 'text';
         }
@@ -966,7 +1016,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         let validation_item: ISelectObj;
 
         let checkUnique = (entity.entityName === lookup_entity_name);
-         
+
 
         let lookup_entity = checkUnique ? entity : ModelFactory.uniqueInstance.create(lookup_entity_name);
         this.removeValidation(entity, propName);

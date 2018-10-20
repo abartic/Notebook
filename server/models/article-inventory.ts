@@ -1,4 +1,4 @@
-import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
 
 @SheetInfo("movements", "art_inventory", "ArticleInventory")  
 export class ArticleInventory extends BaseEntity {
@@ -12,5 +12,30 @@ export class ArticleInventory extends BaseEntity {
     public qty_in : number;
 
     public qty_out : number;
+
+    public qty_net: number;
+
+    public getShellInfo(): IShellInfo {
+        return {
+            filter: {
+                fields: {
+                    add: [],
+                    remove: []
+                },
+                static_filter: []
+            },
+            properties: [
+                
+            ],
+            commands: {
+                add: [],
+                remove: []
+            },
+            report: {
+                preloads: []
+            }
+
+        };
+    }
 
 }

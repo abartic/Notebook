@@ -14,6 +14,7 @@ interface ISheet
     fields_types : string[],
     hidden_fields : string[],
     entities: IEntity[];
+    isView? : boolean;
 }
 
 interface ISpreadsheet

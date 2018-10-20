@@ -4,3 +4,13 @@ export enum eTypeMovement {
     Payment = 'P',
     Receivable = 'R'
 }
+
+export enum eFieldDataType
+{
+    Numeric = 'n',
+    Integer = 'i',
+    Boolean = 'b',
+    Date = 'd',
+    Time = 't',
+    String = 's'
+}

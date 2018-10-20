@@ -27,7 +27,7 @@ export class PurchaseLine extends BaseEntity {
 
     public notes : string;
     
-    public onInit(parent : BaseEntity)
+    public onNew(parent : BaseEntity)
     {
         if (parent){
             this.move_date = (<Purchase>parent).creation_date;
@@ -38,13 +38,13 @@ export class PurchaseLine extends BaseEntity {
         }
     }
 
-    public adjustProperties(entityInfo: IEntityInfo) {
-        for (let dprop of ['price_out', 'qty_out']) {
-            let item = entityInfo.properties.find(i => i.propName === dprop)
-            item.isHidden = true;
-        }
-        return entityInfo;
-    }
+    // public adjustProperties(entityInfo: IEntityInfo) {
+    //     for (let dprop of ['price_out', 'qty_out']) {
+    //         let item = entityInfo.properties.find(i => i.propName === dprop)
+    //         item.isHidden = true;
+    //     }
+    //     return entityInfo;
+    // }
 
     
 }

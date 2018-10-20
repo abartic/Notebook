@@ -37,9 +37,9 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
     public contact_relation: (Contact)[];
 
-    public onInit(parent: BaseEntity) 
+    public onNew(parent: BaseEntity) 
     {
-        super.onInit(parent);
+        super.onNew(parent);
      
         this.address_relation = [];
         this.contact_relation = [];

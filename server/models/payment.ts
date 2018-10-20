@@ -52,7 +52,7 @@ export class Payment extends BaseEntity {
                 },
                 static_filter: [{ key: 'type_movement', value: eTypeMovement.Payment }]
             },
-            
+            properties: [],
             commands: {
                 add: [],
                 remove: []
@@ -70,9 +70,9 @@ export class Payment extends BaseEntity {
         };
     }
    
-    public onInit(parent: BaseEntity)
+    public onNew(parent: BaseEntity)
     {
-        super.onInit(parent);
+        super.onNew(parent);
         this.has_movements = true;
         this.has_payments = true;
         this.debit_value = 0;

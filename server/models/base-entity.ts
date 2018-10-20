@@ -1,9 +1,10 @@
 import { ISelectObj } from './../common/select-obj';
-import { IEntityInfo } from './base-entity';
+import { IEntityInfo, IPropInfo } from './base-entity';
 import { ModelInfos } from "./modelProperties";
 import "reflect-metadata"
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as uuidv1 from 'uuid/v1';
+import { eFieldDataType } from '../common/enums';
 
 function padNumber(value: number) {
     if (isNumber(value)) {
@@ -29,31 +30,34 @@ export interface IEntityInfo {
     sheetName: string,
     entityName: string,
     relations: string[],
-
+    isView?: boolean,
     properties: Array<IPropInfo>
 }
 
 export interface IPropInfo {
     propName: string,
-    path: string,
-    cellName: string;
-    onlyEdit: boolean;
     dataType: string;
-    mask: string;
+
+    path?: string,
+    cellName?: string;
+
+    mask?: string;
     lookup_entity_name?: string;
     lookup_properties?: string[];
-    isHidden: boolean;
+    isHidden?: boolean;
+    isReadOnly?: boolean;
+    isCustom?: boolean;
 }
 
 export interface IShellInfo {
     filter: {
         fields: {
-            add: string[],
+            add: IPropInfo[],
             remove: string[]
         },
         static_filter: { key: string, value: string }[]
     },
-
+    properties: { name: string, datatype: string, isReadOnly: boolean }[],
     commands: {
         add: string[],
         remove: string[]
@@ -98,6 +102,19 @@ export function LookupProp(entityName: string, propNames: (string)[]) {
     }
 
 }
+
+export function RelationProp(groupby: string[], pivot: string[]) {
+
+    return (prototype: any, propName: string) => {
+
+        prototype['relation_prop_' + propName] = {
+            groupby: groupby,
+            pivot: pivot
+        };
+    }
+
+}
+
 
 export class BaseEntity {
 
@@ -151,9 +168,9 @@ export class BaseEntity {
         return props;
     }
 
-    public adjustProperties(entityInfo: IEntityInfo) {
-        return entityInfo;
-    }
+    // public adjustProperties(entityInfo: IEntityInfo) {
+    //     return entityInfo;
+    // }
 
     public toArray(): (String | Number | Date)[] {
         let array = [];
@@ -286,11 +303,24 @@ export class BaseEntity {
     }
 
 
-    public static toFKeyFilter(relationEntityInfo: IEntityInfo, fkeyPropName: string, fkeyvalue: any): string {
+    public static toFKeyFilter(relationEntityInfo: IEntityInfo, fkeyPropName: string, fkeyvalue: any, relationInfo?: { groupby: string[], pivot: string[] }): string {
 
         let query = 'select ';
-        for (let p of relationEntityInfo.properties) {
-            query = query + p.cellName + ',';
+        if (relationInfo) {
+            for (let p of relationEntityInfo.properties) {
+                if (relationInfo.groupby.includes(p.propName) === true)
+                    query = query + p.cellName + ',';
+                if (relationInfo.pivot.includes(p.propName) === false)
+                    // if (p.dataType === eFieldDataType.Numeric || p.dataType === eFieldDataType.Integer)
+                    //     query = query + 'sum(' + p.cellName + '),';
+                    // else
+                        query = query + 'max(' + p.cellName + '),';
+            }
+        }
+        else {
+            for (let p of relationEntityInfo.properties) {
+                query = query + p.cellName + ',';
+            }
         }
         let p_uid = relationEntityInfo.properties.find(p => p.propName === fkeyPropName)
         if (p_uid && fkeyvalue) {
@@ -299,7 +329,29 @@ export class BaseEntity {
                 query = query + ' where ' + p_uid.cellName + ' = ' + fkeyvalue;
             else
                 query = query + ' where ' + p_uid.cellName + ' = "' + fkeyvalue + '"';
+
+            if (relationInfo) {
+                let groupby = '';
+                for (let gb of relationInfo.groupby) {
+                    for (let p of relationEntityInfo.properties) {
+                        if (p.propName === gb)
+                            groupby = groupby + p.cellName + ',';
+                    }
+                }
+                groupby = groupby.slice(0, groupby.length - 1);
+                let pivot = '';
+                for (let pv of relationInfo.pivot) {
+                    for (let p of relationEntityInfo.properties) {
+                        if (p.propName === pv)
+                            pivot = pivot + p.cellName + ',';
+                    }
+                }
+                pivot = pivot.slice(0, pivot.length - 1);
+
+                query = query + ' group by ' + groupby + ' pivot ' + pivot;
+            }
             return query;
+
         }
         else {
             return '';
@@ -366,12 +418,15 @@ export class BaseEntity {
         let exists_filter = false;
         let not_string = false;
         for (let p of entity.properties) {
+            if (p.isCustom === true)
+                continue;
+
             if (entity[p.propName] && entity[p.propName] !== '') {
                 exists_filter = true;
                 let fvalue = entity[p.propName].toString().toUpperCase();
                 let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
                 //date, time
-                if (p.dataType === 'DATE' || p.dataType === 'TIME') {
+                if (p.dataType === eFieldDataType.Date || p.dataType === eFieldDataType.Time) {
                     if (li >= 0) {
                         let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
                         where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
@@ -382,7 +437,7 @@ export class BaseEntity {
                     }
                 }
                 //number
-                else if (p.dataType === 'NUMBER') {
+                else if (p.dataType === eFieldDataType.Numeric) {
                     if (li >= 0) {
                         where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
                     }
@@ -390,7 +445,7 @@ export class BaseEntity {
                         where = where + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
                     }
                 } //number
-                else if (p.dataType === 'BOOLEAN') {
+                else if (p.dataType === eFieldDataType.Boolean) {
                     where = where + ' and ' + p.cellName + ' = ' + fvalue.toString();
                 }
                 //string
@@ -444,11 +499,14 @@ export class BaseEntity {
         let query = 'select count(A) where 1=1 ';
 
         for (let p of this.properties) {
+            if (p.isCustom === true)
+                continue;
+
             if (this[p.propName]) {
                 let fvalue = this[p.propName].toString().toUpperCase();
                 let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
                 //date or time
-                if (p.dataType === 'DATE' || p.dataType === 'TIME') {
+                if (p.dataType === eFieldDataType.Date || p.dataType === eFieldDataType.Time) {
                     if (li >= 0) {
                         let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
                         query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
@@ -459,7 +517,7 @@ export class BaseEntity {
                     }
                 }
                 //number
-                else if (p.dataType === 'NUMBER') {
+                else if (p.dataType === eFieldDataType.Numeric) {
                     if (li >= 0) {
                         query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
                     }
@@ -468,7 +526,7 @@ export class BaseEntity {
                     }
                 }
                 //boolean
-                else if (p.dataType === 'BOOLEAN') {
+                else if (p.dataType === eFieldDataType.Boolean) {
                     query = query + ' and ' + p.cellName + ' = ' + fvalue.toString();
                 }
                 //string
@@ -517,7 +575,7 @@ export class BaseEntity {
         }
 
         if (instance === null) {
-            new_instance.onInit(parent);
+            new_instance.onNew(parent);
         }
 
         return new_instance;
@@ -557,6 +615,7 @@ export class BaseEntity {
                 },
                 static_filter: []
             },
+            properties: [],
             commands: {
                 add: [],
                 remove: []
@@ -569,9 +628,12 @@ export class BaseEntity {
 
     public onPrepareSave() { }
 
-    public onInit(parent: BaseEntity) {
-        this.uid = uuidv1();
+    public onNew(parent: BaseEntity) {
+        if (!this.uid || this.uid === '')
+            this.uid = uuidv1();
     }
+
+
 
     public onPropValueChanged(propName: IPropInfo, propValue: any): boolean {
         return false;

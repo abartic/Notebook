@@ -47,14 +47,14 @@ export class Receivable extends BaseEntity {
         return {
             filter: {
                 fields: {
-                    add: ['print'],
+                    add: [],
                     remove: []
                 },
                 static_filter: [{ key: 'type_movement', value: eTypeMovement.Receivable }]
             },
-            
+            properties: [],
             commands: {
-                add: [],
+                add: ['print'],
                 remove: []
             },
             report: {
@@ -70,9 +70,9 @@ export class Receivable extends BaseEntity {
         };
     }
    
-    public onInit(parent: BaseEntity)
+    public onNew(parent: BaseEntity)
     {
-        super.onInit(parent);
+        super.onNew(parent);
         this.has_movements = true;
         this.has_payments = true;
         this.debit_value = 0;

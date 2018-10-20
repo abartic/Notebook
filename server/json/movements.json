@@ -45,18 +45,21 @@
             "fields_types": ["", "", "", "n", "n", "n", "n", "n", "d", "", "b"],
             "hidden_fields": ["has_movements", "move_date"],
             "entities": [{
-                    "entityName": "InvoiceLine"
+                    "entityName": "InvoiceLine",
+                    "hidden_fields": ["price_in", "qty_in"]
                 },
                 {
-                    "entityName": "PurchaseLine"
+                    "entityName": "PurchaseLine",
+                    "hidden_fields": ["price_out", "qty_out"]
                 }
             ]
         },
         {
             "sheetName": "art_inventory",
-            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I) WHERE D <> '' AND M = true group by D, E\", 1)",
-            "fields": ["code_art", "code_store", "qty_in", "qty_out"],
-            "fields_types": ["", "", "n", "n"],
+            "isView": true,
+            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I) WHERE D <> '' AND M = true group by D, E label SUM(H) 'qty_in', SUM(I) 'qty_out', SUM(H)-SUM(I) 'qty_net'\", 1)",
+            "fields": ["code_art", "code_store", "qty_in", "qty_out", "qty_net"],
+            "fields_types": ["", "", "n", "n", "n"],
             "entities": [{
                 "entityName": "ArticleInventory"
             }]
@@ -64,9 +67,10 @@
         },
         {
             "sheetName": "accounts_inventory",
-            "formula": "QUERY(documents!A:Z,\"select D, SUM(M), SUM(N) WHERE D <> '' AND L = TRUE group by D\", 1)",
-            "fields": ["code_part", "credit_value", "debit_value"],
-            "fields_types": ["", "n", "n"],
+            "isView": true,
+            "formula": "QUERY(documents!A:Z,\"select D, SUM(N), SUM(M) WHERE D <> '' AND L = TRUE group by D label SUM(M) 'credit_value', SUM(N) 'debit_value', SUM(N)-SUM(M) 'balance'\", 1)",
+            "fields": ["code_part", "debit_value", "credit_value", "balance"],
+            "fields_types": ["", "n", "n", "n"],
             "entities": [{
                 "entityName": "AccountInventory"
             }]

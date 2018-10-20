@@ -60,6 +60,7 @@ export class Purchase extends BaseEntity {
                 },
                 static_filter: [{ key: 'type_movement', value: eTypeMovement.StocksInput }]
             },
+            properties: [],
             commands: {
                 add: [],
                 remove: []
@@ -83,9 +84,9 @@ export class Purchase extends BaseEntity {
         };
     }
 
-    public onInit(parent: BaseEntity)
+    public onNew(parent: BaseEntity)
     {
-        super.onInit(parent);
+        super.onNew(parent);
         this.has_movements = true;
         this.has_payments = true;
         this.debit_value = 0;

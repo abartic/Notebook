@@ -25,7 +25,7 @@ setInterval(function() {
         console.log('real ping...');
         https.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
     }
-}, 300000); // every 5 minutes (300000)
+}, 3600000); // every 5 minutes (300000)
 
 //create http server
 var httpPort = normalizePort(process.env.PORT || 8080);

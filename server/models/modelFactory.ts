@@ -1,3 +1,4 @@
+import { Budget } from './budget';
 import { Receivable } from './receivable';
 import { Payment } from './payment';
 import { BaseEntity } from './base-entity';
@@ -14,6 +15,7 @@ import { Prospect } from './prospect';
 import { Purchase } from './purchase';
 import { PurchaseLine } from './purchase-line';
 import { AccountInventory } from './account-inventory';
+import { BudgetLine } from './budget-line';
 
 export class ModelFactory {
     private static _uniqueInstance: ModelFactory;
@@ -42,6 +44,8 @@ export class ModelFactory {
          else if (type === "company") return Company;
          else if (type === "payment") return Payment;
          else if (type === "receivable") return Receivable;
+         else if (type === "budget") return Budget;
+         else if (type === "budgetline") return BudgetLine;
          else throw 'type is missing'
     }
 

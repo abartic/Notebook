@@ -4,6 +4,7 @@ import { KeyedCollection } from "../utils/dictionary";
 import { eEntityAction, BaseEntity } from "../models/base-entity";
 import * as fs from 'fs';
 import * as path from 'path';
+import { eFieldDataType } from "../common/enums";
 let googleApi = require('googleapis');
 let sheets = googleApi.sheets('v4');
 
@@ -341,7 +342,7 @@ export class SheetsCrudOperations {
         });
         let ti = 0;
         for (const field of sheetDef.fields) {
-            if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'i') {
+            if (sheetDef.fields_types && sheetDef.fields_types[ti] === eFieldDataType.Integer) {
                 rowData.values.push({
                     "userEnteredValue": {
                         "stringValue": values[ti + 2]
@@ -354,7 +355,7 @@ export class SheetsCrudOperations {
                     }
                 });
             }
-            else if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'n') {
+            else if (sheetDef.fields_types && sheetDef.fields_types[ti] === eFieldDataType.Numeric) {
                 rowData.values.push({
                     "userEnteredValue": {
                         "numberValue": values[ti + 2]
@@ -366,7 +367,7 @@ export class SheetsCrudOperations {
                         }
                     }
                 });
-            } else if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'b') {
+            } else if (sheetDef.fields_types && sheetDef.fields_types[ti] === eFieldDataType.Boolean) {
                 rowData.values.push({
                     "userEnteredValue": {
                         "boolValue": values[ti + 2] === true ? "TRUE" : "FALSE"
@@ -383,7 +384,7 @@ export class SheetsCrudOperations {
                     }
                 });
             }
-            else if (sheetDef.fields_types && sheetDef.fields_types[ti] === 'd') {
+            else if (sheetDef.fields_types && sheetDef.fields_types[ti] === eFieldDataType.Date) {
                 rowData.values.push({
                     "userEnteredValue": {
                         "numberValue": values[ti + 2]

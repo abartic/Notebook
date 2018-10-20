@@ -24,7 +24,7 @@ export class SheetsComponent implements OnInit {
     this.httpCaller.callPost(
       '/sheetdata/create-spreadsheet',
       {
-        spreadsheetNames: ['inventory', 'movements', 'partners', 'settings']
+        spreadsheetNames: ['inventory', 'movements', 'partners', 'budgets', 'settings']
       },
       result => {
         if (result.error)
@@ -67,7 +67,7 @@ export class SheetsComponent implements OnInit {
     this.httpCaller.callPost(
       '/sheetdata/delete-metadata',
       {
-        spreadsheetNames: ['inventory', 'movements', 'partners', 'settings']
+        spreadsheetNames: ['inventory', 'movements', 'partners', 'budgets', 'settings']
       },
       result => {
         if (result.error)

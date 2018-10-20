@@ -27,7 +27,7 @@ export class InvoiceLine extends BaseEntity {
 
     public notes : string;
     
-    public onInit(parent: BaseEntity) {
+    public onNew(parent: BaseEntity) {
         if (parent) {
             this.move_date = (<Invoice>parent).creation_date;
             this.code_store = (<Invoice>parent).code_store;
@@ -38,13 +38,13 @@ export class InvoiceLine extends BaseEntity {
         }
     }
 
-    public adjustProperties(entityInfo: IEntityInfo) {
+    // public adjustProperties(entityInfo: IEntityInfo) {
         
-        for (let dprop of ['price_in', 'qty_in']) {
-            let item = entityInfo.properties.find(i => i.propName === dprop)
-            item.isHidden = true;
+    //     for (let dprop of ['price_in', 'qty_in']) {
+    //         let item = entityInfo.properties.find(i => i.propName === dprop)
+    //         item.isHidden = true;
 
-        }
-        return entityInfo;
-    }
+    //     }
+    //     return entityInfo;
+    // }
 }

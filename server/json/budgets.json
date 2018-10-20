@@ -1,0 +1,37 @@
+{
+
+    "spreadsheetName": "budgets",
+    "sheets": [{
+        "sheetName": "budget_definitions",
+        "fields": ["code_doc", "author", "title", "pivot_by",
+            "creation_date", "balance",
+            "notes", "type_doc"
+        ],
+        "fields_types": ["", "", "", "", "d", "n", "", ""],
+        "hidden_fields": ["type_doc"],
+        "entities": [{
+            "entityName": "Budget",
+            "ukey": "code_doc",
+            "relations": ["budgetline"],
+            "hidden_fields": ["balance"]
+        }]
+
+    }, {
+        "sheetName": "budget_lines",
+        "fields": ["code_doc", "attr1", "attr2", "attr3",
+            "year", "month", "week", "day",
+            "debit", "credit",
+            "notes"
+        ],
+        "fields_types": ["", "", "", "",
+            "i", "i", "i", "i",
+            "n", "n",
+            "s"
+        ],
+        "hidden_fields": [],
+        "entities": [{
+            "entityName": "BudgetLine",
+            "hidden_fields": []
+        }]
+    }]
+}
