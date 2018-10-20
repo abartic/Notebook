@@ -308,9 +308,9 @@ export class BaseEntity {
         let query = 'select ';
         if (relationInfo) {
             for (let p of relationEntityInfo.properties) {
-                if (relationInfo.groupby.includes(p.propName))
+                if (relationInfo.groupby.findIndex(e => e === p.propName) < 0)
                     query = query + p.cellName + ',';
-                if (relationInfo.pivot.includes(p.propName))
+                if (relationInfo.pivot.findIndex(e => e === p.propName) < 0)
                     // if (p.dataType === eFieldDataType.Numeric || p.dataType === eFieldDataType.Integer)
                     //     query = query + 'sum(' + p.cellName + '),';
                     // else
