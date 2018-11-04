@@ -186,6 +186,8 @@ export class BaseEntity {
 
         if (this.properties) {
             for (let p of this.properties) {
+                if (p.isCustom === true)
+                    continue;
                 if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
                     array.push(this[p.propName])
             }

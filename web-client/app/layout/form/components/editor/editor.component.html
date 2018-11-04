@@ -41,18 +41,17 @@
                         <div class="input-group" *ngSwitchCase="'checkbox'">
                             <input class="form-control" [readonly]="property.isReadOnly" [disabled]="packageCtrl.isDisabled(package.entity, property)" type="checkbox" [checked]="package.entity[property.propName]" (change)="package.entity[property.propName] = !package.entity[property.propName]; packageCtrl.onEditorValueChanged(package.entity, property)">
                         </div>
-                        <div class="input-group" *ngSwitchCase="'multichecklist'">
 
-                            <angular4-multiselect [data]="property.dropdownlist" [(ngModel)]="package.entity[property.propName]" [settings]="property.dropdownsettings">
+                        <div class="input-group" *ngSwitchCase="'multichecklist'">
+                            <angular4-multiselect style="width: 100%;" [data]="property.dropdownlist" [(ngModel)]="package.entity[property.propName]" [settings]="property.dropdownsettings">
                                 <c-item>
                                     <ng-template let-item="item">
-                                        <label>{{item.itemName | translate}}</label>
+                                        <label style="margin: 0px; text-align: right">{{item.itemName | translate}}</label>
                                     </ng-template>
                                 </c-item>
                                 <c-badge>
                                     <ng-template let-item="item">
                                         <label style="margin: 0px;">{{item.itemName | translate}}</label>
-                                        <img [src]="item.image" style="width: 16px; margin-right: 5px;" />
                                     </ng-template>
                                 </c-badge>
                             </angular4-multiselect>

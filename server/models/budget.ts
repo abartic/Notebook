@@ -159,6 +159,11 @@ export class Budget extends BaseEntity {
                     dataType: eFieldDataType.String,
                     isFilterHidden: true,
                     dropdownlist: [
+                        { id: 'year', itemName: 'budgetline.year' },
+                        { id: 'month', itemName: 'budgetline.month' },
+                        { id: 'week', itemName: 'budgetline.week' },
+                        { id: 'day', itemName: 'budgetline.day' },
+
                         { id: 'attr1', itemName: 'budgetline.attr1' },
                         { id: 'attr2', itemName: 'budgetline.attr2' },
                         { id: 'attr3', itemName: 'budgetline.attr3' },
@@ -169,9 +174,6 @@ export class Budget extends BaseEntity {
                         selectAllText: 'Select All',
                         unSelectAllText: 'UnSelect All',
                         enableSearchFilter: false,
-                        classes: "myclass custom-class"
-
-
                     },
                     customInputType: 'multichecklist',
                     isCustom: true
@@ -182,7 +184,7 @@ export class Budget extends BaseEntity {
         return this._props;
     }
 
-    _pivot_by_ar = undefined; //[{ id: 'attr1', itemName: 'budgetline.attr1' }];
+    _pivot_by_ar = undefined; 
     public get pivot_by_ar() {
         
         if (!this._pivot_by_ar) {
@@ -200,6 +202,8 @@ export class Budget extends BaseEntity {
     public set pivot_by_ar(value) {
         this.pivot_by = '';
         value.map(i => this.pivot_by += i['id'] + ',');
+        if (this.pivot_by.length > 0)
+        this.pivot_by = this.pivot_by.slice(0, this.pivot_by.length-1);
     };
 }
 
