@@ -28,22 +28,38 @@
 
             <div *ngFor="let property of (package.entity.properties)">
                 <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
-                    <label for="example-text-input" class="col-2 col-form-label">{{property.propName}}</label>
-                    <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                    <label for="example-text-input" class="col-2 col-form-label">{{ property.propCaption | translate }}</label>
+                    <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property)">
                         <div class="input-group datepicker-input" *ngSwitchCase="'date'">
                             <input class="form-control" [readonly]="property.isReadOnly" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity, property)" #d="ngbDatepicker" placement="top">
 
                             <button class="input-group-addon" (click)="d.toggle()" type="button">
-                                        <span class="fa fa-calendar"></span>
-                            </button>
+                <span class="fa fa-calendar"></span>
+              </button>
 
                         </div>
                         <div class="input-group" *ngSwitchCase="'checkbox'">
                             <input class="form-control" [readonly]="property.isReadOnly" [disabled]="packageCtrl.isDisabled(package.entity, property)" type="checkbox" [checked]="package.entity[property.propName]" (change)="package.entity[property.propName] = !package.entity[property.propName]; packageCtrl.onEditorValueChanged(package.entity, property)">
                         </div>
+                        <div class="input-group" *ngSwitchCase="'multichecklist'">
+
+                            <angular4-multiselect [data]="property.dropdownlist" [(ngModel)]="package.entity[property.propName]" [settings]="property.dropdownsettings">
+                                <c-item>
+                                    <ng-template let-item="item">
+                                        <label>{{item.itemName | translate}}</label>
+                                    </ng-template>
+                                </c-item>
+                                <c-badge>
+                                    <ng-template let-item="item">
+                                        <label style="margin: 0px;">{{item.itemName | translate}}</label>
+                                        <img [src]="item.image" style="width: 16px; margin-right: 5px;" />
+                                    </ng-template>
+                                </c-badge>
+                            </angular4-multiselect>
+                        </div>
                         <div class="input-group" *ngSwitchDefault>
-                            <input class="form-control" [readonly]="property.isReadOnly" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)"
-                                (focusout)="packageCtrl.onEditorFocusChanged(package.entity, property)">
+                            <input class="form-control" [readonly]="property.isReadOnly" [disabled]="packageCtrl.isDisabled(package.entity, property)" [type]="packageCtrl.getInputType(property)" [(ngModel)]="package.entity[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity, property)"
+                                (focusout)="packageCtrl.onEditorFocusChanged(package.entity, property)" (blur)="packageCtrl.onEditorValueChanged(package.entity, property) ">
 
                             <input class="form-control" [(ngModel)]="package.entity[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
                             <button type="button" class="input-group-addon" (click)="packageCtrl.openLookupWnd(package.entity, property)" *ngIf="property.lookup_entity_name !== undefined">...</button>
@@ -57,8 +73,14 @@
     </div>
 
     <div *ngFor="let relation of (package.entity.entityInfo.relations)">
-        <form-editor-relation [package]="package" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
+        <form-editor-relation [package]="package" *ngIf="!package.entity.getShellInfo().pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
+
+        <form-editor-pivot-relation *ngIf="package.entity.getShellInfo().pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']">
+
+        </form-editor-pivot-relation>
     </div>
+
+
 
 
 </div>

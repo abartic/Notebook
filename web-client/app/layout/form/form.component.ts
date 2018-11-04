@@ -1,7 +1,7 @@
 
 import { BaseEntity } from './../../../../server/models/base-entity';
 import { Package } from './package';
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { ModelInfos } from '../../../../server/models/modelProperties';
 import { HttpCallerService } from '../../services/httpcaller.service';
@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModelFactory } from '../../../../server/models/modelFactory';
 import { CookieService } from 'ngx-cookie-service';
 import { UserSession } from '../../app.component';
+import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
 
 
 
@@ -23,6 +24,7 @@ import { UserSession } from '../../app.component';
 })
 export class FormComponent implements OnInit {
 
+  
   private packageCtrl: IPackageController
   constructor(private route: ActivatedRoute, private router: Router, private cookieService: CookieService,) {
    

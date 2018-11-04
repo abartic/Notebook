@@ -3,7 +3,8 @@ interface IEntity
 {
     entityName: string;
     relations: string[],
-    hidden_fields : string[]
+    hidden_fields : string[],
+    caption_prefix? : string
 }
 
 interface ISheet

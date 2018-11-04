@@ -1,0 +1,12 @@
+<div [@routerTransition]>
+
+    <div class="row top-buffer">
+        <div class="col col-xl-12 col-lg-12">
+            <button type="button" class="btn btn-secondary " (click)="onCreateEntityByRelation()"><i class="fa fa-plus"></i></button>
+            <wbr-pivot #pivot1 [toolbar]="false" [width]="'100%'" [height]="500" [customizeCell]="onCustomizePivotCell" (ready)="onPivotReady($event)" (celldoubleclick)="onPivotCellClick($event)">
+
+            </wbr-pivot>
+        </div>
+    </div>
+
+</div>

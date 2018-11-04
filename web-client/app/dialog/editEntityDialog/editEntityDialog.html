@@ -8,28 +8,30 @@
 
     <div *ngFor="let property of (package.entity_relation.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity, package.entity_relation)" [ngSwitch]="property.dataType">
-            <label class="col-2 col-form-label">{{property.propName}}</label>
-            <div class="mb-3 col-10" [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+            <label class="col-2 col-form-label">{{ property.propCaption | translate }}</label>
+            <div class="mb-3 col-10" [ngSwitch]="packageCtrl.getInputType(property)">
 
                 <div class="input-group" *ngSwitchCase="'date'">
                     <input class="form-control" placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity_relation[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity_relation,property)" ngbDatepicker #d="ngbDatepicker" placement="top">
                     <button class="input-group-addon" (click)="d.toggle()" type="button">
-                        <span class="fa fa-calendar"></span>
-                    </button>
+            <span class="fa fa-calendar"></span>
+          </button>
                 </div>
 
                 <div class="input-group" *ngSwitchCase="'checkbox'">
                     <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" type="checkbox" [checked]="package.entity_relation[property.propName]" (change)="package.entity_relation[property.propName] = !package.entity_relation[property.propName]; packageCtrl.onEditorValueChanged(package.entity_relation, property)">
                 </div>
 
+
+
                 <div class="input-group" *ngSwitchDefault>
-                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" [type]="packageCtrl.getInputType(property.dataType)" [(ngModel)]="package.entity_relation[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity_relation, property)"
-                        (focusout)="packageCtrl.onEditorFocusChanged(package.entity_relation, property)">
+                    <input class="form-control" [disabled]="packageCtrl.isDisabled(package.entity_relation, property)" [type]="packageCtrl.getInputType(property)" [(ngModel)]="package.entity_relation[property.propName]" (keyup)="packageCtrl.onEditorValueChanged(package.entity_relation, property) "
+                        (focusout)="packageCtrl.onEditorFocusChanged(package.entity_relation, property)" (blur)="packageCtrl.onEditorValueChanged(package.entity_relation, property) ">
                     <input class="form-control" [(ngModel)]="package.entity_relation[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity_relation[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
 
                     <button type="button" class="input-group-addon" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)">
-                        ...
-                    </button>
+            ...
+          </button>
                 </div>
             </div>
         </div>
@@ -40,7 +42,8 @@
     <div class="row justify-content-end ">
         <div class="btn-toolbar " role="toolbar ">
             <div class="btn-group mr-2 " role="group ">
-                <button (click)="activeModal.close( 'Save') " class="btn btn-primary ">Save</button>
+                <button (click)="onSave()" class="btn btn-primary ">Save</button>
+                <button (click)="onDelete()" class="btn btn-secondary ">Delete</button>
                 <button (click)="activeModal.close( 'Cancel') " class="btn btn-secondary ">Cancel</button>
             </div>
         </div>

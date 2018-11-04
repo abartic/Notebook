@@ -29,6 +29,7 @@ export class PurchaseLine extends BaseEntity {
     
     public onNew(parent : BaseEntity)
     {
+        super.onNew(parent);
         if (parent){
             this.move_date = (<Purchase>parent).creation_date;
             this.code_store = (<Purchase>parent).code_store;

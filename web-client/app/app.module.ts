@@ -1,4 +1,5 @@
 
+
 import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
 import { DateUserFormatPipe } from './shared/pipes/shared-pipes.module';
 
@@ -35,6 +36,7 @@ import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 
 import { Location, HashLocationStrategy, LocationStrategy } from '@angular/common'
 import { Routes, RouterModule } from '@angular/router';
+import { WebDataRocksPivot } from "./webdatarocks/webdatarocks.angular4";
 
 
 //import { LoginComponent } from './login/login.component';
@@ -77,7 +79,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     ReportDialogWnd,
     CalendarDialogWnd,
     SafePipe,
-
+    
 
   ],
   imports: [
@@ -111,6 +113,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     //JsonpModule,
     SharedModule,
     NgbModule.forRoot()
+    
 
     // GoogleApiModule.forRoot({
     //   provide: NG_GAPI_CONFIG,

@@ -130,6 +130,9 @@ export class SheetsSelectOperations {
                                                     ent[col.label] = BaseEntity.toDateStructFormat(eval('new ' + row.c[i].v));
                                                 else
                                                     ent[col.label] = row.c[i].v;
+                                            } else if (row.c[i] === null && ent['fetchAll'] === true)
+                                            {
+                                                ent[col.label] = undefined;
                                             }
                                             i += 1;
                                         }

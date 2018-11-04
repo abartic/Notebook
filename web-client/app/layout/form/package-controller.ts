@@ -66,11 +66,17 @@ export interface IPackageController {
 
     getRelationProperties(entity: BaseEntity, relation: string, addLookups: boolean);
 
-    onCreateEntityByRelation(relation: string);
+    onCreateEntityByRelation(relation: string, validation?: () => boolean, cb?: () => void);
+
+    onEditEntityByRelation(entity: BaseEntity, relation: string, validation?: () => boolean, cb?: () => void)
 
     isDisabled(entity, property);
 
     userSession: UserSession;
+
+    setPivotData(cb: (data: Array<any>, slice) => void);
+
+
 }
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
@@ -712,12 +718,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return modalRef.result;
     }
 
-    private openEditDialog(title: string) {
+    private openEditDialog(title: string, validation?: () => boolean, relation?) {
 
         const modalRef = this.modalService.open(EditEntityDialogWnd);
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
+        modalRef.componentInstance.validationFunc = validation;
+        modalRef.componentInstance.relation = relation;
         return modalRef.result;
     }
 
@@ -732,11 +740,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         }
     }
 
-    isVisible(property: IPropInfo, entityParent: T, entity: BaseEntity) {
+    isVisible(property: IPropInfo, entityParent: T, entity: BaseEntity, forFilter? : boolean) {
         if (property === undefined
             || (property.propName === 'uid' || property.propName === 'rowid')
             || (entityParent && entityParent.ukeyPropName === property.propName)
-            || property.isHidden === true) {
+            || (forFilter && property.isFilterHidden) 
+            || (property.isHidden === true)) {
             return false;
         }
         else {
@@ -752,13 +761,13 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         if (this.filter_properties.length == 0) {
             for (let p of this.package.filter.properties) {
-                if (this.isVisible(p, undefined, this.package.filter))
+                if (this.isVisible(p, undefined, this.package.filter, true))
                     this.filter_properties.push(p);
             }
             for (let p of this.package.filter.getShellInfo().filter.fields.add) {
                 p.isCustom = true;
                 this.filter_properties.push(p);
-                
+
             }
         }
 
@@ -766,44 +775,44 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_properties;
     }
 
-    private entity_properties: IPropInfo[] = [];
-    public get entityProperties() {
+    //private entity_properties: IPropInfo[] = [];
+    // public get entityProperties() {
 
-        if (this.package.entity === undefined || this.package.entity.properties === undefined)
-            return this.entity_properties;
+    //     if (this.package.entity === undefined || this.package.entity.properties === undefined)
+    //         return this.entity_properties;
 
-        if (this.entity_properties.length == 0) {
-            this.entity_properties.concat(this.package.entity.properties)
+    //     if (this.entity_properties.length == 0) {
+    //         this.entity_properties.concat(this.package.entity.properties)
 
-            for (let prop of this.package.entity.getShellInfo().properties) {
-                this.entity_properties.push(<IPropInfo>{
-                    propName: prop.name,
-                    path: null,
-                    cellName: null,
-                    dataType: prop.datatype,
-                    mask: this.getMask(prop.datatype),
-                    isHidden: false,
-                    isReadOnly : prop.isReadOnly,
-                    isCustom : true
-                })
-            }
-        }
-        return this.entity_properties;
-    }
+    //         for (let prop of this.package.entity.getShellInfo().properties) {
+    //             this.entity_properties.push(<IPropInfo>{
+    //                 propName: prop.name,
+    //                 path: null,
+    //                 cellName: null,
+    //                 dataType: prop.datatype,
+    //                 mask: this.getMask(prop.datatype),
+    //                 isHidden: false,
+    //                 isReadOnly: prop.isReadOnly,
+    //                 isCustom: true
+    //             })
+    //         }
+    //     }
+    //     return this.entity_properties;
+    // }
 
-    private getMask(dataType) {
-        let mask = '';
-        if (dataType === eFieldDataType.Numeric) {
-            mask = "#,##0.00"
-        }
-        else if (dataType === eFieldDataType.Integer) {
-            mask = "#,##0"
-        }
-        else if (dataType === eFieldDataType.Date) {
-            mask = "dd/MM/yyyy"
-        }
-        return mask;
-    }
+    // private getMask(dataType) {
+    //     let mask = '';
+    //     if (dataType === eFieldDataType.Numeric) {
+    //         mask = "#,##0.00"
+    //     }
+    //     else if (dataType === eFieldDataType.Integer) {
+    //         mask = "#,##0"
+    //     }
+    //     else if (dataType === eFieldDataType.Date) {
+    //         mask = "dd/MM/yyyy"
+    //     }
+    //     return mask;
+    // }
 
     public getRelationProperties(entity: BaseEntity, relation: string, addLookups: boolean) {
         let properties = [];
@@ -821,6 +830,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (property.lookup_entity_name && addLookups === true)
                 properties.push(<IPropInfo>{
                     propName: property.lookup_properties[1],
+                    propCaption: property.lookup_properties[1],
                     path: property.lookup_entity_name + '_lookup_entity',
                     dataType: 's'
                 });
@@ -828,12 +838,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return properties;
     }
 
-    public onCreateEntityByRelation(relation: string) {
+    public onCreateEntityByRelation(relation: string, validation?: () => boolean, cb?: () => void) {
 
         this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation), null,
             false, this.package.entity);
         this.package.entity_relation.status = eEntityStatus.New;
-        this.openEditDialog('New: ' + relation).then(result => {
+        this.openEditDialog('New: ' + relation, validation, relation).then(result => {
             if (result === 'Save') {
                 if (!this.package.entity[relation + '_relation'])
                     this.package.entity[relation + '_relation'] = [];
@@ -842,25 +852,35 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             else {
                 this.package.entity_relation = undefined;
             }
+
+            cb();
+
         }, (reason) => {
             this.package.entity_relation = undefined;
         });
 
     }
 
-    public onEditEntityByRelation(entity: BaseEntity, relation: string) {
+    public onEditEntityByRelation(entity: BaseEntity, relation: string, validation?: () => boolean, cb?: () => void) {
         let index = this.package.entity[relation + '_relation'].indexOf(entity);
         this.package.entity_relation = BaseEntity.createInstance(ModelFactory.uniqueInstance.get(relation),
             entity, true, null);
-        this.openEditDialog('Edit: ' + relation).then(result => {
+        this.package.entity_relation.status = eEntityStatus.None;
+        this.openEditDialog('Edit: ' + relation, validation, relation).then(result => {
             if (result === 'Save') {
                 if (this.package.entity_relation.status !== eEntityStatus.New)
                     this.package.entity_relation.status = eEntityStatus.Updated;
                 this.package.entity[relation + '_relation'][index] = this.package.entity_relation;
             }
+            else if (result === 'Delete') {
+                this.onDeleteEntityByRelation(entity, relation, true);
+            }
             else {
                 this.package.entity_relation = undefined;
             }
+
+            cb();
+
         }, (reason) => {
             this.package.entity_relation = undefined;
         });
@@ -868,21 +888,30 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     }
 
-    public onDeleteEntityByRelation(entity: BaseEntity, relation: string) {
-        this.askYesNo('Delete item').then(result => {
-            if (result === 'Yes') {
-                let index = this.package.entity[relation + '_relation'].indexOf(entity);
-                this.package.entity[relation + '_relation'].splice(index, 1);
-                if (entity.status !== eEntityStatus.New) {
-                    entity.status = eEntityStatus.Deleted;
-                    if (this.package.entity[relation + '_relation_deleted'] === undefined)
-                        this.package.entity[relation + '_relation_deleted'] = [];
-                    this.package.entity[relation + '_relation_deleted'].push(entity);
-                }
-
+    public onDeleteEntityByRelation(entity: BaseEntity, relation: string, silent?: boolean) {
+        let deleteaction = () => {
+            let index = this.package.entity[relation + '_relation'].indexOf(entity);
+            this.package.entity[relation + '_relation'].splice(index, 1);
+            if (entity.status !== eEntityStatus.New) {
+                entity.status = eEntityStatus.Deleted;
+                if (this.package.entity[relation + '_relation_deleted'] === undefined)
+                    this.package.entity[relation + '_relation_deleted'] = [];
+                this.package.entity[relation + '_relation_deleted'].push(entity);
             }
-        });
+        };
 
+        if (silent === true) {
+            deleteaction();
+        }
+        else {
+            this.askYesNo('Delete item').then(result => {
+                if (result === 'Yes') {
+                    deleteaction();
+                }
+            }, (reason) => {
+
+            });
+        }
     }
 
 
@@ -938,25 +967,42 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.executeLookupFilter(true);
     }
 
-    public getInputType(dataType: string) {
-        switch (dataType) {
-            case eFieldDataType.Numeric:
-            case eFieldDataType.Integer:
-                return 'number';
-            case eFieldDataType.Boolean:
-                return 'checkbox';
-            case eFieldDataType.Date:
-                return 'date';
-            case eFieldDataType.Time:
-                return 'time';
-            case eFieldDataType.String:
-            default:
-                return 'text';
+    public getInputType(property: IPropInfo) {
+
+        if (property.customInputType) {
+            return property.customInputType;
+        }
+        else {
+            let dataType: string = property.dataType;
+            switch (dataType) {
+                case eFieldDataType.Numeric:
+                case eFieldDataType.Integer:
+                    return 'number';
+                case eFieldDataType.Boolean:
+                    return 'checkbox';
+                case eFieldDataType.Date:
+                    return 'date';
+                case eFieldDataType.Time:
+                    return 'time';
+                case eFieldDataType.String:
+                default:
+                    return 'text';
+            }
         }
     }
 
 
     onEditorValueChanged(entity: BaseEntity, property: IPropInfo) {
+
+        if (property.dataType === eFieldDataType.Numeric && typeof entity[property.propName] === 'string') {
+
+            entity[property.propName] = Number.parseFloat(entity[property.propName] || "0.0");
+
+        } else if (property.dataType === eFieldDataType.Integer && typeof entity[property.propName] === 'string') {
+
+            entity[property.propName] = Number.parseInt(entity[property.propName] || "0");
+
+        }
 
         let cascaded_value = false;
         if (entity)
@@ -1130,4 +1176,17 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             this.onPrint();
         }
     }
+
+    public setPivotData(cb: (data: Array<any>, slice) => void) {
+
+        setTimeout(() => {
+            while (!this.package.entity['budgetline_relation']) { }
+            cb(this.package.entity['budgetline_relation'], this.package.entity.getShellInfo().pivotInfo);
+
+        }, 1000);
+
+
+    }
+
+
 }

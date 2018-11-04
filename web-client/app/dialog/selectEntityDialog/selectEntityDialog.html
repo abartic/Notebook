@@ -24,7 +24,7 @@
         <tbody>
             <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
                 <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                    <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                    <div [ngSwitch]="packageCtrl.getInputType(property)">
                         <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                         <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
                     </div>

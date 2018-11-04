@@ -18,9 +18,22 @@
     "Spanish": "Spanish",
     "Italian": "Italian",
     "Farsi": "Farsi",
-    "Search" : "Search",
-    "Settings" : "Settings",
-    "Profile" : "Profile",
-    "Inbox" : "Inbox",
-    "Log Out" : "Log Out"
+    "Search": "Search",
+    "Settings": "Settings",
+    "Profile": "Profile",
+    "Inbox": "Inbox",
+    "Log Out": "Log Out",
+
+    "budgetline.attr1": "Catalog",
+    "budgetline.attr2": "Sub-catalog",
+    "budgetline.attr3": "Title",
+    "budgetline.debit": "Projected",
+    "budgetline.credit": "Executed",
+
+    "budgetline.year": "Year",
+    "budgetline.month": "Month",
+    "budgetline.week": "Week",
+    "budgetline.day": "Day",
+
+    "budgetline.notes": "Notes"
 }

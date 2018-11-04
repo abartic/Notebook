@@ -17,10 +17,10 @@
                     <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
                         <th scope="row">
                             <button type="button" class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)"><i class="fa fa-edit"></i></button>
-                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null)"><i class="fa fa-minus"></i></button>
+                            <button type="button" class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null)"><i class="fa fa-minus"></i></button>
                         </th>
                         <td *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation,true) ">
-                            <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                            <div [ngSwitch]="packageCtrl.getInputType(property)">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                                 <div class="input-group" *ngSwitchDefault>{{property.path && row[property.path] ? row[property.path][property.propName] : row[property.propName]}}</div>
                             </div>

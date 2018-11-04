@@ -345,7 +345,7 @@ export class SheetsCrudOperations {
             if (sheetDef.fields_types && sheetDef.fields_types[ti] === eFieldDataType.Integer) {
                 rowData.values.push({
                     "userEnteredValue": {
-                        "stringValue": values[ti + 2]
+                        "numberValue": values[ti + 2]
                     },
                     "userEnteredFormat": {
                         "numberFormat": {

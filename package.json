@@ -47,6 +47,7 @@
         "@types/passport": "^0.3.5",
         "@types/passport-google-oauth": "1.0.35",
         "acl": "^0.4.11",
+        "angular4-multiselect-dropdown": "2.0.0",
         "body-parser": "^1.18.2",
         "chart.js": "^2.7.2",
         "config": "^1.29.4",

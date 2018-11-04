@@ -491,6 +491,7 @@ export class SheetsManagementOperations {
 
                     let propInfo: IPropInfo = {
                         propName: sheet.fields[index],
+                        propCaption : (map_entity.caption_prefix === undefined ? '' : (map_entity.caption_prefix + '.')) + sheet.fields[index],
                         cellName: cellName,
 
                         dataType: !sheet.fields_types || sheet.fields_types[index] === '' ? 's' : sheet.fields_types[index],

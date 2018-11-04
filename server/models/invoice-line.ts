@@ -28,6 +28,7 @@ export class InvoiceLine extends BaseEntity {
     public notes : string;
     
     public onNew(parent: BaseEntity) {
+        super.onNew(parent);
         if (parent) {
             this.move_date = (<Invoice>parent).creation_date;
             this.code_store = (<Invoice>parent).code_store;

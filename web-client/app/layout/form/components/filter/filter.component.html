@@ -62,7 +62,7 @@
                     <tr *ngFor="let row of package.rows; index as i " (click)="onSelectEntity(row) ">
                         <td>{{i+1}}</td>
                         <td *ngFor="let property of packageCtrl.filterProperties ">
-                            <div [ngSwitch]="packageCtrl.getInputType(property.dataType)">
+                            <div [ngSwitch]="packageCtrl.getInputType(property)">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                                 <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
                             </div>

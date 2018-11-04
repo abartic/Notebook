@@ -36,6 +36,7 @@ export interface IEntityInfo {
 
 export interface IPropInfo {
     propName: string,
+    propCaption?: string,
     dataType: string;
 
     path?: string,
@@ -45,8 +46,12 @@ export interface IPropInfo {
     lookup_entity_name?: string;
     lookup_properties?: string[];
     isHidden?: boolean;
+    isFilterHidden?: boolean;
     isReadOnly?: boolean;
     isCustom?: boolean;
+    dropdownlist?;
+    dropdownsettings?;
+    customInputType?: string;
 }
 
 export interface IShellInfo {
@@ -64,7 +69,8 @@ export interface IShellInfo {
     },
     report: {
         preloads: { entity_name: string, ukey_prop_name: string, cb: (p) => void }[]
-    }
+    },
+    pivotInfo?: any
 }
 
 export enum eEntityStatus {
@@ -103,17 +109,18 @@ export function LookupProp(entityName: string, propNames: (string)[]) {
 
 }
 
-export function RelationProp(groupby: string[], pivot: string[]) {
+// export function RelationProp(groupby: string[], pivot: string[]) {
 
-    return (prototype: any, propName: string) => {
+//     return (prototype: any, propName: string) => {
 
-        prototype['relation_prop_' + propName] = {
-            groupby: groupby,
-            pivot: pivot
-        };
-    }
+//         prototype['relation_prop_' + propName] = {
+//             groupby: groupby,
+//             pivot: pivot,
+//             needPivot : true
+//         };
+//     }
 
-}
+// }
 
 
 export class BaseEntity {
@@ -131,6 +138,8 @@ export class BaseEntity {
     private sheet_name: string;
 
     private spreadsheet_name: string;
+
+    public fetchAll: boolean;
 
     private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
 
@@ -275,6 +284,8 @@ export class BaseEntity {
 
         let query = 'select ';
         for (let p of entityInfo.properties) {
+            if (p.isCustom === true)
+                continue;
             query = query + p.cellName + ',';
         }
         let p_uid = entityInfo.properties.find(p => p.propName === 'uid')
@@ -291,6 +302,8 @@ export class BaseEntity {
 
         let query = 'select ';
         for (let p of entityInfo.properties) {
+            if (p.isCustom === true)
+                continue;
             query = query + p.cellName + ',';
         }
         let p_ukey = entityInfo.properties.find(p => p.propName === ukey_prop_name)
@@ -306,22 +319,25 @@ export class BaseEntity {
     public static toFKeyFilter(relationEntityInfo: IEntityInfo, fkeyPropName: string, fkeyvalue: any, relationInfo?: { groupby: string[], pivot: string[] }): string {
 
         let query = 'select ';
-        if (relationInfo) {
-            for (let p of relationEntityInfo.properties) {
-                if (relationInfo.groupby.findIndex(e => e === p.propName) < 0)
-                    query = query + p.cellName + ',';
-                if (relationInfo.pivot.findIndex(e => e === p.propName) < 0)
-                    // if (p.dataType === eFieldDataType.Numeric || p.dataType === eFieldDataType.Integer)
-                    //     query = query + 'sum(' + p.cellName + '),';
-                    // else
-                        query = query + 'max(' + p.cellName + '),';
-            }
+        // if (relationInfo) {
+        //     for (let p of relationEntityInfo.properties) {
+        //         if (relationInfo.groupby.findIndex(e => e === p.propName) >= 0)
+        //             query = query + p.cellName + ',';
+        //         else
+        //             if (relationInfo.pivot.findIndex(e => e === p.propName) < 0)
+        //             // if (p.dataType === eFieldDataType.Numeric || p.dataType === eFieldDataType.Integer)
+        //             //     query = query + 'sum(' + p.cellName + '),';
+        //             // else
+        //             query = query + 'max(' + p.cellName + '),';
+        //     }
+        // }
+        // else {
+        for (let p of relationEntityInfo.properties) {
+            if (p.isCustom === true)
+                continue;
+            query = query + p.cellName + ',';
         }
-        else {
-            for (let p of relationEntityInfo.properties) {
-                query = query + p.cellName + ',';
-            }
-        }
+        //}
         let p_uid = relationEntityInfo.properties.find(p => p.propName === fkeyPropName)
         if (p_uid && fkeyvalue) {
             query = query.slice(0, query.length - 1);
@@ -330,28 +346,28 @@ export class BaseEntity {
             else
                 query = query + ' where ' + p_uid.cellName + ' = "' + fkeyvalue + '"';
 
-            if (relationInfo) {
-                let groupby = '';
-                for (let gb of relationInfo.groupby) {
-                    for (let p of relationEntityInfo.properties) {
-                        if (p.propName === gb)
-                            groupby = groupby + p.cellName + ',';
-                    }
-                }
-                groupby = groupby.slice(0, groupby.length - 1);
-                let pivot = '';
-                for (let pv of relationInfo.pivot) {
-                    for (let p of relationEntityInfo.properties) {
-                        if (p.propName === pv)
-                            pivot = pivot + p.cellName + ',';
-                    }
-                }
-                pivot = pivot.slice(0, pivot.length - 1);
+            // if (relationInfo) {
+            //     let groupby = '';
+            //     for (let gb of relationInfo.groupby) {
+            //         for (let p of relationEntityInfo.properties) {
+            //             if (p.propName === gb)
+            //                 groupby = groupby + p.cellName + ',';
+            //         }
+            //     }
+            //     groupby = groupby.slice(0, groupby.length - 1);
+            //     let pivot = '';
+            //     for (let pv of relationInfo.pivot) {
+            //         for (let p of relationEntityInfo.properties) {
+            //             if (p.propName === pv)
+            //                 pivot = pivot + p.cellName + ',';
+            //         }
+            //     }
+            //     pivot = pivot.slice(0, pivot.length - 1);
 
-                query = query + ' group by ' + groupby + ' pivot ' + pivot;
-            }
+            //     query = query + ' group by ' + groupby + ' pivot ' + pivot;
+            // }
             return query;
-
+            //return 'select max(A), max(B), D,E,F, max(K), max(L) where C = "11" group by D,E,F pivot H';
         }
         else {
             return '';
@@ -363,6 +379,8 @@ export class BaseEntity {
         let entityInfo = entity.entityInfo;
         let cell_id, cell_uid;
         for (let p of entityInfo.properties) {
+            if (p.isCustom === true)
+                continue;
             if (p.propName === 'uid')
                 cell_uid = p.cellName;
             else if (p.propName === 'rowid')
@@ -380,6 +398,9 @@ export class BaseEntity {
         let cell_ukey, additionalWhere = '';
         let query = 'select '
         for (let p of entityInfo.properties) {
+            if (p.isCustom === true)
+                continue;
+
             if (p.propName === ukey_prop_name)
                 cell_ukey = p.cellName;
             if (excludeCurrentUid === true && p.propName === 'uid')
@@ -402,6 +423,9 @@ export class BaseEntity {
         let query = 'select ';
         let fkeycell = '';
         for (let p of entity.properties) {
+            if (p.isCustom === true)
+                continue;
+
             if (!forFkey || (forFkey && p.propName === forFkey))
                 query = query + p.cellName + ',';
 
@@ -565,8 +589,11 @@ export class BaseEntity {
         }
         else {
             new_instance = new type();
-            if (instance !== undefined)
+            if (instance !== undefined) {
                 Object.assign(new_instance, instance);
+                //keep reference to initial instance got from table
+                new_instance['_row_'] = instance;
+            }
         }
 
         if (parent && parent.ukeyPropName) //copy the unique key
@@ -637,6 +664,22 @@ export class BaseEntity {
 
     public onPropValueChanged(propName: IPropInfo, propValue: any): boolean {
         return false;
+    }
+
+    public compareForValidation(other: BaseEntity): boolean {
+        return this === other;
+    }
+
+    public getAdjustedShellInfoSlice() {
+
+    }
+
+    public adjustDataForPivoting() {
+        delete this['_row_']['uid'];
+        delete this['_row_']['rowid'];
+        delete this['_row_']['status'];
+        delete this['_row_']['fetchAll'];
+        return this['_row_'];
     }
 }
 

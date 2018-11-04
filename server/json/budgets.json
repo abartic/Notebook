@@ -8,7 +8,7 @@
             "notes", "type_doc"
         ],
         "fields_types": ["", "", "", "", "d", "n", "", ""],
-        "hidden_fields": ["type_doc"],
+        "hidden_fields": ["type_doc", "pivot_by"],
         "entities": [{
             "entityName": "Budget",
             "ukey": "code_doc",
@@ -31,7 +31,8 @@
         "hidden_fields": [],
         "entities": [{
             "entityName": "BudgetLine",
-            "hidden_fields": []
+            "hidden_fields": [],
+            "caption_prefix": "budgetline"
         }]
     }]
 }

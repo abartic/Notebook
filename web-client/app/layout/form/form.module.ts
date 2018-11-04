@@ -12,7 +12,10 @@ import { DataResolver } from './data-resolver';
 import { LoadingModule } from 'ngx-loading';
 import { NgbDateFRParserFormatter } from '../../shared/pipes/ngbDateFRParserFormatter';
 import { SharedModule } from '../../shared/index';
-
+import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
+import { PivotRelationComponent } from './components/pivot-relation/pivot.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { AngularMultiSelectModule } from 'angular4-multiselect-dropdown/dist/multiselect.component';
 
 @NgModule({
   imports: [
@@ -22,13 +25,16 @@ import { SharedModule } from '../../shared/index';
     NgbModule,
     LoadingModule,
     SharedModule,
+    TranslateModule,
+    AngularMultiSelectModule
   ],
   declarations: [
     FormComponent,
     FilterComponent,
     EditorComponent,
-    RelationComponent
-    
+    RelationComponent,
+    WebDataRocksPivot,
+    PivotRelationComponent
   ],
   providers:[
     //{provide:'Partner', useFactory:()=>(new Package<Partner>(Partner))},
