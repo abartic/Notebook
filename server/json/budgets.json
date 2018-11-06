@@ -10,11 +10,19 @@
         "fields_types": ["", "", "", "", "d", "n", "", ""],
         "hidden_fields": ["type_doc", "pivot_by"],
         "entities": [{
-            "entityName": "Budget",
-            "ukey": "code_doc",
-            "relations": ["budgetline"],
-            "hidden_fields": ["balance"]
-        }]
+                "entityName": "Budget",
+                "ukey": "code_doc",
+                "relations": ["budgetline"],
+                "hidden_fields": []
+            },
+            {
+                "entityName": "Expenses",
+                "ukey": "code_doc",
+                "relations": ["expenseline"],
+                "caption_prefix": "expenses",
+                "hidden_fields": []
+            }
+        ]
 
     }, {
         "sheetName": "budget_lines",
@@ -30,9 +38,15 @@
         ],
         "hidden_fields": [],
         "entities": [{
-            "entityName": "BudgetLine",
-            "hidden_fields": [],
-            "caption_prefix": "budgetline"
-        }]
+                "entityName": "BudgetLine",
+                "hidden_fields": [],
+                "caption_prefix": "budgetline"
+            },
+            {
+                "entityName": "ExpenseLine",
+                "hidden_fields": ["year", "month", "week", "day", "credit"],
+                "caption_prefix": "expenseline"
+            }
+        ]
     }]
 }

@@ -740,11 +740,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         }
     }
 
-    isVisible(property: IPropInfo, entityParent: T, entity: BaseEntity, forFilter? : boolean) {
+    isVisible(property: IPropInfo, entityParent: T, entity: BaseEntity, forFilter?: boolean) {
         if (property === undefined
             || (property.propName === 'uid' || property.propName === 'rowid')
             || (entityParent && entityParent.ukeyPropName === property.propName)
-            || (forFilter && property.isFilterHidden) 
+            || (forFilter && property.isFilterHidden)
             || (property.isHidden === true)) {
             return false;
         }
@@ -1030,6 +1030,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 this.addValidation(entity, property.lookup_entity_name, property.propName);
             }
         }
+
+
     }
     onEditorFocusChanged(entity: BaseEntity, property: IPropInfo) {
         if (property.lookup_entity_name) {
@@ -1094,60 +1096,60 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     onPrint() {
         let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
+        pack['reportType'] = this.package.entity.entityName.toLocaleLowerCase();
+
         pack.values = this.package.entity;
         let preloadObs = new Observable((observer) => {
 
-            if (this.package.entity.entityName === 'Invoice') {
-                pack['reportType'] = 'invoice';
+            let packs = this.package.entity.getShellInfo().report.preloads;
+            let index = 0;
 
-                let packs = this.package.entity.getShellInfo().report.preloads;
-                let index = 0;
-                for (let ppack of packs) {
-                    let p: Promise<IEntityInfo> = null;
-                    let einfo = ModelInfos.uniqueInstance.get(ppack.entity_name);
-                    if (!einfo) {
-                        let lentity = <BaseEntity>ModelFactory.uniqueInstance.create(ppack.entity_name.toLowerCase());
-                        if (lentity)
-                            p = this.readEntityInfo(lentity);
-
-                    }
-                    else {
-                        p = Promise.resolve(einfo);
-                    }
-                    p.then(ei => {
-                        let spack: ISelectObj = {
-                            spreadsheetName: ei.spreadsheetName,
-                            sheetName: ei.sheetName,
-                            entityName: ei.entityName,
-                            select: BaseEntity.toUKeyFilter(ei, ppack.ukey_prop_name, this.package.entity[ppack.ukey_prop_name]),
-                        };
-
-                        this.httpCaller.callPost(
-                            '/sheetdata/select',
-                            spack,
-                            r => {
-                                index += 1;
-                                let entity = {};
-                                if (r.rows && r.rows.length > 0) {
-                                    //call callback
-                                    entity = r.rows[0];
-                                }
-                                ppack.cb(entity);
-                                if (index >= packs.length)
-                                    observer.complete();
-                            },
-                            err => {
-                                observer.error();
-                            });
-                    }).catch((err) => {
-                        observer.error();
-                    })
+            if (packs.length === 0) {
+                return observer.complete();
+            }
+            for (let ppack of packs) {
+                let p: Promise<IEntityInfo> = null;
+                let einfo = ModelInfos.uniqueInstance.get(ppack.entity_name);
+                if (!einfo) {
+                    let lentity = <BaseEntity>ModelFactory.uniqueInstance.create(ppack.entity_name.toLowerCase());
+                    if (lentity)
+                        p = this.readEntityInfo(lentity);
 
                 }
+                else {
+                    p = Promise.resolve(einfo);
+                }
+                p.then(ei => {
+                    let spack: ISelectObj = {
+                        spreadsheetName: ei.spreadsheetName,
+                        sheetName: ei.sheetName,
+                        entityName: ei.entityName,
+                        select: BaseEntity.toUKeyFilter(ei, ppack.ukey_prop_name, this.package.entity[ppack.ukey_prop_name]),
+                    };
+
+                    this.httpCaller.callPost(
+                        '/sheetdata/select',
+                        spack,
+                        r => {
+                            index += 1;
+                            let entity = {};
+                            if (r.rows && r.rows.length > 0) {
+                                //call callback
+                                entity = r.rows[0];
+                            }
+                            ppack.cb(entity);
+                            if (index >= packs.length)
+                                observer.complete();
+                        },
+                        err => {
+                            observer.error();
+                        });
+                }).catch((err) => {
+                    observer.error();
+                })
+
             }
-            else {
-                observer.complete();
-            }
+
         });
 
         preloadObs.subscribe(() => { },

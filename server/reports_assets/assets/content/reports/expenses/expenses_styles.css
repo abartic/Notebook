@@ -1,0 +1,80 @@
+.expenses-box {
+    max-width: 800px;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+    font-size: 16px;
+    line-height: 24px;
+    font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    color: #555;
+}
+
+.expenses-box table {
+    width: 100%;
+    line-height: inherit;
+    text-align: left;
+}
+
+.expenses-box table td {
+    padding: 5px;
+    vertical-align: top;
+}
+
+.expenses-box table tr td:nth-child(3) {
+    text-align: right;
+}
+
+.expenses-box table tr td:nth-child(4) {
+    text-align: right;
+}
+
+.expenses-box table tr.top table td {
+    padding-bottom: 20px;
+}
+
+.expenses-box table tr.top table td.title {
+    font-size: 45px;
+    line-height: 45px;
+    color: #333;
+}
+
+.expenses-box table tr.information table td {
+    padding-bottom: 40px;
+}
+
+.expenses-box table tr.heading td {
+    background: #eee;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+}
+
+.expenses-box table tr.details td {
+    padding-bottom: 20px;
+}
+
+.expenses-box table tr.item td {
+    border-bottom: 1px solid #eee;
+}
+
+.expenses-box table tr.item.last td {
+    border-bottom: none;
+}
+
+.expenses-box table tr.total td:nth-child(4) {
+    border-top: 2px solid #eee;
+    font-weight: bold;
+}
+
+@media only screen and (max-width: 600px) {
+    .expenses-box table tr.top table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+    .expenses-box table tr.information table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+}

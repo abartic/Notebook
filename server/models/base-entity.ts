@@ -5,6 +5,7 @@ import "reflect-metadata"
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as uuidv1 from 'uuid/v1';
 import { eFieldDataType } from '../common/enums';
+import { Observable } from 'rxjs/Observable';
 
 function padNumber(value: number) {
     if (isNumber(value)) {
@@ -683,6 +684,10 @@ export class BaseEntity {
         delete this['_row_']['fetchAll'];
         return this['_row_'];
     }
+
+    public onChildrenUpdate() { }
+
+
+
+
 }
-
-

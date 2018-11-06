@@ -1,15 +1,14 @@
-import { InvoiceLine } from './invoice-line';
+
+
 import { ModelInfos } from './modelProperties';
 import { ISelectObj } from './../common/select-obj';
-
-
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
 import { Partner } from './partner';
 import { eTypeMovement, eFieldDataType, eTypeBudget } from '../common/enums';
-import { BudgetLine } from './budget-line';
+import { ExpenseLine } from './expense-line';
 
-@SheetInfo("budgets", "budget_definitions", "Budget", "code_doc")
-export class Budget extends BaseEntity {
+@SheetInfo("budgets", "budget_definitions", "Expenses", "code_doc")
+export class Expenses extends BaseEntity {
 
 
 
@@ -27,11 +26,20 @@ export class Budget extends BaseEntity {
 
     public notes: string;
 
+    public total: number;
+
     public balance: number;
 
+    public expenseline_relation: (ExpenseLine)[];
 
-    public budgetline_relation: (BudgetLine)[];
 
+    
+    public onNew(parent: BaseEntity) {
+        super.onNew(parent);
+        
+        this.balance = 0;
+        this.type_doc = eTypeBudget.Expenses;
+    }
 
     public getShellInfo(): IShellInfo {
         return {
@@ -40,11 +48,11 @@ export class Budget extends BaseEntity {
                     add: [],
                     remove: []
                 },
-                static_filter: [{ key: 'type_doc', value: eTypeBudget.Budget }]
+                static_filter: [{ key: 'type_doc', value: eTypeBudget.Expenses }]
             },
             properties: [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }],
             commands: {
-                add: [],
+                add: ['print'],
                 remove: []
             },
             report: {
@@ -53,30 +61,7 @@ export class Budget extends BaseEntity {
             pivotInfo: {
                 slice: {
                     columns: [
-                        {
-                            dimensionName: "year",
-                            caption: "year",
-                            uniqueName: "year",
-
-                        },
-                        {
-                            dimensionName: "month",
-                            caption: "month",
-                            uniqueName: "month",
-
-                        },
-                        {
-                            dimensionName: "week",
-                            caption: "week",
-                            uniqueName: "week",
-
-                        },
-                        {
-                            dimensionName: "day",
-                            caption: "day",
-                            uniqueName: "day",
-
-                        }
+                       
                     ],
                     rows: [
                         {
@@ -98,15 +83,11 @@ export class Budget extends BaseEntity {
                     measures: [
                         {
                             uniqueName: "debit",
-                            caption: "Projected",
+                            caption: "Value",
                             aggregation: "SUM"
                         }
 
-                        , {
-                            uniqueName: "credit",
-                            caption: "Executed",
-                            aggregation: "SUM"
-                        }
+
                     ],
                     expands: {
                         expandAll: true,
@@ -117,13 +98,6 @@ export class Budget extends BaseEntity {
 
         };
     }
-    public onNew(parent: BaseEntity)
-    {
-        super.onNew(parent);
-        this.balance = 0;
-        this.type_doc  = eTypeBudget.Budget;
-    }
-
 
     public getAdjustedShellInfoSlice() {
         if (!this.pivot_by || this.pivot_by === '')
@@ -159,11 +133,9 @@ export class Budget extends BaseEntity {
 
         if (this._props === null) {
             this._props = this.entityInfo.properties;
-
             let index = this._props.findIndex(i => i.propName === 'balance')
             if (index >= 0)
                 this._props[index].isReadOnly = true;
-
 
             if (this._props.findIndex(i => i.propName === 'pivot_by_ar') < 0) {
                 this._props.push(<IPropInfo>{
@@ -172,14 +144,10 @@ export class Budget extends BaseEntity {
                     dataType: eFieldDataType.String,
                     isFilterHidden: true,
                     dropdownlist: [
-                        { id: 'year', itemName: 'budgetline.year' },
-                        { id: 'month', itemName: 'budgetline.month' },
-                        { id: 'week', itemName: 'budgetline.week' },
-                        { id: 'day', itemName: 'budgetline.day' },
-
-                        { id: 'attr1', itemName: 'budgetline.attr1' },
-                        { id: 'attr2', itemName: 'budgetline.attr2' },
-                        { id: 'attr3', itemName: 'budgetline.attr3' },
+                        { id: 'notes', itemName: 'expenseline.notes' },
+                        { id: 'attr1', itemName: 'expenseline.attr1' },
+                        { id: 'attr2', itemName: 'expenseline.attr2' },
+                        { id: 'attr3', itemName: 'expenseline.attr3' },
                     ],
                     dropdownsettings: {
                         singleSelection: false,
@@ -197,16 +165,16 @@ export class Budget extends BaseEntity {
         return this._props;
     }
 
-    _pivot_by_ar = undefined; 
+    _pivot_by_ar = undefined;
     public get pivot_by_ar() {
-        
+
         if (!this._pivot_by_ar) {
             if (this.pivot_by === undefined) {
                 this._pivot_by_ar = [];
             }
             else {
                 let values = this.pivot_by.split(',');
-                this._pivot_by_ar = values.map(i => { return { id: i, itemName: 'budgetline.' + i }; });
+                this._pivot_by_ar = values.map(i => { return { id: i, itemName: 'expenseline.' + i }; });
             }
         }
         return this._pivot_by_ar;
@@ -216,15 +184,15 @@ export class Budget extends BaseEntity {
         this.pivot_by = '';
         value.map(i => this.pivot_by += i['id'] + ',');
         if (this.pivot_by.length > 0)
-        this.pivot_by = this.pivot_by.slice(0, this.pivot_by.length-1);
-    };
+            this.pivot_by = this.pivot_by.slice(0, this.pivot_by.length - 1);
+    }
 
     public onChildrenUpdate()
     {
 
-        if (this.budgetline_relation) {
+        if (this.expenseline_relation) {
             this.balance = 0;
-            this.budgetline_relation.map(i => this.balance += (i.debit - i.credit));
+            this.expenseline_relation.map(i => this.balance += i.debit);
         }
     }
 }

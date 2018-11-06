@@ -242,6 +242,8 @@ export class SheetRoute extends BaseRoute {
                     let company = r['rows'][0] as Company;
                     entityPackage.values['company'] = company;
 
+                    if (!company)
+                        throw 'Company not set!'
 
                     let renderer = (content, helpers) => {
                         jsreport.render({

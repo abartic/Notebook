@@ -29,11 +29,17 @@
     "budgetline.attr3": "Title",
     "budgetline.debit": "Projected",
     "budgetline.credit": "Executed",
-
     "budgetline.year": "Year",
     "budgetline.month": "Month",
     "budgetline.week": "Week",
     "budgetline.day": "Day",
+    "budgetline.notes": "Notes",
 
-    "budgetline.notes": "Notes"
+    "expenses.balance": "Total",
+    "expenseline.attr1": "Type",
+    "expenseline.attr2": "Sub-type",
+    "expenseline.attr3": "Name",
+    "expenseline.debit": "Value",
+    "expenseline.notes": "Notes"
+
 }

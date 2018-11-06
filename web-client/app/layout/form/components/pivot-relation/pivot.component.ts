@@ -171,7 +171,7 @@ export class PivotRelationComponent implements OnInit {
   }
 
   private validate(): boolean {
-    if (this.package.entity_relation && this.relation) {
+    if (this.package.entity_relation && this.relation && this.package.entity[this.relation + '_relation']) {
       let details: any[] = this.package.entity[this.relation + '_relation'];
       let finds = 0;
       for (let detail of details) {
@@ -191,17 +191,11 @@ export class PivotRelationComponent implements OnInit {
 
   private refreshCurrentRecord() {
     if (this.package.entity_relation) {
-      if (this.package.entity_relation.status === eEntityStatus.Deleted) {
-        ;
-        // let index = this.list.findIndex(this.package.entity_relation);
-        // if (index >= 0)
-        //   this.list = this.list.splice(index, 1);
-
-      }
-      else {
+      if (this.package.entity_relation.status !== eEntityStatus.Deleted) {
         this.package.entity_relation['_row_'] = undefined;
         let temp = {};
         Object.assign(temp, this.package.entity_relation);
+        this.package.entity.onChildrenUpdate();
         delete temp['_row_'];
         delete temp['uid'];
         delete temp['status'];

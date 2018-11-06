@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <link rel="stylesheet" href="{#asset reports/expenses/expenses_styles.css @encoding=link}">
+
+
+</head>
+
+<body>
+    <div class="expenses-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td class="title">
+
+                            </td>
+                            <td>
+                                Expenses report #: {{code_doc}}
+                                <br> Created: {{toUserFormatDate creation_date}}
+                                <br> Author: {{author}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="information ">
+                <td colspan="4 ">
+                    <table>
+                        <tr>
+                            <td>
+                                {{company.name_comp}}<br> {{company.address}}
+                                <br> {{company.city}},{{company.county}},{{company.zip_code}}
+                            </td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="heading ">
+                <td>
+                    Category
+                </td>
+                <td>
+                    Sub-category
+                </td>
+                <td>
+                    Title
+                </td>
+                <td>
+                    Value
+                </td>
+                <td>
+                    Notes
+                </td>
+            </tr>
+            {{#each expenseline_relation}}
+            <tr class="item">
+                <td>
+                    {{attr1}}
+                </td>
+                <td>
+                    {{attr2}}
+                </td>
+                <td>
+                    {{attr3}}
+                </td>
+                <td>
+                    {{debit}}
+                </td>
+                <td>
+                    {{notes}}
+                </td>
+            </tr>
+            {{/each}}
+
+            <tr class="total ">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    Total: {{total expenseline_relation}}
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+</html>

@@ -5,6 +5,11 @@ export enum eTypeMovement {
     Receivable = 'R'
 }
 
+export enum eTypeBudget {
+    Budget = 'B',
+    Expenses = 'E',
+}
+
 export enum eFieldDataType
 {
     Numeric = 'n',
