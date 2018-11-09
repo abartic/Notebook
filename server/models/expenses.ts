@@ -55,6 +55,7 @@ export class Expenses extends BaseEntity {
                 add: ['print'],
                 remove: []
             },
+            
             report: {
                 preloads: []
             },
