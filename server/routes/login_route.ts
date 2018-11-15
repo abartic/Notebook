@@ -47,9 +47,9 @@ export class LoginRoute extends BaseRoute {
                         res.cookie('google_refresh_token', req.session['google_refresh_token']);
                         res.cookie('lastAuthTime', req.session['lastAuthTime']);
                     }
-                    res.json({ 'refresh': 'true' });
+                    res.json({ 'refresh': true });
                 }).catch(() => {
-                    res.json({ 'refresh': 'false' });
+                    res.json({ 'refresh': false });
                 });
 
             },
@@ -66,7 +66,7 @@ export class LoginRoute extends BaseRoute {
                 };
                 request(options)
                     .then(fbRes => {
-                        res.json({'response' : 'ok'});
+                        res.json({ 'response': 'ok' });
                     });
 
                 //res.redirect('https://accounts.google.com/o/oauth2/revoke?token=' + token);
@@ -84,14 +84,14 @@ export class LoginRoute extends BaseRoute {
                 next();
             },
             passportManager.initFacebookAuth()
-            
+
         );
 
         router.get('/login/facebook/return',
             passportManager.completeFacebookAuth()
         );
 
-        router.get('/login/result',
+        router.get('/login/success',
             (req: Request, res: Response, next: NextFunction) => {
                 req.query["callback"] = req.session['callback'];
                 let isUserVerified = req.session['userId'] !== null;
@@ -103,6 +103,18 @@ export class LoginRoute extends BaseRoute {
                 res.cookie('google_access_token', req.session['google_access_token']);
                 res.cookie('google_refresh_token', req.session['google_refresh_token']);
                 res.cookie('lastAuthTime', req.session['lastAuthTime']);
+                res.cookie('userId', req.session['userId']);
+                res.redirect("/");
+            });
+
+        router.get('/login/fail',
+            (req: Request, res: Response, next: NextFunction) => {
+                req.query["callback"] = req.session['callback'];
+                let isUserVerified = req.session['userId'] !== null;
+
+                res.cookie('google_access_token', '');
+                res.cookie('google_refresh_token', '');
+                res.cookie('lastAuthTime', '');
                 res.cookie('userId', req.session['userId']);
                 res.redirect("/");
             });

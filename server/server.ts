@@ -185,7 +185,7 @@ export class Server {
                 console.error(err.stackTrace);
 
                 if (err.errorCode === 401) {
-                    res.render('unauthorized.html', { error: err })
+                    res.render('unauthorized', { error: err })
                 }
                 else if (err.errorCode === 'EBADCSRFTOKEN') {
                     res.status(403)
@@ -193,7 +193,7 @@ export class Server {
                 }
                 else {
                     res.status(500)
-                    res.render('error.html', { error: err })
+                    res.render('error', { error: err });
                 }
             }
         );

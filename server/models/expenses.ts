@@ -62,9 +62,7 @@ export class Expenses extends BaseEntity {
             
             pivotInfo: {
                 slice: {
-                    columns: [
-                       
-                    ],
+                    columns: [],
                     rows: [
                         {
                             dimensionName: "attr1",

@@ -82,6 +82,21 @@ export class SheetsManagementOperations {
     static createSpreadsheet(accessToken: string, userId, spreadsheetNames) {
         let accountSpreadsheets: Array<ISpreadsheet> = new Array<ISpreadsheet>();
         let spreadsheetReqDefinition = null;
+        let domainId = null;
+
+        fs.readFile(path.join(__dirname, '../json/domains.json'), 'utf8',
+            (error, data) => {
+                var domains = <Array<IDomain>>JSON.parse(data);
+                for (let domain of domains)
+                    if (domain.admin.accountName === userId && domain.isActive === true) {
+                        domainId = domain.domainId;
+                        break;
+                    }
+            });
+
+        if (domainId === null)
+            return Promise.reject({ error: 'Invalid domain!' });
+
         let data = fs.readFileSync(path.join(__dirname, '../json/base-spreadsheet.json'), 'utf8');
         spreadsheetReqDefinition = JSON.parse(data);
 
@@ -170,7 +185,7 @@ export class SheetsManagementOperations {
                                         }
                                     };
 
-                                   
+
                                     sheetReq.data[0].rowData[0].values.push(fieldDef);
 
                                     ti += 1;
@@ -283,7 +298,8 @@ export class SheetsManagementOperations {
                 const uuidv1 = require('uuid/v1');
 
                 let accountsSet: IAccountsSet = {
-                    id: uuidv1(),
+                    id : domainId,
+                    //domainId: domainId,
                     accounts: new Array<IAccount>(),
                 };
                 let folderId;
@@ -427,7 +443,8 @@ export class SheetsManagementOperations {
                     accountName: enrolledUser,
                     role: "writer",
                     accountDescr: "google-account",
-                    enrollmentDate: Date.now()
+                    enrollmentDate: Date.now(),
+                    domainId : accountsSet.id,
                 });
 
                 calls.push(DriverRoute.writeConfigFile(accessToken, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSet)));
@@ -491,7 +508,7 @@ export class SheetsManagementOperations {
 
                     let propInfo: IPropInfo = {
                         propName: sheet.fields[index],
-                        propCaption : (map_entity.caption_prefix === undefined ? '' : (map_entity.caption_prefix + '.')) + sheet.fields[index],
+                        propCaption: (map_entity.caption_prefix === undefined ? '' : (map_entity.caption_prefix + '.')) + sheet.fields[index],
                         cellName: cellName,
 
                         dataType: !sheet.fields_types || sheet.fields_types[index] === '' ? 's' : sheet.fields_types[index],
@@ -528,7 +545,7 @@ export class SheetsManagementOperations {
                     spreadsheetName: spreadsheet.spreadsheetName,
                     sheetName: sheet.sheetName,
                     entityName: entityName,
-                    isView : sheet.isView,
+                    isView: sheet.isView,
                     relations: map_relations
                 };
 

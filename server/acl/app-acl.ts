@@ -22,11 +22,11 @@ export class AppAcl {
                 this.acl.allow(obj['mapping']);
             });
 
-        fs.readFile(path.join(__dirname, '../json/admins.json'), 'utf8',
+        fs.readFile(path.join(__dirname, '../json/domains.json'), 'utf8',
             (error, data) => {
-                var accounts = <Array<IAccount>>JSON.parse(data);
-                for (let account of accounts)
-                    this.acl.addUserRoles(account.accountName, "proj-admin");
+                var domains = <Array<IDomain>>JSON.parse(data);
+                for (let domain of domains)
+                    this.acl.addUserRoles(domain.admin.accountName, "proj-admin");
             });
     }
 
@@ -56,6 +56,7 @@ export class AppAcl {
             //let status_timestamp: number = req.session['status_timestamp'];
             let f_acl = this.acl.middleware();
 
+            
             this.acl.hasRole(userId, 'proj-admin', (err, isAdmin) => {
                 if (isAdmin) {
                     f_acl(req, res, next);

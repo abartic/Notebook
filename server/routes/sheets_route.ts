@@ -68,6 +68,7 @@ export class SheetRoute extends BaseRoute {
                 const { spreadsheetNames } = req.body;
                 let accessToken = req.session['google_access_token'];
                 let userId = req.session['userId'];
+                
                 SheetsManagementOperations.createSpreadsheet(accessToken, userId, spreadsheetNames)
                     .then(result => {
                         res.send(result);

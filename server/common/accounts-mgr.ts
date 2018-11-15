@@ -59,7 +59,7 @@ export class AccountsMgr {
 
                 this.data.push({
                     token: token,
-                    fileId: accountsset.id,
+                    fileId :  accountsset.id,
                     data: accountsset,
                     timestamp: Date.now()
                 });
