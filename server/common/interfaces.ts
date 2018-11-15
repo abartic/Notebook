@@ -30,6 +30,13 @@ interface ISpreadsheetsSet
     accountsFileId : string,
     spreadsheets : Array<ISpreadsheet>
 }
+interface IDomain
+{
+    domainName : string;
+    domainId : string;
+    admin : IAccount;
+    isActive : boolean;
+}
 
 interface IAccount
 {
@@ -37,10 +44,12 @@ interface IAccount
     accountDescr : string,
     enrollmentDate : number,
     role : string,
+    domainId : string,
 }
 
 interface IAccountsSet
 {
     id : string,
+    //domainId : string,
     accounts : Array<IAccount>
 }

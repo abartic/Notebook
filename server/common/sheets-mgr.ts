@@ -6,6 +6,7 @@ export interface IMgrItem<T> {
     token: string;
     fileId: string;
     timestamp: number;
+
     data: T;
 }
 

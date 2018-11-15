@@ -26,6 +26,22 @@ import { AppAcl } from "../acl/app-acl";
 export class PassportManager {
 
 
+    private static checkDomainStatus (account, userId) {
+        let data = fs.readFileSync(path.join(__dirname, '../json/domains.json'), 'utf8')
+        var domains = <Array<IDomain>>JSON.parse(data);
+        for (let domain of domains) {
+            if (account) {
+                if (domain.domainId === account.domainId && domain.isActive === false) {
+                    return false;
+                }
+            }
+            else {
+                if (domain.admin.accountName === userId && domain.isActive === false) {
+                    return false;
+                }
+            }
+        }
+    }
 
     public config() {
 
@@ -38,7 +54,14 @@ export class PassportManager {
                 callBack(null, null);
 
             let userId = emailAccounts[0].valueOf();
-            let f_auth = () => {
+            let f_auth = (account: IAccount) => {
+
+                if (PassportManager.checkDomainStatus(account, userId) === false) {
+                    console.log('domain suspended');
+                    callBack('domain suspended', null);
+                    return;
+                }
+
                 if (profile.provider === "google") {
                     req.session['google_access_token'] = accessToken;
                     req.session['google_refresh_token'] = refreshToken;
@@ -49,10 +72,10 @@ export class PassportManager {
                 //req.session['status_timestamp'] = account.enrollmentDate;
                 callBack(null, profile);
             };
-            
+
             AppAcl.aclInstance.isAdmin(userId).then((isAdmin) => {
                 if (isAdmin) {
-                    f_auth();
+                    f_auth(null);
                 }
                 else {
                     SheetsMgr.uniqueInstance.get(accessToken)
@@ -63,7 +86,7 @@ export class PassportManager {
                                         for (let account of accountsSet.accounts) {
                                             if (emailAccounts.indexOf(account.accountName) > -1) {
                                                 if (account !== undefined) {
-                                                    f_auth();
+                                                    f_auth(account);
                                                     return;
                                                 }
                                             }
@@ -75,7 +98,7 @@ export class PassportManager {
                 }
             }).catch(e => {
                 console.log(e);
-                callBack(null, null);
+                callBack(e, null);
             });
 
 
@@ -116,6 +139,8 @@ export class PassportManager {
         refresh.use(googleStrategy);
     }
 
+   
+
     public init() {
         return passport.initialize();
     }
@@ -134,8 +159,8 @@ export class PassportManager {
     public completeFacebookAuth() {
         return passport.authenticate('facebook',
             {
-                failureRedirect: '/login/result/',
-                successRedirect: '/login/result/'
+                failureRedirect: '/login/fail/',
+                successRedirect: '/login/success/'
             }
         );
     }
@@ -164,27 +189,63 @@ export class PassportManager {
     public completeGoogleAuth() {
         return passport.authenticate('google',
             {
-                failureRedirect: '/login/result/',
-                successRedirect: '/login/result/'
+                failureRedirect: '/login/fail/',
+                successRedirect: '/login/success/'
             }
         );
     }
 
     public refreshGoogleAuth(req, resolve, reject) {
 
-        refresh.requestNewAccessToken('google',
-            req.session['google_refresh_token'],
-            function (err, accessToken, refreshToken) {
-                if (err !== null) {
-                    reject(err);
-                }
-                else {
-                    req.session['google_access_token'] = accessToken;
-                    req.session['lastAuthTime'] = Date.now().toString();
-                    resolve(accessToken);
-                }
+        let userId = req.session['userId'];
+        let accessToken = req.session['google_access_token'];
 
-            });
+        if (userId === undefined || accessToken === undefined)
+            return reject('domain suspended');
+
+        AppAcl.aclInstance.isAdmin(userId).then((isAdmin) => {
+            if (isAdmin) {
+                if (PassportManager.checkDomainStatus(null, userId) === false) {
+                    console.log('domain suspended');
+                    return reject('domain suspended');
+                }
+            }
+            else {
+                SheetsMgr.uniqueInstance.get(accessToken)
+                    .then((ss) => {
+                        if (ss && ss.accountsFileId) {
+                            AccountsMgr.uniqueInstance.getAccount(accessToken, ss.accountsFileId, userId)
+                                .then(account => {
+                                    if (PassportManager.checkDomainStatus(account, userId) === false) {
+                                        console.log('domain suspended');
+                                        return reject('domain suspended');
+                                    }
+                                });
+                        }
+                    });
+            }
+
+            refresh.requestNewAccessToken('google',
+                req.session['google_refresh_token'],
+                function (err, accessToken, refreshToken) {
+                    if (err !== null) {
+                        return reject(err);
+                    }
+                    else {
+                        req.session['google_access_token'] = accessToken;
+                        req.session['lastAuthTime'] = Date.now().toString();
+                        return resolve(accessToken);
+                    }
+
+                });
+
+        }).catch(e => {
+            console.log(e);
+            return reject(e);
+        });
+
+
+
 
     }
 }
