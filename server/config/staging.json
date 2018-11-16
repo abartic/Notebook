@@ -1,1 +1,32 @@
 
+{
+    "cookieSecret": "@@@@++++TellMe++++@@@@",
+    "dbConfig": {
+        "dialect": "postgres",
+        "database": "d65otjbphfbmhh",
+        "username": "mqdzozcxbiyamv",
+        "password": "5bf3cc051e66c5ee3a90ed7e19d7fafb26c8ddb1a1a725f2259727cd73a8f9ac",
+        "host": "ec2-107-21-99-176.compute-1.amazonaws.com",
+        "port": "5432",
+        "ssl": true
+
+    },
+    "facebookConfig": {
+
+        "clientID": "131341240768365",
+        "clientSecret": "4d66261d98ede8c014eb7cccec6ea639",
+        "facebookAuthCallbackURL": "https://evening-crag-83308.herokuapp.com/login/facebook/return",
+        "profileFields": ["id", "displayName", "photos", "email"],
+        "permissions": ["email", "user_posts", "user_status", "manage_pages", "pages_manage_cta", "read_insights"]
+    },
+
+    "googleConfig": {
+        "googleAuthCallbackURL": "https://evening-crag-83308.herokuapp.com/login/google/return",
+        "clientID": "533137817690-qtlt9od45g6l37oj8mts6v6b4feo1he0.apps.googleusercontent.com",
+        "clientSecret": "bEB8zIRM5U8ONLXSesgSp0J4"
+    },
+
+    "reportsConfig": {
+        "rootURL": "https://evening-crag-83308.herokuapp.com"
+
+    }
