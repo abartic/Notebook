@@ -6,5 +6,5 @@
         "accountDescr": "google-account",
         "enrollmentDate": 0
     },
-    "isActive": false
+    "isActive": true
 }]
