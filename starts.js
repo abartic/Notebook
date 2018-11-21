@@ -23,7 +23,7 @@ setInterval(function() {
         console.log('fake ping...');
     } else {
         console.log('real ping...');
-        https.get("https://testnode-alexis.herokuapp.com/sheetdata/spreadsheet-info");
+        https.get("https://notebook-ultimate.herokuapp.com/sheetdata/spreadsheet-info");
     }
 }, 1790000); // every 5 minutes (300000)
 

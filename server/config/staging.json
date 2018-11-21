@@ -1,4 +1,3 @@
-
 {
     "cookieSecret": "@@@@++++TellMe++++@@@@",
     "dbConfig": {
@@ -15,19 +14,19 @@
 
         "clientID": "131341240768365",
         "clientSecret": "4d66261d98ede8c014eb7cccec6ea639",
-        "facebookAuthCallbackURL": "https://evening-crag-83308.herokuapp.com/login/facebook/return",
+        "facebookAuthCallbackURL": "https://notebook-staging.herokuapp.com/login/facebook/return",
         "profileFields": ["id", "displayName", "photos", "email"],
         "permissions": ["email", "user_posts", "user_status", "manage_pages", "pages_manage_cta", "read_insights"]
     },
 
     "googleConfig": {
-        "googleAuthCallbackURL": "https://evening-crag-83308.herokuapp.com/login/google/return",
+        "googleAuthCallbackURL": "https://notebook-staging.herokuapp.com/login/google/return",
         "clientID": "533137817690-qtlt9od45g6l37oj8mts6v6b4feo1he0.apps.googleusercontent.com",
         "clientSecret": "bEB8zIRM5U8ONLXSesgSp0J4"
     },
 
     "reportsConfig": {
-        "rootURL": "https://evening-crag-83308.herokuapp.com"
+        "rootURL": "https://notebook-staging.herokuapp.com"
 
     }
 }
