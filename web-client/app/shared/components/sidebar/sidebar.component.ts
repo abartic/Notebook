@@ -33,7 +33,7 @@ export class SidebarComponent implements OnInit {
         this.onLoadMenu();
     }
 
-    private mainmenu = [];
+    public mainmenu = [];
     onLoadMenu() {
 
         this.httpCaller.callGet(

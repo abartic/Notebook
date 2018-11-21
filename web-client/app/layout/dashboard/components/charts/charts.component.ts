@@ -19,7 +19,7 @@ export class ChartsComponent implements OnInit {
 
     }
 
-    private rows = [];
+    public rows = [];
 
     public lineChartColors: Array<any> = [
         {
