@@ -45,7 +45,12 @@ export class SheetRoute extends BaseRoute {
             publicAccessEnabled: true,
             rootUrlForLinks: Config.get<string>("reportsConfig.rootURL"),
         }))
-        jsreport.init().then(() => console.log('js reports initiated.'));
+        jsreport.init()
+            .then(() => console.log('js reports initiated.'))
+            .catch(err => {
+                console.log('js reports NOT initiated.')
+                console.log(err);
+            });
 
         router.post('/sheetdata/delete-metadata',
             AppAcl.Instance.getAclRequest(),
@@ -57,7 +62,7 @@ export class SheetRoute extends BaseRoute {
                     .then(result => {
                         res.send(result);
                     }).catch(err => {
-                        res.send(err);
+                        res.send({ error: err });
                     })
 
             });
@@ -68,12 +73,12 @@ export class SheetRoute extends BaseRoute {
                 const { spreadsheetNames } = req.body;
                 let accessToken = req.session['google_access_token'];
                 let userId = req.session['userId'];
-                
+
                 SheetsManagementOperations.createSpreadsheet(accessToken, userId, spreadsheetNames)
                     .then(result => {
                         res.send(result);
                     }).catch(err => {
-                        res.send(err);
+                        res.send({ error: err });
                     })
 
             });
@@ -89,7 +94,7 @@ export class SheetRoute extends BaseRoute {
                     .then(result => {
                         res.send(result);
                     }).catch(err => {
-                        res.send(err);
+                        res.send({ error: err });
                     })
             });
 
@@ -101,7 +106,7 @@ export class SheetRoute extends BaseRoute {
                 SheetsManagementOperations.getSpreadsheetInfo(accessToken, spreadsheetName, sheetName, entityName).then(result => {
                     res.send(result);
                 }).catch(err => {
-                    res.send(err);
+                    res.send({ error: err });
                 })
             });
 
@@ -165,11 +170,11 @@ export class SheetRoute extends BaseRoute {
                                 }
                             });
 
-                    }).catch(r => {
-                        if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                    }).catch(err => {
+                        if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                             res.send({ error: { code: 401 } });
                         else
-                            res.send(r);
+                            res.send({ error: err });
                     });
             });
         router.post('/sheetdata/create',
@@ -177,18 +182,26 @@ export class SheetRoute extends BaseRoute {
 
                 let entitiesPackage = <IEntitiesPackage>req.body;
                 let accessToken = req.session['google_access_token'];
-                SheetsCrudOperations.append(accessToken, entitiesPackage).then(result => {
-                    res.send(result);
-                });
+                SheetsCrudOperations.append(accessToken, entitiesPackage)
+                    .then(result => {
+                        res.send(result);
+                    })
+                    .catch(err => {
+                        res.send({ error: err });
+                    });
             });
 
         router.post('/sheetdata/delete',
             (req: Request, res: Response, next: NextFunction) => {
                 let entitiesPackage = <IEntitiesPackage>req.body;
                 let accessToken = req.session['google_access_token'];
-                SheetsCrudOperations.clean(accessToken, entitiesPackage).then(result => {
-                    res.send(result);
-                });
+                SheetsCrudOperations.clean(accessToken, entitiesPackage)
+                    .then(result => {
+                        res.send(result);
+                    })
+                    .catch(err => {
+                        res.send({ error: err });
+                    });
             });
 
 
@@ -196,9 +209,13 @@ export class SheetRoute extends BaseRoute {
             (req: Request, res: Response, next: NextFunction) => {
                 let entitiesPackage = <IEntitiesPackage>req.body;
                 let accessToken = req.session['google_access_token'];
-                SheetsCrudOperations.update(accessToken, entitiesPackage).then(result => {
-                    res.send(result);
-                });
+                SheetsCrudOperations.update(accessToken, entitiesPackage)
+                    .then(result => {
+                        res.send(result);
+                    })
+                    .catch(err => {
+                        res.send({ error: err });
+                    });
 
             });
 
@@ -212,7 +229,7 @@ export class SheetRoute extends BaseRoute {
                     .then(result => {
                         res.send(result);
                     }).catch(err => {
-                        res.send(err);
+                        res.send({ error: err });
                     });
             });
 
@@ -225,7 +242,7 @@ export class SheetRoute extends BaseRoute {
                     .then(result => {
                         res.send(result);
                     }).catch(err => {
-                        res.send(err);
+                        res.send({ error: err });
                     });
             });
 
@@ -238,7 +255,8 @@ export class SheetRoute extends BaseRoute {
                 let reportType = entityPackage['reportType'];
 
 
-                SheetsSelectOperations.getCompany(accessToken).then(r => {
+                SheetsSelectOperations.getCompany(accessToken)
+                .then(r => {
 
                     let company = r['rows'][0] as Company;
                     entityPackage.values['company'] = company;
@@ -259,11 +277,11 @@ export class SheetRoute extends BaseRoute {
                             res.setHeader('Content-Type', 'application/pdf');
                             out.stream.pipe(res);
 
-                        }).catch(r => {
-                            if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                        }).catch(err => {
+                            if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                                 res.send({ error: { code: 401 } });
                             else
-                                res.send(r);
+                                res.send({ error: err });
                         });
                     };
                     if (!company.custom_invoice_report) {
@@ -274,14 +292,22 @@ export class SheetRoute extends BaseRoute {
                     }
                     else {
                         let invoice_files = company.custom_invoice_report.split(';')
-                        DriverRoute.getConfigFile<string>(accessToken, invoice_files[0], eFileOperationType.read).then(c => {
-                            DriverRoute.getConfigFile<string>(accessToken, invoice_files[1], eFileOperationType.read).then(h => {
-                                return renderer(c, h);
+                        DriverRoute.getConfigFile<string>(accessToken, invoice_files[0], eFileOperationType.read)
+                            .then(c => {
+                                DriverRoute.getConfigFile<string>(accessToken, invoice_files[1], eFileOperationType.read).then(h => {
+                                    return renderer(c, h);
+                                })
+
+                            })
+                            .catch(err => {
+                                res.send({ error: err });
                             });
-                        })
 
                     }
 
+                })
+                .catch(err => {
+                    res.send({ error: err });
                 });
 
             });

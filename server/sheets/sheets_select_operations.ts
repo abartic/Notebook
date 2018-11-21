@@ -148,11 +148,11 @@ export class SheetsSelectOperations {
                         });
                 });
 
-            }).catch(r => {
-                if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+            }).catch(err => {
+                if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject(r);
+                    return Promise.reject({error : err});
             });
     }
 }

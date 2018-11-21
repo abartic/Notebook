@@ -5,7 +5,7 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
 @SheetInfo("partners", "partners", "Prospect", "code_part") export
     class Prospect extends BaseEntity {
 
-    
+
 
     public code_part: string;
 
@@ -37,27 +37,12 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
 
     public contact_relation: (Contact)[];
 
-    public getShellInfo(): IShellInfo {
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
-                },
-                static_filter: [{ key: 'type_partner', value: 'PRP' }]
-            },
-            properties: [],
-            commands: {
-                add: [
-                    'add_meeting', 'show_calendar'
-                ],
-                remove: []
-            },
-            report: {
-                preloads: []
-            }
-
-        };
+    public adjustShellInfo() {
+        this.shellInfo.filter.static_filter = [{ key: 'type_partner', value: 'PRP' }];
+        this.shellInfo.commands = this.shellInfo.commands.concat([
+            { caption: 'New meeting', handler: 'onAddMeeting' },
+            { caption: 'Calendar', handler: 'onShowCalendar' },
+        ]);
     }
 
     public onNew(parent: BaseEntity) {

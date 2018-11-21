@@ -76,13 +76,16 @@ export class SheetsManagementOperations {
                     Promise.resolve({});
                 }
             })
+            .catch(err => {
+                Promise.reject({ error: err});
+            });
 
     }
 
     static createSpreadsheet(accessToken: string, userId, spreadsheetNames) {
         let accountSpreadsheets: Array<ISpreadsheet> = new Array<ISpreadsheet>();
         let spreadsheetReqDefinition = null;
-        let domainId = null;
+        let domainId = null, domainName = null;
 
         fs.readFile(path.join(__dirname, '../json/domains.json'), 'utf8',
             (error, data) => {
@@ -90,6 +93,7 @@ export class SheetsManagementOperations {
                 for (let domain of domains)
                     if (domain.admin.accountName === userId && domain.isActive === true) {
                         domainId = domain.domainId;
+                        domainName = domain.domainName;
                         break;
                     }
             });
@@ -127,12 +131,10 @@ export class SheetsManagementOperations {
 
                         for (let sheet of spreadsheetDefinition['sheets']) {
 
-
-
                             let sheetReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.sheet));
                             sheetReq.properties.title = sheet.sheetName;
                             spreadsheetReq.sheets.push(sheetReq);
-
+                            let uniqueRecord = sheet.sheetType === 'uniqueRecord';
 
                             if (sheet.formula) {
                                 sheetReq.data[0].rowData[0].values.push({
@@ -140,6 +142,8 @@ export class SheetsManagementOperations {
                                         "formulaValue": '=' + sheet.formula
                                     }
                                 });
+
+
                             }
                             else {
                                 sheetReq.properties.gridProperties.columnCount = 2 + sheet.fields.length;
@@ -155,8 +159,6 @@ export class SheetsManagementOperations {
                                     }
                                 });
 
-
-
                                 sheetReq.data[0].rowData[0].values.push({
                                     "userEnteredValue": {
                                         "stringValue": 'uid'
@@ -168,7 +170,31 @@ export class SheetsManagementOperations {
                                     }
                                 });
 
-
+                                if (uniqueRecord) {
+                                    sheetReq.data[0].rowData.push({
+                                        "values": []
+                                    });
+                                    sheetReq.data[0].rowData[1].values.push({
+                                        "userEnteredValue": {
+                                            "stringValue": '=row()'
+                                        },
+                                        "userEnteredFormat": {
+                                            "numberFormat": {
+                                                "type": "TEXT"
+                                            }
+                                        }
+                                    });
+                                    sheetReq.data[0].rowData[1].values.push({
+                                        "userEnteredValue": {
+                                            "numberValue": '1'
+                                        },
+                                        "userEnteredFormat": {
+                                            "numberFormat": {
+                                                "type": "TEXT"
+                                            }
+                                        }
+                                    });
+                                }
 
                                 let ti = 0;
                                 for (const field of sheet.fields) {
@@ -298,8 +324,9 @@ export class SheetsManagementOperations {
                 const uuidv1 = require('uuid/v1');
 
                 let accountsSet: IAccountsSet = {
-                    id : domainId,
-                    //domainId: domainId,
+                    //id : domainId,
+                    domainId: domainId,
+                    domainName: domainName,
                     accounts: new Array<IAccount>(),
                 };
                 let folderId;
@@ -334,11 +361,11 @@ export class SheetsManagementOperations {
                         return Promise.reject({ error: null });
                     });
             })
-            .catch(r => {
-                if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+            .catch(err => {
+                if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject(r);
+                    return Promise.reject({error: err});
             })
 
     }
@@ -444,18 +471,19 @@ export class SheetsManagementOperations {
                     role: "writer",
                     accountDescr: "google-account",
                     enrollmentDate: Date.now(),
-                    domainId : accountsSet.id,
+                    domainId: accountsSet.domainId,
+                    domainName: accountsSet.domainName
                 });
 
                 calls.push(DriverRoute.writeConfigFile(accessToken, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSet)));
                 return Promise.all(calls);
             })
             .then(r => { return Promise.reject({ error: null }); })
-            .catch(r => {
-                if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+            .catch(err => {
+                if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.resolve(r);
+                    return Promise.resolve({error: err});
             });
 
     }
@@ -549,11 +577,11 @@ export class SheetsManagementOperations {
                     relations: map_relations
                 };
 
-            }).catch(r => {
-                if (r && r.message && r.message.indexOf('No access, refresh token or API key is set.') >= 0)
+            }).catch(err => {
+                if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject(r);
+                    return Promise.reject({error :err});
             });
 
     }

@@ -1,4 +1,8 @@
-<table class="table table-hover table-striped table-bordered table-md">
+<div *ngIf="rows.length === 0">
+    <label><i>no data available</i></label>
+</div>
+<table *ngIf="rows.length !== 0" class="table table-hover table-striped table-bordered table-md">
+
     <thead class="thead-light">
         <tr>
             <th>code_art</th>
@@ -7,6 +11,7 @@
         </tr>
     </thead>
     <tbody>
+
         <tr *ngFor="let row of rows;">
             <td>{{row['code_art']}}</td>
             <td>{{row['code_store']}}</td>

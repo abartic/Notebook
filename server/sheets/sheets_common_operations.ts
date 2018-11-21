@@ -52,6 +52,9 @@ export class SheetsCommonOperations {
                         else {
                             return result(true);
                         }
+                    })
+                    .catch(err => {
+                        result(false);
                     });
             };
             return functionToRetry();

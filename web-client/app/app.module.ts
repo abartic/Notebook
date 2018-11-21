@@ -1,3 +1,4 @@
+import { UserSessionService } from './services/userSessionService';
 
 
 import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
@@ -126,6 +127,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     CookieService,
     HttpCallerService,
     CheckLoginService,
+    UserSessionService,
     //Location, 
     //{provide: LocationStrategy, useClass: HashLocationStrategy}
   ],

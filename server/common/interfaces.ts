@@ -12,6 +12,7 @@ interface ISheet
     sheetName : string;
     sheetID : string;
     fields : string[],
+    sheetType? : string;
     fields_types : string[],
     hidden_fields : string[],
     entities: IEntity[];
@@ -45,11 +46,13 @@ interface IAccount
     enrollmentDate : number,
     role : string,
     domainId : string,
+    domainName : string,
 }
 
 interface IAccountsSet
 {
-    id : string,
-    //domainId : string,
+    //id : string,
+    domainId : string,
+    domainName : string,
     accounts : Array<IAccount>
 }

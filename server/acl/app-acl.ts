@@ -10,9 +10,9 @@ import { AccountsMgr } from '../common/accounts-mgr';
 export class AppAcl {
 
     private acl = new Acl(new Acl.memoryBackend());
-    
 
-    
+
+
 
     private constructor() {
 
@@ -56,7 +56,7 @@ export class AppAcl {
             //let status_timestamp: number = req.session['status_timestamp'];
             let f_acl = this.acl.middleware();
 
-            
+
             this.acl.hasRole(userId, 'proj-admin', (err, isAdmin) => {
                 if (isAdmin) {
                     f_acl(req, res, next);
@@ -85,6 +85,9 @@ export class AppAcl {
                                 })
                             });
                         })
+                        .catch(err => {
+                            return Promise.reject({ error: err });
+                        });
                 }
             });
         };

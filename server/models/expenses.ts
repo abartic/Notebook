@@ -33,70 +33,58 @@ export class Expenses extends BaseEntity {
     public expenseline_relation: (ExpenseLine)[];
 
 
-    
+
     public onNew(parent: BaseEntity) {
         super.onNew(parent);
-        
+
         this.balance = 0;
         this.type_doc = eTypeBudget.Expenses;
     }
 
-    public getShellInfo(): IShellInfo {
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
-                },
-                static_filter: [{ key: 'type_doc', value: eTypeBudget.Expenses }]
-            },
-            properties: [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }],
-            commands: {
-                add: ['print'],
-                remove: []
-            },
-
-            report: {
-                preloads: []
-            },
-            
-            pivotInfo: {
-                slice: {
-                    columns: [],
-                    rows: [
-                        {
-                            dimensionName: "attr1",
-                            caption: "Chapter",
-                            uniqueName: "attr1",
-                        },
-                        {
-                            dimensionName: "attr2",
-                            caption: "Sub-chapter",
-                            uniqueName: "attr2",
-                        },
-                        {
-                            dimensionName: "attr3",
-                            caption: "Title",
-                            uniqueName: "attr3",
-                        }
-                    ],
-                    measures: [
-                        {
-                            uniqueName: "debit",
-                            caption: "Value",
-                            aggregation: "SUM"
-                        }
-
-
-                    ],
-                    expands: {
-                        expandAll: true,
-
+    public adjustShellInfo() {
+        this.shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Expenses }];
+        this.shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
+        this.shellInfo.filter.commands = [
+            { caption: 'Apply', handler: 'onApply', primary: true },
+            { caption: 'Clear', handler: 'onClear' },
+            { caption: 'Details', handler: 'onDetailsFilter' },
+            { caption: 'New', handler: 'onNew' },
+        ];
+        this.shellInfo.pivotInfo = {
+            slice: {
+                columns: [],
+                rows: [
+                    {
+                        dimensionName: "attr1",
+                        caption: "Chapter",
+                        uniqueName: "attr1",
+                    },
+                    {
+                        dimensionName: "attr2",
+                        caption: "Sub-chapter",
+                        uniqueName: "attr2",
+                    },
+                    {
+                        dimensionName: "attr3",
+                        caption: "Title",
+                        uniqueName: "attr3",
                     }
+                ],
+                measures: [
+                    {
+                        uniqueName: "debit",
+                        caption: "Value",
+                        aggregation: "SUM"
+                    }
+
+
+                ],
+                expands: {
+                    expandAll: true,
+
                 }
             }
-
-        };
+        }
     }
 
     public getAdjustedShellInfoSlice() {
@@ -104,7 +92,7 @@ export class Expenses extends BaseEntity {
             return [];
 
         let fields = this.pivot_by.split(',').map(f => f.trim());
-        let slice = this.getShellInfo().pivotInfo.slice;
+        let slice = this.shellInfo.pivotInfo.slice;
         let row_delete = [];
         for (let row of slice.rows) {
             let index = fields.findIndex(f => f === row.uniqueName);
@@ -187,8 +175,7 @@ export class Expenses extends BaseEntity {
             this.pivot_by = this.pivot_by.slice(0, this.pivot_by.length - 1);
     }
 
-    public onChildrenUpdate()
-    {
+    public onChildrenUpdate() {
 
         if (this.expenseline_relation) {
             this.balance = 0;

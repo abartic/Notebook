@@ -10,7 +10,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModelFactory } from '../../../../server/models/modelFactory';
 import { CookieService } from 'ngx-cookie-service';
-import { UserSession } from '../../app.component';
 import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
 
 
@@ -46,8 +45,8 @@ export class FormComponent implements OnInit {
             this.router.navigate(['/login']);
 
         this.packageCtrl = <IPackageController>data['packCtrl'];
-        this.packageCtrl.userSession = new UserSession();
-        this.packageCtrl.userSession.Username = this.cookieService.get("userId")
+        // this.packageCtrl.userSession = new UserSession();
+        // this.packageCtrl.userSession.Username = this.cookieService.get("userId")
       });
   }
 

@@ -17,7 +17,7 @@ import { ISelectObj } from '../../../../server/common/select-obj';
 import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
 import { Observable } from 'rxjs/Observable';
 import { CalendarDialogWnd } from '../../dialog/calendarDialog/calendarDialogWnd';
-import { UserSession } from '../../app.component';
+//import { UserSession } from '../../app.component';
 import { eFieldDataType } from '../../../../server/common/enums';
 
 
@@ -50,7 +50,7 @@ export interface IPackageController {
 
     onPrint();
 
-    onCustomCommand(command);
+    onShowCalendar();
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo);
 
@@ -72,7 +72,7 @@ export interface IPackageController {
 
     isDisabled(entity, property);
 
-    userSession: UserSession;
+    //userSession: UserSession;
 
     setPivotData(cb: (data: Array<any>, slice) => void);
 
@@ -80,7 +80,7 @@ export interface IPackageController {
 }
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
-    userSession: UserSession;
+    //: UserSession;
 
     public package: Package<T>;
     public package_initialized: boolean = undefined;
@@ -135,7 +135,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     this.package.filter_details[relation] = entity_relation;
                 }
                 this.package_initialized = true;
+                this.onViewLoaded();
+            })
+            .catch(err => {
+                console.log(err);
             });
+    }
+
+    private onViewLoaded() {
+        if (this.package.filter.shellInfo.filter.autoApply === true)
+            this.onApply();
     }
 
     private readEntityInfo(entity: BaseEntity) {
@@ -188,6 +197,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     onApply() {
         this.package.row_current_page = 0;
         this.executeFilter(true);
+    }
+
+    onDetailsFilter() {
+        this.package.isDetailsFilterCollapsed = !this.package.isDetailsFilterCollapsed;
     }
 
     onSelectPage(index) {
@@ -764,7 +777,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (this.isVisible(p, undefined, this.package.filter, true))
                     this.filter_properties.push(p);
             }
-            for (let p of this.package.filter.getShellInfo().filter.fields.add) {
+            for (let p of this.package.filter.shellInfo.filter.fields.add) {
                 p.isCustom = true;
                 this.filter_properties.push(p);
 
@@ -784,7 +797,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     //     if (this.entity_properties.length == 0) {
     //         this.entity_properties.concat(this.package.entity.properties)
 
-    //         for (let prop of this.package.entity.getShellInfo().properties) {
+    //         for (let prop of this.package.entity.shellInfo.properties) {
     //             this.entity_properties.push(<IPropInfo>{
     //                 propName: prop.name,
     //                 path: null,
@@ -1094,14 +1107,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             this.package.validations.Remove(entity.uid + propName)
     }
 
-    onPrint() {
+    public onPrint() {
         let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
         pack['reportType'] = this.package.entity.entityName.toLocaleLowerCase();
 
         pack.values = this.package.entity;
         let preloadObs = new Observable((observer) => {
 
-            let packs = this.package.entity.getShellInfo().report.preloads;
+            let packs = this.package.entity.shellInfo.report.preloads;
             let index = 0;
 
             if (packs.length === 0) {
@@ -1170,20 +1183,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     }
 
-    public onCustomCommand(command) {
-        if (command === 'show_calendar') {
-            window.open("https://calendar.google.com/calendar");
 
-        } else if (command === 'print') {
-            this.onPrint();
-        }
+    public onShowCalendar() {
+        window.open("https://calendar.google.com/calendar");
     }
 
     public setPivotData(cb: (data: Array<any>, slice) => void) {
 
         setTimeout(() => {
             while (!this.package.entity['budgetline_relation']) { }
-            cb(this.package.entity['budgetline_relation'], this.package.entity.getShellInfo().pivotInfo);
+            cb(this.package.entity['budgetline_relation'], this.package.entity.shellInfo.pivotInfo);
 
         }, 1000);
 

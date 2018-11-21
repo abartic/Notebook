@@ -56,19 +56,19 @@ export interface IPropInfo {
 }
 
 export interface IShellInfo {
-    filter: {
-        fields: {
+    filter?: {
+        fields?: {
             add: IPropInfo[],
             remove: string[]
         },
-        static_filter: { key: string, value: string }[]
+        static_filter?: { key: string, value: string }[],
+        commands?: { caption: string, handler: string, primary? : boolean, isDisabled? : boolean }[],
+        autoApply? : boolean,
+        hasDetails? : boolean
     },
-    properties: { name: string, datatype: string, isReadOnly: boolean }[],
-    commands: {
-        add: string[],
-        remove: string[]
-    },
-    report: {
+    properties?: { name: string, datatype: string, isReadOnly: boolean }[],
+    commands?: { caption: string, handler: string, primary? : boolean, isDisabled? : boolean }[],
+    report?: {
         preloads: { entity_name: string, ukey_prop_name: string, cb: (p) => void }[]
     },
     pivotInfo?: any
@@ -503,8 +503,8 @@ export class BaseEntity {
 
         query = query + where + where_keys;
 
-        if (entity.getShellInfo().filter && entity.getShellInfo().filter.static_filter) {
-            let static_where = entity.getStaticFilter(entity.getShellInfo().filter.static_filter);
+        if (entity.shellInfo.filter && entity.shellInfo.filter.static_filter) {
+            let static_where = entity.getStaticFilter(entity.shellInfo.filter.static_filter);
             if (static_where)
                 query = query + ' and ' + static_where;
         }
@@ -635,25 +635,45 @@ export class BaseEntity {
         return where;
     }
 
-    public getShellInfo(): IShellInfo {
+    protected _shellInfo = null;
 
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
+    public get shellInfo(): IShellInfo {
+
+        if (!this._shellInfo)
+        {
+            this._shellInfo = {
+                filter: {
+                    fields: {
+                        add: [],
+                        remove: []
+                    },
+                    static_filter: [],
+                    commands: [
+                        { caption: 'Apply', handler: 'onApply', primary : true },
+                        { caption: 'Clear', handler: 'onClear' },
+                        { caption: 'Details', handler: 'onDetailsFilter', isDisabled : true },
+                        { caption: 'New', handler: 'onNew' },
+                    ]
                 },
-                static_filter: []
-            },
-            properties: [],
-            commands: {
-                add: [],
-                remove: []
-            },
-            report: {
-                preloads: []
-            }
-        };
+                properties: [],
+                commands: [
+                    { caption: 'New', handler: 'onNew', primary : true  },
+                    { caption: 'Save', handler: 'onSave' },
+                    { caption: 'Delete', handler: 'onDelete' },
+                    { caption: 'Undo', handler: 'onUndo' }
+                ],
+                report: {
+                    preloads: []
+                }
+            };
+            this.adjustShellInfo();
+        }
+        return this._shellInfo;
+    }
+
+    public adjustShellInfo()
+    {
+
     }
 
     public onPrepareSave() { }

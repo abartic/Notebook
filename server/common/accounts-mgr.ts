@@ -59,7 +59,7 @@ export class AccountsMgr {
 
                 this.data.push({
                     token: token,
-                    fileId :  accountsset.id,
+                    fileId :  accountsset.domainId,
                     data: accountsset,
                     timestamp: Date.now()
                 });
@@ -87,12 +87,15 @@ export class AccountsMgr {
             return Promise.resolve(account);
         }
         else {
-            return this.readAccounts(token, accountsFileId).then((accountsSet) => {
+            return this.readAccounts(token, accountsFileId)
+            .then((accountsSet) => {
                 if (!accountsSet)
                     return Promise.resolve(null);
 
                 let account = this.getAccountFromCache(token, userId);
                 return Promise.resolve(account);
+            }).catch(err => {
+                return Promise.reject({ error: err });
             });
         }
     }

@@ -64,38 +64,30 @@ export class Invoice extends BaseEntity {
         this.invoiceline_relation.map(i => this.debit_value += i.price_out * i.qty_out);
     }
 
-    public getShellInfo(): IShellInfo {
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
-                },
-                static_filter: [{ key: 'type_movement', value: eTypeMovement.StocksOutput }]
-            },
-            properties: [],
-            commands: {
-                add: ['print'],
-                remove: []
-            },
-            report: {
-                preloads: [
-                    {
-                        entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                            this['partner_lookup_entity'] = p;
-                        }
-                    },
-
-                    {
-                        entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                            this['partner_address_lookup_entity'] = pa;
-                        }
+    public adjustShellInfo() {
+        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksOutput }];
+        this.shellInfo.filter.commands[2].isDisabled = true; 
+        this.shellInfo.commands = this.shellInfo.commands.concat([
+            { caption: 'Print', handler: 'onPrint' },
+        ]);
+        this.shellInfo.report = {
+            preloads: [
+                {
+                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
+                        this['partner_lookup_entity'] = p;
                     }
-                ]
-            }
+                },
 
+                {
+                    entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
+                        this['partner_address_lookup_entity'] = pa;
+                    }
+                }
+            ]
         };
     }
+
+
 
     public onNew(parent: BaseEntity) {
         super.onNew(parent);
@@ -107,5 +99,5 @@ export class Invoice extends BaseEntity {
         this.type_movement = eTypeMovement.StocksOutput;
     }
 
-   
+
 }

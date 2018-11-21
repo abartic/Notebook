@@ -15,27 +15,8 @@ export class ArticleInventory extends BaseEntity {
 
     public qty_net: number;
 
-    public getShellInfo(): IShellInfo {
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
-                },
-                static_filter: []
-            },
-            properties: [
-                
-            ],
-            commands: {
-                add: [],
-                remove: []
-            },
-            report: {
-                preloads: []
-            }
-
-        };
+    public adjustShellInfo() {
+        this.shellInfo.commands = [];
     }
 
 }

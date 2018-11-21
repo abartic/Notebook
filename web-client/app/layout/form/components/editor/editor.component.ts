@@ -53,8 +53,8 @@ export class EditorComponent implements OnInit {
     this.packageCtrl.onPrint();
   }
 
-  onCustomCommand(command) {
-    this.packageCtrl.onCustomCommand(command);
+  onShowCalenar() {
+    this.packageCtrl.onShowCalendar();
   }
 }
 

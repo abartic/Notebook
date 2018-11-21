@@ -19,7 +19,7 @@ export class ChartsComponent implements OnInit {
 
     }
 
-    private rows;
+    private rows = [];
 
     public lineChartColors: Array<any> = [
         {
@@ -53,17 +53,17 @@ export class ChartsComponent implements OnInit {
 
     public lineChartData: Array<any> = [
         { data: [], label: '6 Months Sales' },
-        
+
     ];
     public lineChartLabels: Array<any> = [
-        
+
     ];
 
     public lineChartOptions: any = {
         responsive: true
     };
 
-    
+
     ngOnInit() {
         var dateMinus6Months = new Date(Date.now());
         dateMinus6Months.setMonth(dateMinus6Months.getMonth() - 6);
@@ -90,7 +90,7 @@ export class ChartsComponent implements OnInit {
                 this.rows.map(r => this.lineChartData[0]['data'].push(r['value']));
             },
             err => {
-
+                this.rows = [];
             });
     }
 }

@@ -3,22 +3,18 @@
 
         <div class="btn-toolbar" role="toolbar">
             <div class="btn-group mr-2" role="group">
-                <button type="button" (click)="onNew()" class="btn btn-secondary">New</button>
-                <button type="button" (click)="onSave()" class="btn btn-primary">Save</button>
-                <button type="button" (click)="onDelete()" class="btn btn-secondary">Delete</button>
-                <button type="button" (click)="onUndo()" class="btn btn-secondary">Undo</button>
-                <!-- <button type="button" (click)="onPrint()" class="btn btn-secondary">Print</button> -->
+                <button *ngFor="let command of (package.filter.shellInfo.commands)" type="button" (click)="packageCtrl[command.handler]()" class="btn btn-secondary" [class]="command.primary ? 'btn btn-primary' : 'btn btn-secondary'">{{command.caption | translate}}</button>
             </div>
         </div>
 
-        <div ngbDropdown class="d-inline-block">
-            <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle *ngIf="package.entity.getShellInfo().commands.add.length>0">Custom
+        <!-- <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle *ngIf="package.entity.shellInfo.commands.add.length>0">Custom
         actions</button>
-            <div ngbDropdownMenu aria-labelledby="dropdownBasic1" *ngFor="let command of (package.entity.getShellInfo().commands.add)">
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1" *ngFor="let command of (package.entity.shellInfo.commands.add)">
                 <button class="dropdown-item" (click)="onCustomCommand(command)">{{command}}</button>
 
             </div>
-        </div>
+        </div> -->
     </div>
 
     <br>
@@ -28,7 +24,7 @@
 
             <div *ngFor="let property of (package.entity.properties)">
                 <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
-                    <label for="example-text-input" class="col-2 col-form-label">{{ property.propCaption | translate }}</label>
+                    <label for="example-text-input" class="col-4 col-form-label">{{ property.propCaption | translate }}</label>
                     <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property)">
                         <div class="input-group datepicker-input" *ngSwitchCase="'date'">
                             <input class="form-control" [readonly]="property.isReadOnly" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity, property)" #d="ngbDatepicker" placement="top">
@@ -72,9 +68,9 @@
     </div>
 
     <div *ngFor="let relation of (package.entity.entityInfo.relations)">
-        <form-editor-relation [package]="package" *ngIf="!package.entity.getShellInfo().pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
+        <form-editor-relation [package]="package" *ngIf="!package.entity.shellInfo.pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
 
-        <form-editor-pivot-relation *ngIf="package.entity.getShellInfo().pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']">
+        <form-editor-pivot-relation *ngIf="package.entity.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']">
 
         </form-editor-pivot-relation>
     </div>

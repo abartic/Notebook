@@ -1,5 +1,8 @@
-<div style="display: block;" *ngIf="lineChartLabels.length > 0">
+<div *ngIf="rows.length === 0">
+    <label><i>no data available</i></label>
+</div>
+<div *ngIf="rows.length !== 0 && lineChartLabels.length > 0" style="display: block;">
 
     <canvas baseChart height="150" [datasets]="lineChartData" [options]="lineChartOptions" [labels]="lineChartLabels" [colors]="lineChartColors" legend="true" chartType="line">
-    </canvas>
+  </canvas>
 </div>

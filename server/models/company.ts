@@ -1,5 +1,5 @@
 
-import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
 
 @SheetInfo("settings", "companies", "Company", "code_comp")
 export class Company extends BaseEntity {
@@ -43,4 +43,14 @@ export class Company extends BaseEntity {
     public IBAN_bank : string;
 
     public custom_invoice_report : string;
+
+    public adjustShellInfo() {
+        this.shellInfo.filter.autoApply = true;
+        this.shellInfo.filter.commands = [];
+        this.shellInfo.commands = [
+            { caption: 'Save', handler: 'onSave', primary : true },
+            { caption: 'Undo', handler: 'onUndo' }
+        ];
+    }
+    
 }

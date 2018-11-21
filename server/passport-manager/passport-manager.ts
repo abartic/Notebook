@@ -26,21 +26,22 @@ import { AppAcl } from "../acl/app-acl";
 export class PassportManager {
 
 
-    private static checkDomainStatus (account, userId) {
+    private static getDomain (account, userId) {
         let data = fs.readFileSync(path.join(__dirname, '../json/domains.json'), 'utf8')
         var domains = <Array<IDomain>>JSON.parse(data);
         for (let domain of domains) {
             if (account) {
-                if (domain.domainId === account.domainId && domain.isActive === false) {
-                    return false;
+                if (domain.domainId === account.domainId) {
+                    return domain;
                 }
             }
             else {
-                if (domain.admin.accountName === userId && domain.isActive === false) {
-                    return false;
+                if (domain.admin.accountName === userId){
+                    return domain;
                 }
             }
         }
+        return null;
     }
 
     public config() {
@@ -56,9 +57,10 @@ export class PassportManager {
             let userId = emailAccounts[0].valueOf();
             let f_auth = (account: IAccount) => {
 
-                if (PassportManager.checkDomainStatus(account, userId) === false) {
+                let domain = PassportManager.getDomain(account, userId);
+                if (domain === null || domain.isActive === false) {
                     console.log('domain suspended');
-                    callBack('domain suspended', null);
+                    callBack('domain missing or suspended', null);
                     return;
                 }
 
@@ -69,7 +71,8 @@ export class PassportManager {
 
                 req.session['userId'] = profile.emails[0].value;
                 req.session['lastAuthTime'] = Date.now().toString();
-                //req.session['status_timestamp'] = account.enrollmentDate;
+                req.session['domainId'] = domain.domainId;
+                req.session['domainName'] = domain.domainName;
                 callBack(null, profile);
             };
 
@@ -205,7 +208,8 @@ export class PassportManager {
 
         AppAcl.aclInstance.isAdmin(userId).then((isAdmin) => {
             if (isAdmin) {
-                if (PassportManager.checkDomainStatus(null, userId) === false) {
+                let domain = PassportManager.getDomain(null, userId);
+                if (domain === null || domain.isActive === false) {
                     console.log('domain suspended');
                     return reject('domain suspended');
                 }
@@ -216,7 +220,8 @@ export class PassportManager {
                         if (ss && ss.accountsFileId) {
                             AccountsMgr.uniqueInstance.getAccount(accessToken, ss.accountsFileId, userId)
                                 .then(account => {
-                                    if (PassportManager.checkDomainStatus(account, userId) === false) {
+                                    let domain = PassportManager.getDomain(account, userId);
+                                    if (domain === null || domain.isActive === false) {
                                         console.log('domain suspended');
                                         return reject('domain suspended');
                                     }

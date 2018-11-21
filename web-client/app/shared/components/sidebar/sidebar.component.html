@@ -1,6 +1,9 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive}">
-    <ul class="list-group">
-        <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
+    <ul class="list-group" *ngFor="let menuitem of mainmenu">
+        <a [routerLink]="menuitem.link" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i [class]="menuitem.image"></i>&nbsp;{{ menuitem.caption | translate }}
+        </a>
+        <!-- <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-dashboard"></i>&nbsp;{{ 'Dashboard' | translate }}
         </a>
         <a routerLink="/form/article" [routerLinkActive]="['router-link-active']" class="list-group-item">
@@ -39,12 +42,13 @@
         <a routerLink="/form/expenses" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Expenses' | translate }}
         </a>
+        <a routerLink="/form/company" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Settings' | translate }}
+        </a>
         <a routerLink="/sheets-creation" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-wrench"></i>&nbsp;{{ 'Generate Sheets' | translate }}
-        </a>
-        <!-- <a [routerLink]="['/components']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-th-list"></i>&nbsp;{{ 'Component' | translate }}
         </a> -->
+
         <!-- <div class="nested-menu">
             <a class="list-group-item" (click)="addExpandClass('pages')">
                 <span><i class="fa fa-plus"></i>&nbsp; {{ 'Menu' | translate }}</span>

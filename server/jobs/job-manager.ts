@@ -55,6 +55,9 @@ export class JobManager {
                                         body += '\n';
                                     }
                                     JobManager.sendEmail(job.notify_recepients, job.notify_subject, body);
+                                }).catch(err => {
+                                    console.log(err);
+                                    return;
                                 });
                         }
 

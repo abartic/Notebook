@@ -51,36 +51,23 @@ export class Purchase extends BaseEntity {
         this.purchaseline_relation.map(i=>this.credit_value += i.price_in * i.qty_in);
     }
 
-    public getShellInfo(): IShellInfo {
-        return {
-            filter: {
-                fields: {
-                    add: [],
-                    remove: []
-                },
-                static_filter: [{ key: 'type_movement', value: eTypeMovement.StocksInput }]
-            },
-            properties: [],
-            commands: {
-                add: [],
-                remove: []
-            },
-            report: {
-                preloads: [
-                    {
-                        entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                            this['partner_lookup_entity'] = p;
-                        }
-                    },
-
-                    {
-                        entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                            this['partner_address_lookup_entity'] = pa;
-                        }
+    public adjustShellInfo() {
+        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksInput }];
+        this.shellInfo.filter.commands[2].isDisabled = true;
+        this.shellInfo.report = {
+            preloads: [
+                {
+                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
+                        this['partner_lookup_entity'] = p;
                     }
-                ]
-            }
+                },
 
+                {
+                    entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
+                        this['partner_address_lookup_entity'] = pa;
+                    }
+                }
+            ]
         };
     }
 

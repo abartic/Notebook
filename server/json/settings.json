@@ -3,6 +3,7 @@
   "spreadsheetName": "settings",
   "sheets": [{
     "sheetName": "companies",
+    "sheetType" : "uniqueRecord",
     "fields": ["code_comp", "name_comp", "descr_comp", "type_comp", "country", 
       "county", "city", "zip_code", "address", "phone1", 
       "phone2", "reg_number","fiscal_reg_number", "name_admin", "name_rep",

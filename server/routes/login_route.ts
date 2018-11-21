@@ -27,6 +27,8 @@ export class LoginRoute extends BaseRoute {
         router.get('/login/google',
             (req: Request, res: Response, next: NextFunction) => {
                 req.session['userId'] = null;
+                req.session['domainId'] = null;
+                req.session['domainName'] = null;
                 var fn = req.query["callback"];
                 req.session['callback'] = fn;
                 next();
@@ -67,9 +69,12 @@ export class LoginRoute extends BaseRoute {
                 request(options)
                     .then(fbRes => {
                         res.json({ 'response': 'ok' });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.json({ 'response': 'failed' });
                     });
 
-                //res.redirect('https://accounts.google.com/o/oauth2/revoke?token=' + token);
             },
 
         );
@@ -104,6 +109,8 @@ export class LoginRoute extends BaseRoute {
                 res.cookie('google_refresh_token', req.session['google_refresh_token']);
                 res.cookie('lastAuthTime', req.session['lastAuthTime']);
                 res.cookie('userId', req.session['userId']);
+                res.cookie('domainId', req.session['domainId']);
+                res.cookie('domainName', req.session['domainName']);
                 res.redirect("/");
             });
 
@@ -115,6 +122,8 @@ export class LoginRoute extends BaseRoute {
                 res.cookie('google_access_token', '');
                 res.cookie('google_refresh_token', '');
                 res.cookie('lastAuthTime', '');
+                res.cookie('domainId', '');
+                res.cookie('domainName', '');
                 res.cookie('userId', req.session['userId']);
                 res.redirect("/");
             });
@@ -137,6 +146,44 @@ export class LoginRoute extends BaseRoute {
                 request(options)
                     .then(fbRes => {
                         res.json(fbRes);
+                    });
+            });
+
+        router.get('/login/mainmenu',
+            (req: Request, res: Response, next: NextFunction) => {
+
+                let userId = req.session['userId'];
+
+                let mainmenu = [
+                    { link: '/dashboard', caption: 'Dashboard', image: 'fa fa-fw fa-dashboard' },
+                    { link: '/form/article', caption: 'Articles', image: 'fa fa-fw fa-table' },
+                    { link: '/form/prospect', caption: 'Prospects', image: 'fa fa-fw fa-table' },
+                    { link: '/form/partner', caption: 'Partners', image: 'fa fa-fw fa-table' },
+                    { link: '/form/store', caption: 'Stores', image: 'fa fa-fw fa-table' },
+                    { link: '/form/invoice', caption: 'Invoices', image: 'fa fa-fw fa-table' },
+                    { link: '/form/receivable', caption: 'Receivables', image: 'fa fa-fw fa-table' },
+                    { link: '/form/purchase', caption: 'Purchases', image: 'fa fa-fw fa-table' },
+                    { link: '/form/payment', caption: 'Payments', image: 'fa fa-fw fa-table' },
+                    { link: '/form/articleinventory', caption: 'Stocks', image: 'fa fa-fw fa-table' },
+                    { link: '/form/accountinventory', caption: 'Accounts stats.', image: 'fa fa-fw fa-table' },
+                    { link: '/form/budget', caption: 'Budgets', image: 'fa fa-fw fa-table' },
+                    { link: '/form/expenses', caption: 'Expenses', image: 'fa fa-fw fa-table' },
+                ];
+                let admin_mainmenu = [
+                    { link: '/form/company', caption: 'Settings', image: 'fa fa-fw fa-wrench'},
+                    { link: '/sheets-creation', caption: 'Generate Sheets', image: 'fa fa-fw fa-wrench'}
+                ];
+                AppAcl.aclInstance.isAdmin(userId)
+                    .then((isAdmin) => {
+                        if (isAdmin) {
+                            res.json(mainmenu.concat(admin_mainmenu));
+                        }
+                        else {
+                            res.json(mainmenu);
+                        }
+                    })
+                    .catch(err => {
+                        res.json([]);
                     });
             });
     }

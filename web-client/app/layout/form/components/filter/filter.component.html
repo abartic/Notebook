@@ -1,14 +1,11 @@
 <div [@routerTransition]>
 
     <div class="row">
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group mr-2" role="group">
-                <button type="button" (click)="onApply()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-primary">Apply</button>
-                <button type="button" (click)="onClear()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" class="btn btn-secondary">Clear</button>
-                <button type="button" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" (click)="package.isDetailsFilterCollapsed = !package.isDetailsFilterCollapsed" [attr.aria-expanded]="!isCollapsed" aria-controls="detailsFilterArea">Details Filters</button>
-                <button type="button" (click)="onNew()" class="btn btn-secondary" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}">New</button>
-            </div>
+        <!-- <div class="btn-toolbar" role="toolbar"> -->
+        <div class="btn-group" role="group">
+            <button *ngFor="let command of (package.filter.shellInfo.filter.commands)" [disabled]="command.isDisabled === true" type="button" (click)="packageCtrl[command.handler]()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" [class]="command.primary ? 'btn btn-primary' : 'btn btn-secondary'">{{command.caption | translate}}</button>
         </div>
+        <!-- </div> -->
     </div>
 
     <BR>

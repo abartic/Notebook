@@ -11,7 +11,7 @@ import { HttpCallerService } from '../../../../services/httpcaller.service';
 export class NotificationComponent implements OnInit {
     constructor(private httpCaller: HttpCallerService) { }
 
-    public rows;
+    public rows = [];
     ngOnInit() { 
 
         this.httpCaller.callPost(
@@ -29,7 +29,7 @@ export class NotificationComponent implements OnInit {
 
             },
             err => {
-                
+                this.rows = [];
             });
     }
 }
