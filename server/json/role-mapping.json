@@ -1,22 +1,116 @@
 {
     "mapping": [{
-        "roles": ["proj-admin"],
-        "allows": [{
-                "resources": "/",
-                "permissions": "get"
-            },
-            {
-                "resources": "/sheetdata/create-spreadsheet",
-                "permissions": "post"
-            },
-            {
-                "resources": "/sheetdata/enrolle-user-spreadsheet",
-                "permissions": "post"
-            },
-            {
-                "resources": "/sheetdata/delete-metadata",
-                "permissions": "post"
-            }
-        ]
-    }]
+            "roles": ["proj-admin"],
+            "allows": [{
+                    "resources": "/",
+                    "permissions": "get"
+                },
+                {
+                    "resources": "/sheetdata/create-spreadsheet",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/enrolle-user-spreadsheet",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/disenrolle-user-spreadsheet",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/delete-metadata",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/spreadsheet-info",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/validate",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/create",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/delete",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/update",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/select",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/getscalar",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/report",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/login/google/refresh",
+                    "permissions": "get"
+                },
+                {
+                    "resources": "/login/mainmenu",
+                    "permissions": "get"
+                }
+            ]
+        },
+        {
+            "roles": ["datawriter"],
+            "allows": [{
+                    "resources": "/",
+                    "permissions": "get"
+                },
+                {
+                    "resources": "/sheetdata/spreadsheet-info",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/validate",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/create",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/delete",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/update",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/select",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/getscalar",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/sheetdata/report",
+                    "permissions": "post"
+                },
+                {
+                    "resources": "/login/google/refresh",
+                    "permissions": "get"
+                },
+                {
+                    "resources": "/login/mainmenu",
+                    "permissions": "get"
+                }
+
+            ]
+        }
+    ]
 }

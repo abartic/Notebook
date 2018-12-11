@@ -1,3 +1,4 @@
+import { UserSession } from './../../common/userSession';
 import { IEntityPackage } from './../../../../server/common/select-obj';
 
 import { SelectEntityDialogWnd } from './../../dialog/selectEntityDialog/selectEntityDialogWnd';
@@ -19,6 +20,8 @@ import { Observable } from 'rxjs/Observable';
 import { CalendarDialogWnd } from '../../dialog/calendarDialog/calendarDialogWnd';
 //import { UserSession } from '../../app.component';
 import { eFieldDataType } from '../../../../server/common/enums';
+import { UserSessionService } from '../../services/userSessionService';
+import { Router } from '@angular/router';
 
 
 
@@ -83,15 +86,25 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     //: UserSession;
 
     public package: Package<T>;
-    public package_initialized: boolean = undefined;
+    public package_initialized: boolean = false;
+    private userSession = new UserSession();
+
 
     constructor(
         public entityType: string,
         private type: new () => T,
         private modalService: NgbModal,
-        private httpCaller: HttpCallerService) {
+        private httpCaller: HttpCallerService,
+        private userSessionService: UserSessionService,
+        private router: Router) {
 
         this.package = new Package<T>(type);
+        this.userSessionService.userSession
+            .subscribe(
+            us => { this.userSession = us },
+            error => {
+                this.router.navigate(['/error', { errorcode: 'user sessions missing.' }]);
+            });
     }
 
     public fetchEntityInfo() {
@@ -137,8 +150,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 this.package_initialized = true;
                 this.onViewLoaded();
             })
-            .catch(err => {
-                console.log(err);
+            .catch(error => {
+                console.log(error);
+                if (error && error.status)
+                    this.router.navigate(['/error', { errorcode: error.status }]);
+                else
+                    this.router.navigate(['/error', { errorcode: error }]);
             });
     }
 
@@ -538,14 +555,21 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 return;
             }
 
+            this.setWaiting(true);
+
             this.saveEntity(action, this.package.entity, () => {
                 if (this.package.entity.status === eEntityStatus.Loaded)
                     Object.assign(this.package.selected_entity, this.package.entity);
                 this.package.entity_status_msg = 'Entity saved.';
 
                 this.readPackageEntity(this.package.entity, () => { this.package.entity_status_msg = 'Entity saved & refetched.'; });
+                this.setWaiting(false);
             });
         });
+    }
+
+    private setWaiting(action: boolean) {
+        this.userSession.WaitingForAction = action;
     }
 
     private getEntitySaveCallPack(action: eEntityAction, entity: BaseEntity) {
@@ -706,8 +730,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     private getError(err): string {
-        return err instanceof String ? err.toString() : JSON.stringify(err);
-
+        if (err === null || err === undefined)
+            return 'generic error';
+        else if (err instanceof String)
+            return err.toString();
+        else if (err['error'])
+            return this.getError(err['error']);
+        else
+            return JSON.stringify(err);
     }
 
     private showAlert(message: string) {

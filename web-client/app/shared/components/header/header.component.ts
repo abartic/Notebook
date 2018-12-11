@@ -31,10 +31,16 @@ export class HeaderComponent implements OnInit {
                 this.toggleSidebar();
             }
         });
+
+        //console.log(atob(this.cookieService.get("session")));
     }
 
     ngOnInit() {
-        this.userSessionService.userSession.subscribe(us => this.userSession = us);
+        this.userSessionService.userSession.subscribe(
+            us => { this.userSession = us },
+            error => {
+                this.router.navigate(['/error', { errorcode: 'user sessions missing.' }]);
+            });
     }
 
     isToggled(): boolean {
@@ -62,11 +68,11 @@ export class HeaderComponent implements OnInit {
                     this.cookieService.delete("google_refresh_token")
                     this.cookieService.delete("lastAuthTime")
                 }
-                console.log('logout failed!');
+                console.log('logout ' + r.response + '!');
             },
             () => {
                 console.log('logout failed!');
-             });
+            });
 
 
     }

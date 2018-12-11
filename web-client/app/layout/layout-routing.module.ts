@@ -8,6 +8,7 @@ const routes: Routes = [
         path: '', 
         component: LayoutComponent,
         children: [
+            { path: '', loadChildren: './dashboard/dashboard.module#DashboardModule' },
             { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
             { path: 'sheets-creation', loadChildren: './sheets/sheets.module#SheetsModule', runGuardsAndResolvers: 'always' },
             { path: 'form/:id', loadChildren: './form/form.module#FormModule', runGuardsAndResolvers: 'always'  },

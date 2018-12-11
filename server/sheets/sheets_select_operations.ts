@@ -40,24 +40,24 @@ export class SheetsSelectOperations {
 
 
 
-    static getCompany(access_token) {
+    static getCompany(access_token, domainId: string) {
         let spreadsheetName = "settings",
             sheetName = "companies",
             entityName = "Company",
             select = "select * limit 1",
             addSchema = false;
 
-        return SheetsSelectOperations.selectEntity(access_token, spreadsheetName, sheetName, entityName);
+        return SheetsSelectOperations.selectEntity(access_token, domainId, spreadsheetName, sheetName, entityName);
     }
 
-    static selectEntity(access_token: string, spreadsheetName: string, sheetName: string, entityName: string, select?: string, addSchema?: boolean, scalar?: boolean) {
+    static selectEntity(accessToken: string, domainId: string, spreadsheetName: string, sheetName: string, entityName: string, select?: string, addSchema?: boolean, scalar?: boolean) {
         if (!select)
             select = "select * limit 1";
         if (!addSchema)
             addSchema = false;
 
         let p_spreadsheets = undefined, p_spreadsheet = undefined, p_sheet = undefined;
-        return SheetsMgr.uniqueInstance.get(access_token)
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
             .then(spreadsheetsSet => {
 
                 if (spreadsheetsSet === null) {
@@ -82,7 +82,7 @@ export class SheetsSelectOperations {
                 var auth = new googleAuth();
                 var oauth2Client = new auth.OAuth2();
                 oauth2Client.credentials = {
-                    access_token: access_token
+                    access_token: accessToken
                 };
 
                 var jsonpClient = require('jsonp-client');
@@ -91,7 +91,7 @@ export class SheetsSelectOperations {
                     "&sheet=" + sheetName +
                     "&headers=1" +
                     "&tq=" + encodeURI(select) +
-                    "&access_token=" + access_token
+                    "&access_token=" + accessToken
 
 
                 return new Promise((cb, cerr) => {

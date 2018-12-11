@@ -17,6 +17,7 @@ import { AppAcl } from './acl/app-acl'
 import helmet = require('helmet');
 import csrf = require('csurf');
 import { JobManager } from './jobs/job-manager';
+import { LogsManager } from './logs/logs-manager';
 
 
 
@@ -168,12 +169,12 @@ export class Server {
         //login route
         LoginRoute.create(router, this.passportManager, csrfProtection);
 
-        SheetRoute.create(router);
+        SheetRoute.create(router, csrfProtection);
 
         // use router middleware
         this.app.use(router);
 
-        
+
     }
 
     setErrorHandler() {
@@ -182,14 +183,14 @@ export class Server {
         this.app.use(
             (err, req, res, next) => {
                 console.error(err);
-                console.error(err.stackTrace);
+                LogsManager.uniqueInstance.write(req.session.userId, req.session.domainId, JSON.stringify(err));
 
                 if (err.errorCode === 401) {
                     res.render('unauthorized', { error: err })
                 }
-                else if (err.errorCode === 'EBADCSRFTOKEN') {
+                else if (err.code === 'EBADCSRFTOKEN') {
                     res.status(403)
-                    res.send('form tampered with')
+                    res.send({ error: 'form tampered with - CSRF issue' })
                 }
                 else {
                     res.status(500)

@@ -9,6 +9,7 @@ import { HttpCallerService } from '../../services/httpcaller.service';
 import { ModelFactory } from '../../../../server/models/modelFactory';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PackageController, IPackageController } from './package-controller';
+import { UserSessionService } from '../../services/userSessionService';
 
 
 
@@ -17,7 +18,8 @@ import { PackageController, IPackageController } from './package-controller';
 export class DataResolver implements Resolve<IPackageController> {
     constructor(private router: Router,
         @Inject(NgbModal) private modalService,
-        @Inject(HttpCallerService) private httpCaller) { }
+        @Inject(HttpCallerService) private httpCaller,
+        @Inject(UserSessionService) private userSessionService: UserSessionService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IPackageController> {
 
@@ -29,14 +31,14 @@ export class DataResolver implements Resolve<IPackageController> {
             return Observable.of(null);
         }
         else {
-            let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller);
+            let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller, this.userSessionService, this.router);
 
             return new Observable<IPackageController>((observer) => {
                 packageCtrl.fetchEntityInfo().then(() => {
                     observer.next(packageCtrl);
                     observer.complete();
                 }).catch((err) => {
-                    observer.next(err);
+                    observer.error(err);
                     observer.complete();
                 });
             });

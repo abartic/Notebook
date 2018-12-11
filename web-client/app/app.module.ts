@@ -7,7 +7,7 @@ import { DateUserFormatPipe } from './shared/pipes/shared-pipes.module';
 import { ChartsModule } from 'ng2-charts/ng2-charts';
 import { LoadingModule } from 'ngx-loading';
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HttpClientXsrfModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 //import { Http, HttpModule } from '@angular/http';
@@ -93,6 +93,10 @@ export const createTranslateLoader = (http: HttpClient) => {
 
     //HttpModule,
     HttpClientModule,
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'xsrf-token',
+      headerName: 'x-xsrf-token',
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

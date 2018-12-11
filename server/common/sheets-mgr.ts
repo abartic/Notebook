@@ -1,12 +1,13 @@
+import { DriveOperations } from './../drive/drive_operations';
 import { SheetRoute } from "../routes/sheets_route";
-import { DriverRoute } from "../routes/driver_route";
+
 import { eFileOperationType } from "../sheets/sheets_common_operations";
 
 export interface IMgrItem<T> {
-    token: string;
+    
     fileId: string;
     timestamp: number;
-
+    token: string;
     data: T;
 }
 
@@ -15,11 +16,11 @@ export class SheetsMgr {
     private data: Array<IMgrItem<ISpreadsheetsSet>> = new Array<IMgrItem<ISpreadsheetsSet>>();
 
 
-    public get(token: string): Promise<ISpreadsheetsSet> {
-
-        var item = this.data.find(s => s.token === token);
+    public get(accessToken: string, domainId: string): Promise<ISpreadsheetsSet> {
+        let domainToken = accessToken + '_' + domainId;
+        var item = this.data.find(s => s.token === domainToken);
         if (!item) {
-            return DriverRoute.getConfigFile<ISpreadsheetsSet>(token, null, eFileOperationType.sheets)
+            return DriveOperations.getConfigFile<ISpreadsheetsSet>(accessToken, null, domainId, eFileOperationType.sheets)
                 .then(spreadsheetsSet => {
                     if (!spreadsheetsSet)
                         return Promise.resolve(null);
@@ -39,7 +40,7 @@ export class SheetsMgr {
                     }
 
                     this.data.push({
-                        token: token,
+                        token: domainToken,
                         fileId: set.accountsFileId,
                         data: set,
                         timestamp: Date.now()

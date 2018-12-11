@@ -33,7 +33,7 @@ export class JobManager {
                         } else {
                             let props = job.notify_body_list_info.split(',');
 
-                            SheetsSelectOperations.selectEntity(tokens['access_token'],
+                            SheetsSelectOperations.selectEntity(tokens['access_token'], tokens['access_token'] + '-' + jobDefinition.domainId,
                                 job.spreadsheetName,
                                 job.sheetName,
                                 job.entityName, job.select, false, false)

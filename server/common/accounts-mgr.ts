@@ -1,109 +1,95 @@
-import { SheetRoute } from "../routes/sheets_route";
-import { IMgrItem } from "./sheets-mgr";
-import * as fs from 'fs';
-import * as path from 'path';
-import { DriverRoute } from "../routes/driver_route";
-import { eFileOperationType } from "../sheets/sheets_common_operations";
+// import { KeyedCollection } from './../utils/dictionary';
+// import { DriveOperations } from './../drive/drive_operations';
+// import { SheetRoute } from "../routes/sheets_route";
+// import { IMgrItem } from "./sheets-mgr";
+// import * as fs from 'fs';
+// import * as path from 'path';
+// import { eFileOperationType } from "../sheets/sheets_common_operations";
 
 
-export class AccountsMgr {
-    private static _uniqueInstance: AccountsMgr;
-    private data: Array<IMgrItem<IAccountsSet>> = new Array<IMgrItem<IAccountsSet>>();
+// export class AccountsMgr {
+//     private static _uniqueInstance: AccountsMgr;
+//     private data: KeyedCollection<IMgrItem<IAccount>> = new KeyedCollection<IMgrItem<IAccount>>();
 
-    private AccountsMgr() {
-    }
+//     public getAccount(accessToken: string, domainId: string, accountsFileId: string, userId: string, limitDate : number): Promise<IAccount> {
+//         let domainToken = accessToken + '_' + domainId;
+//         let account = this.getAccountFromCache(domainToken, userId, limitDate);
+//         if (account) {
+//             return Promise.resolve(account);
+//         }
+//         else {
+//             return this.readAccount(accessToken, domainId, accountsFileId, userId)
+//                 .then((account) => {
+//                     if (!account)
+//                         return Promise.resolve(null);
 
-    private checkExpiration(item: IMgrItem<IAccountsSet>) {
+//                     return Promise.resolve(account);
+//                 }).catch(err => {
+//                     return Promise.reject({ error: err });
+//                 });
+//         }
+//     }
 
-        var dateMinusOneDay = new Date(Date.now());
-        dateMinusOneDay.setDate(dateMinusOneDay.getDate() - 1);
-        if (item.timestamp < dateMinusOneDay.valueOf()) {
-            this.data
-                .map((i, index, a) => {
-                    if (i.timestamp < dateMinusOneDay.valueOf())
-                        this.data.splice(index, 1);
-                });
+//     private AccountsMgr() {
+//     }
 
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
+//     private checkExpiration(key, item: IMgrItem<IAccount>, datelimit?: number) {
 
-    private getAccountFromCache(token: string, userId: string): IAccount {
-        var item = this.data.find(s => s.token === token);
-        if (item && this.checkExpiration(item)) {
-            return item.data.accounts.find(u => u.accountName === userId)
-        }
-        else {
-            return undefined;
-        }
-    }
+//         if (!datelimit) {
+//             var dateMinusOneDay = new Date(Date.now());
+//             dateMinusOneDay.setDate(dateMinusOneDay.getDate() - 1);
+//             datelimit = dateMinusOneDay.valueOf();
+//         }
 
-    private getAccountsFromCache(token: string): IAccountsSet {
-        var item = this.data.find(s => s.token === token);
-        if (item && this.checkExpiration(item)) {
-            return item.data;
-        }
-        else {
-            return undefined;
-        }
-    }
+//         if (item.timestamp < datelimit) {
+//             this.data.Remove(key);
+//             return false;
+//         }
+//         else {
+//             return true;
+//         }
+//     }
 
-    private readAccounts(token: string, accountsFileId: string): Promise<IAccountsSet> {
-        return DriverRoute.getConfigFile<IAccountsSet>(token, accountsFileId, eFileOperationType.accounts)
-            .then(accountsset => {
-                if (!accountsset)
-                    return Promise.resolve(null);
+//     private getAccountFromCache(domainToken: string, userId: string, datelimit?: number): IAccount {
+//         if (this.data.ContainsKey(domainToken) === true) {
+//             let item = this.data.Item(domainToken);
+//             if (this.checkExpiration(domainToken, item, datelimit)) {
+//                 return item.data;
+//             }
+//         }
 
-                this.data.push({
-                    token: token,
-                    fileId :  accountsset.domainId,
-                    data: accountsset,
-                    timestamp: Date.now()
-                });
+//         return undefined;
+//     }
 
-                return Promise.resolve(accountsset);
-            }).catch(err => {
-                return Promise.reject(err);
-            });
-    }
+//     private readAccount(accessToken: string, domainId: string, accountsFileId: string, userId: string): Promise<IAccount> {
+//         let domainToken = accessToken + '_' + domainId;
+//         return DriveOperations.getConfigFile<IAccountsSet>(accessToken, accountsFileId, domainId, eFileOperationType.accounts)
+//             .then(accountsset => {
+//                 if (!accountsset)
+//                     return Promise.resolve(null);
 
-    public getAccounts(token: string, accountsFileId: string): Promise<IAccountsSet> {
-        let accountsSet = this.getAccountsFromCache(token);
-        if (accountsSet) {
-            return Promise.resolve(accountsSet);
-        }
-        else {
-            return this.readAccounts(token, accountsFileId);
-        }
+//                 let account : IAccount = null;
+//                 for (account of accountsset.accounts) {
+//                     if (account.accountName === userId) {
+//                         this.data.Add(domainToken, {
+//                             fileId: accountsset.domainId,
+//                             data: account,
+//                             timestamp: Date.now()
+//                         });
+//                         break;
+//                     }
+//                 }
 
-    }
+//                 return Promise.resolve(account);
+//             }).catch(err => {
+//                 return Promise.reject(err);
+//             });
+//     }
 
-    public getAccount(token: string, accountsFileId: string, userId: string): Promise<IAccount> {
-        let account = this.getAccountFromCache(token, userId);
-        if (account) {
-            return Promise.resolve(account);
-        }
-        else {
-            return this.readAccounts(token, accountsFileId)
-            .then((accountsSet) => {
-                if (!accountsSet)
-                    return Promise.resolve(null);
-
-                let account = this.getAccountFromCache(token, userId);
-                return Promise.resolve(account);
-            }).catch(err => {
-                return Promise.reject({ error: err });
-            });
-        }
-    }
-
-    public static get uniqueInstance(): AccountsMgr {
-        if (AccountsMgr._uniqueInstance === undefined) {
-            AccountsMgr._uniqueInstance = new AccountsMgr();
-        }
-        return AccountsMgr._uniqueInstance;
-    }
-} 
+//     public static get uniqueInstance(): AccountsMgr {
+//         if (AccountsMgr._uniqueInstance === undefined) {
+//             AccountsMgr._uniqueInstance = new AccountsMgr();
+//         }
+//         return AccountsMgr._uniqueInstance;
+//     }
+// } 

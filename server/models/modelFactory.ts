@@ -18,6 +18,7 @@ import { AccountInventory } from './account-inventory';
 import { BudgetLine } from './budget-line';
 import { Expenses } from './expenses';
 import { ExpenseLine } from './expense-line';
+import { LogEntry } from './log-entry';
 
 export class ModelFactory {
     private static _uniqueInstance: ModelFactory;
@@ -50,6 +51,7 @@ export class ModelFactory {
          else if (type === "budgetline") return BudgetLine;
          else if (type === "expenses") return Expenses;
          else if (type === "expenseline") return ExpenseLine;
+         else if (type === "logentry") return LogEntry;
          else throw 'type is missing'
     }
 

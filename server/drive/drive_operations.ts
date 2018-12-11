@@ -1,7 +1,4 @@
 
-import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
-import { BaseRoute } from './route';
-import * as request from 'request-promise';
 import * as Config from "config";
 import { eFileOperationType } from '../sheets/sheets_common_operations';
 
@@ -10,14 +7,17 @@ var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 
 
-export class DriverRoute extends BaseRoute {
+export class DriveOperations {
 
     static writeConfigFile(accessToken: string,
+        domainId :string,
         fileoperationtype: eFileOperationType,
         fileId: string,
         folderId: string,
+
         data: string): Promise<string> {
 
+        
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
@@ -85,11 +85,11 @@ export class DriverRoute extends BaseRoute {
                 drive.files.create(
                     {
                         resource: {
-                            name: fileName + '_' + projId,
+                            name: fileName + '_' + projId + '_' + domainId,
                             parents: fileoperationtype === eFileOperationType.folder ? [] : [folderId],
                             mimeType: fileoperationtype === eFileOperationType.folder ? "application/vnd.google-apps.folder" : 'application/json',
                             appProperties: {
-                                additionalID: projId
+                                additionalID: projId + '_' + domainId
                             }
                         },
                         media:
@@ -113,7 +113,7 @@ export class DriverRoute extends BaseRoute {
 
     }
 
-    static getConfigFile<T>(token: string, fileId: string, filetype: eFileOperationType): Promise<T> {
+    static getConfigFile<T>(token: string, fileId: string, domainId: string, filetype: eFileOperationType): Promise<T> {
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
@@ -146,8 +146,8 @@ export class DriverRoute extends BaseRoute {
             else {
                 drive.files.list(
                     {
-                        q: 'name = "' + fileName + '_' + projId +
-                        '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '" }',
+                        q: 'name = "' + fileName + '_' + projId + '_' + domainId +
+                        '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '_' + domainId + '" }',
                         auth: oauth2Client
                     }
                     , function (err, data) {

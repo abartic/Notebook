@@ -28,5 +28,6 @@
     "reportsConfig": {
         "rootURL": "https://notebook-staging.herokuapp.com"
 
-    }
+    },
+    "service_account": "test-service@reporter-184014.iam.gserviceaccount.com"
 }

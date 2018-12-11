@@ -1,18 +1,19 @@
+import { DriveOperations } from './../drive/drive_operations';
+import { LogsManager } from './../logs/logs-manager';
 import { SheetsCommonOperations, eFileOperationType } from "./sheets_common_operations";
 import { SheetsMgr } from "../common/sheets-mgr";
 import * as fs from 'fs';
 import * as path from 'path';
 import { KeyedCollection } from "../utils/dictionary";
-import { DriverRoute } from "../routes/driver_route";
 
-import { AccountsMgr } from "../common/accounts-mgr";
 import { IPropInfo } from "../models/base-entity";
 import { eFieldDataType } from "../common/enums";
+import * as Config from "config";
 let googleApi = require('googleapis');
 let sheets = googleApi.sheets('v4');
 
 export class SheetsManagementOperations {
-    static deleteMetadata(accessToken: string, spreadsheetNames) {
+    static deleteMetadata(accessToken: string, domainId: string, spreadsheetNames) {
         let accountSpreadsheets: Array<ISpreadsheet> = new Array<ISpreadsheet>();
         let spreadsheetReqDefinition = null;
         let data = fs.readFileSync(path.join(__dirname, '../json/base-spreadsheet.json'), 'utf8');
@@ -26,7 +27,7 @@ export class SheetsManagementOperations {
         }
 
         let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
-        return SheetsMgr.uniqueInstance.get(accessToken)
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
             .then(spreadsheetsSet => {
 
                 if (!spreadsheetsSet) {
@@ -73,30 +74,20 @@ export class SheetsManagementOperations {
                     Promise.reject({ error: 'Errors. Retry!' + results });
                 }
                 else {
-                    Promise.resolve({});
+                    Promise.resolve({ error: null });
                 }
             })
             .catch(err => {
-                Promise.reject({ error: err});
+                Promise.reject({ error: err });
             });
 
     }
 
-    static createSpreadsheet(accessToken: string, userId, spreadsheetNames) {
+    static createSpreadsheet(accessToken: string, domainId: string,
+        userId, spreadsheetNames) {
         let accountSpreadsheets: Array<ISpreadsheet> = new Array<ISpreadsheet>();
         let spreadsheetReqDefinition = null;
-        let domainId = null, domainName = null;
 
-        fs.readFile(path.join(__dirname, '../json/domains.json'), 'utf8',
-            (error, data) => {
-                var domains = <Array<IDomain>>JSON.parse(data);
-                for (let domain of domains)
-                    if (domain.admin.accountName === userId && domain.isActive === true) {
-                        domainId = domain.domainId;
-                        domainName = domain.domainName;
-                        break;
-                    }
-            });
 
         if (domainId === null)
             return Promise.reject({ error: 'Invalid domain!' });
@@ -111,7 +102,7 @@ export class SheetsManagementOperations {
             spreadsheet_definitions.Add(spreadsheetName, spreadsheetDefinition);
         }
 
-        return SheetsMgr.uniqueInstance.get(accessToken)
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
             .then(spreadsheetsSet => {
 
                 if (spreadsheetsSet) {
@@ -134,7 +125,7 @@ export class SheetsManagementOperations {
                             let sheetReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.sheet));
                             sheetReq.properties.title = sheet.sheetName;
                             spreadsheetReq.sheets.push(sheetReq);
-                            let uniqueRecord = sheet.sheetType === 'uniqueRecord';
+                            let uniqueRecord = (sheet.sheetType === 'uniqueRecord');
 
                             if (sheet.formula) {
                                 sheetReq.data[0].rowData[0].values.push({
@@ -161,7 +152,7 @@ export class SheetsManagementOperations {
 
                                 sheetReq.data[0].rowData[0].values.push({
                                     "userEnteredValue": {
-                                        "stringValue": 'uid'
+                                        "stringValue": "uid"
                                     },
                                     "userEnteredFormat": {
                                         "numberFormat": {
@@ -176,7 +167,7 @@ export class SheetsManagementOperations {
                                     });
                                     sheetReq.data[0].rowData[1].values.push({
                                         "userEnteredValue": {
-                                            "stringValue": '=row()'
+                                            "formulaValue": "=ROW()"
                                         },
                                         "userEnteredFormat": {
                                             "numberFormat": {
@@ -186,7 +177,7 @@ export class SheetsManagementOperations {
                                     });
                                     sheetReq.data[0].rowData[1].values.push({
                                         "userEnteredValue": {
-                                            "numberValue": '1'
+                                            "stringValue": "1"
                                         },
                                         "userEnteredFormat": {
                                             "numberFormat": {
@@ -272,14 +263,15 @@ export class SheetsManagementOperations {
                         var block_fields_rowReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.block_fields_row));
                         block_fields_rowReq.updateSheetProperties.properties.sheetId = sheet.properties.sheetId;
 
-                        var rowid_columnProtectedRangeReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.rowid_column));
-                        rowid_columnProtectedRangeReq.addProtectedRange.protectedRange.range.sheetId = sheet.properties.sheetId;
-                        rowid_columnProtectedRangeReq.addProtectedRange.protectedRange.editors.users.push(userId);
+                        // var rowid_columnProtectedRangeReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.rowid_column));
+                        // rowid_columnProtectedRangeReq.addProtectedRange.protectedRange.range.sheetId = sheet.properties.sheetId;
+                        // rowid_columnProtectedRangeReq.addProtectedRange.protectedRange.editors.users.push(userId);
 
                         var block_rowid_columnReq = JSON.parse(JSON.stringify(spreadsheetReqDefinition.block_rowid_column));
                         block_rowid_columnReq.updateSheetProperties.properties.sheetId = sheet.properties.sheetId;
 
-                        var requests = [fields_rowReq, block_fields_rowReq, rowid_columnProtectedRangeReq, block_rowid_columnReq];
+                        //rowid_columnProtectedRangeReq,
+                        var requests = [fields_rowReq, block_fields_rowReq, block_rowid_columnReq];
 
                         var sheetDef = spreadsheetDefinition.sheets.find(function (item) { return item.sheetName === sheet.properties.title; });
                         let fieldIndex = 0;
@@ -326,12 +318,12 @@ export class SheetsManagementOperations {
                 let accountsSet: IAccountsSet = {
                     //id : domainId,
                     domainId: domainId,
-                    domainName: domainName,
+                    //domainName: domainName,
                     accounts: new Array<IAccount>(),
                 };
                 let folderId;
                 let calls_file = [];
-                return DriverRoute.writeConfigFile(accessToken, eFileOperationType.folder, null, null, null)
+                return DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.folder, null, null, null)
                     .then(fileId => {
                         folderId = fileId;
                         // accountsSet.accounts.push({
@@ -341,7 +333,7 @@ export class SheetsManagementOperations {
                         //     enrollmentDate: Date.now()
                         // });
 
-                        return DriverRoute.writeConfigFile(accessToken, eFileOperationType.accounts, null, folderId, JSON.stringify(accountsSet));
+                        return DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.accounts, null, folderId, JSON.stringify(accountsSet));
                     })
                     .then(accountsFileId => {
                         let spreadsheetsSet: ISpreadsheetsSet = {
@@ -349,34 +341,41 @@ export class SheetsManagementOperations {
                             spreadsheets: accountSpreadsheets
                         };
 
-                        calls_file = [DriverRoute.writeConfigFile(accessToken, eFileOperationType.sheets, null, folderId, JSON.stringify(spreadsheetsSet))];
+                        calls_file = [DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.sheets, null, folderId, JSON.stringify(spreadsheetsSet))];
 
                         for (let ash of accountSpreadsheets)
-                            calls_file.push(DriverRoute.writeConfigFile(accessToken, eFileOperationType.moveToFolder, ash.spreadsheetID, folderId, null));
+                            calls_file.push(DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.moveToFolder, ash.spreadsheetID, folderId, null));
 
                         return Promise.all(calls_file);
 
                     })
                     .then(() => {
-                        return Promise.reject({ error: null });
+
+                        SheetsManagementOperations.enrolleUserSpreadsheet(accessToken, domainId, Config.get<string>("service_account"), "reader");
+
+                        return Promise.resolve({ error: null });
                     });
             })
             .catch(err => {
+                LogsManager.uniqueInstance.write(userId, domainId, JSON.stringify(err));
+
                 if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject({error: err});
+                    return Promise.reject({ error: err });
             })
 
     }
 
-    static enrolleUserSpreadsheet(accessToken: string, enrolledUser) {
+    static enrolleUserSpreadsheet(accessToken: string, domainId: string, enrolledUser, dataManagementRole: string = 'writer') {
 
         let accountsFileId = null;
         let spreadsheets = null;
         let sheetsFileId = null;
+        let accountsSetUpdated = null;
+        let permissionIds = [];
 
-        return SheetsMgr.uniqueInstance.get(accessToken)
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
             .then(spreadsheetsSet => {
                 if (spreadsheetsSet === null) {
                     return Promise.reject({ error: 'Sheets not created!' });
@@ -387,26 +386,28 @@ export class SheetsManagementOperations {
                 spreadsheets = spreadsheetsSet.spreadsheets;
 
 
+                return DriveOperations.getConfigFile<IAccountsSet>(accessToken, accountsFileId, domainId, eFileOperationType.accounts);
 
-                return AccountsMgr.uniqueInstance.getAccounts(accessToken, accountsFileId)
             })
             .then(accountsSet => {
 
                 if (accountsSet.accounts.find(a => a.accountName === enrolledUser))
                     return Promise.reject({ error: 'User already enrolled!' })
 
-
+                accountsSetUpdated = accountsSet;
                 let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
                 let spreadsheetCount = spreadsheets.length;
                 let spreadsheetIndex = 1;
                 const drive = googleApi.drive({ version: 'v3' });
                 let calls = [];
+
                 for (let spreadsheet of spreadsheets) {
                     calls.push(new Promise((cb, err_cb) => {
+                        let role = spreadsheet.spreadsheetName === 'system' ? 'writer' : dataManagementRole;
                         drive.permissions.create({
                             fileId: spreadsheet.spreadsheetID,
                             resource: {
-                                "role": "writer",
+                                "role": role,
                                 "type": "user",
                                 "emailAddress": enrolledUser
                             },
@@ -417,6 +418,7 @@ export class SheetsManagementOperations {
                                     err_cb(false);
                                 }
                                 else {
+                                    permissionIds.push({ fileId: spreadsheet.spreadsheetID, permissionId: result.id });
                                     cb(result);
                                 }
 
@@ -439,6 +441,7 @@ export class SheetsManagementOperations {
                                 err_cb(false);
                             }
                             else {
+                                permissionIds.push({ fileId: accountsFileId, permissionId: result.id });
                                 cb(result);
                             }
 
@@ -460,37 +463,111 @@ export class SheetsManagementOperations {
                                 err_cb(false);
                             }
                             else {
+                                permissionIds.push({ fileId: sheetsFileId, permissionId: result.id });
                                 cb(result);
                             }
 
                         });
                 }));
 
-                accountsSet.accounts.push({
-                    accountName: enrolledUser,
-                    role: "writer",
-                    accountDescr: "google-account",
-                    enrollmentDate: Date.now(),
-                    domainId: accountsSet.domainId,
-                    domainName: accountsSet.domainName
-                });
 
-                calls.push(DriverRoute.writeConfigFile(accessToken, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSet)));
+
                 return Promise.all(calls);
             })
-            .then(r => { return Promise.reject({ error: null }); })
+            .then(r => {
+                accountsSetUpdated.accounts.push({
+                    accountName: enrolledUser,
+                    role: "datawriter",
+                    accountDescr: "google-account",
+                    enrollmentDate: Date.now(),
+                    domainId: accountsSetUpdated.domainId,
+                    permissions: permissionIds
+                });
+
+                return DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSetUpdated));
+            })
+            .then(r => { return Promise.resolve({ error: null }); })
             .catch(err => {
                 if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.resolve({error: err});
+                    return Promise.reject({ error: err });
             });
 
     }
 
-    static getSpreadsheetInfo(accessToken: string, spreadsheetName, sheetName, entityName) {
+    static disenrolleUserSpreadsheet(accessToken: string, domainId: string, disenrolledUser) {
+
+        let accountsFileId = null;
+        let spreadsheets = null;
+        let sheetsFileId = null;
+        let accountIdex = null;
+        let accountsSetUpdated = null;
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
+            .then(spreadsheetsSet => {
+                if (spreadsheetsSet === null) {
+                    return Promise.reject({ error: 'Sheets not created!' });
+                }
+
+                accountsFileId = spreadsheetsSet.accountsFileId;
+                sheetsFileId = spreadsheetsSet['fileId'];
+                spreadsheets = spreadsheetsSet.spreadsheets;
+
+
+
+
+                return DriveOperations.getConfigFile<IAccountsSet>(accessToken, accountsFileId, domainId, eFileOperationType.accounts);
+            })
+            .then(accountsSet => {
+                accountsSetUpdated = accountsSet;
+                accountIdex = accountsSet.accounts.findIndex(a => a.accountName === disenrolledUser);
+                if (accountIdex < 0)
+                    return Promise.reject({ error: 'User not enrolled!' })
+
+
+                let account = accountsSet.accounts[accountIdex];
+                let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
+                const drive = googleApi.drive({ version: 'v3' });
+                let calls = [];
+                for (let permission of account.permissions) {
+                    calls.push(new Promise((cb, err_cb) => {
+
+                        drive.permissions.delete({
+                            fileId: permission.fileId,
+                            permissionId: permission.permissionId,
+                            auth: oauth2Client
+                        },
+                            function (err, result) {
+                                if (err) {
+                                    err_cb(false);
+                                }
+                                else {
+                                    cb(result);
+                                }
+
+                            });
+                    }));
+                }
+
+                return Promise.all(calls);
+            })
+            .then(r => {
+                accountsSetUpdated.accounts.splice(accountIdex, 1);
+                return DriveOperations.writeConfigFile(accessToken, domainId, eFileOperationType.accounts, accountsFileId, null, JSON.stringify(accountsSetUpdated));
+            })
+            .then(r => { return Promise.resolve({ error: null }); })
+            .catch(err => {
+                if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
+                    return Promise.reject({ error: { code: 401 } });
+                else
+                    return Promise.reject({ error: err });
+            });
+
+    }
+
+    static getSpreadsheetInfo(accessToken: string, domainId: string, spreadsheetName, sheetName, entityName) {
         let p_spreadsheets = undefined, p_spreadsheet = undefined, p_sheet = undefined;
-        return SheetsMgr.uniqueInstance.get(accessToken)
+        return SheetsMgr.uniqueInstance.get(accessToken, domainId)
             .then(spreadsheetsSet => {
 
                 if (spreadsheetsSet === null) {
@@ -581,7 +658,7 @@ export class SheetsManagementOperations {
                 if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject({error :err});
+                    return Promise.reject({ error: err });
             });
 
     }

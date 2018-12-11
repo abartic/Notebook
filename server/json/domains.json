@@ -1,11 +1,25 @@
 [{
-    "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a2",
-    "domainName": "RedPenguin",
-    "admin": {
-        "accountName": "alexandrubartic@gmail.com",
-        "role": "owner",
-        "accountDescr": "google-account",
-        "enrollmentDate": 0
+        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a2",
+        "domainName": "RedPenguin",
+        "admin": {
+            "accountName": "alexandrubartic@gmail.com",
+            "role": "owner",
+            "accountDescr": "google-account",
+            "enrollmentDate": 0
+        },
+        "isActive": true,
+        "isLogging": true
     },
-    "isActive": true
-}]
+    {
+        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a3",
+        "domainName": "RedPenguin2",
+        "admin": {
+            "accountName": "galex.bartic@gmail.com",
+            "role": "owner",
+            "accountDescr": "google-account",
+            "enrollmentDate": 0
+        },
+        "isActive": true,
+        "isLogging": true
+    }
+]

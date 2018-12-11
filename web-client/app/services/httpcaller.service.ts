@@ -11,7 +11,7 @@ import { HttpClient } from '@angular/common/http';
 interface HttpResponse {
   error: HttpResponseError;
   errors: HttpResponseError[];
-  code : number
+  code: number
 }
 
 interface HttpResponseError {
@@ -27,9 +27,9 @@ export class HttpCallerService {
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    this.http.post<HttpResponse>(url, pack, {responseType : 'json'})
+    this.http.post<HttpResponse>(url, pack, { responseType: 'json' })
       .subscribe(result => {
-        
+
         if ((result.error === undefined || result.error === null) &&
           (result.errors === undefined || result.errors === null)) {
           cb(result);
@@ -47,6 +47,9 @@ export class HttpCallerService {
         else {
           errcb(result.error);
         }
+      }, error => {
+       
+          errcb(error);
       });
   }
 
@@ -54,17 +57,18 @@ export class HttpCallerService {
 
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
     // options.responseType = ResponseContentType.Blob;
-    this.http.post(url, pack, {responseType : 'blob'})
+    this.http.post(url, pack, { responseType: 'blob' })
       .subscribe(result => {
         //var file = new Blob([result.blob()], { type: 'application/pdf' });
         var file = new Blob([result], { type: 'application/pdf' });
         var fileURL = URL.createObjectURL(file);
         cb(fileURL);
       }, error => {
-        errcb(error);
+       
+          errcb(error);
       });
 
-    
+
   }
 
   public callPosts(packs: Array<[string, Object]>, cb: ((result: any) => void), errcb: ((result: any) => void)) {
@@ -104,16 +108,19 @@ export class HttpCallerService {
           errcb(error);
         else
           cb(results);
+      }, error => {
+       
+          errcb(error);
       });
   }
 
-  
+
 
   public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
 
     this.http.get<HttpResponse>(url)
       .subscribe(result => {
-        
+
         if ((result.error === undefined || result.error === null) &&
           (result.errors === undefined || result.errors === null)) {
           cb(result);
@@ -125,6 +132,9 @@ export class HttpCallerService {
         else {
           errcb(result.error);
         }
+      }, error => {
+       
+          errcb(error);
       });
   }
 }

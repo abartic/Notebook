@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { Router } from 'express';
+import { Router } from '@angular/router';
 import { HttpCallerService } from '../../../services/httpcaller.service';
 
 @Component({
@@ -10,9 +10,9 @@ import { HttpCallerService } from '../../../services/httpcaller.service';
 export class SidebarComponent implements OnInit {
 
     constructor(
-        @Inject(HttpCallerService) private httpCaller: HttpCallerService)
-    {
-
+        @Inject(HttpCallerService) private httpCaller: HttpCallerService,
+        private router : Router) {
+            
     }
 
 
@@ -39,11 +39,14 @@ export class SidebarComponent implements OnInit {
         this.httpCaller.callGet(
             '/login/mainmenu',
             (m) => {
-              this.mainmenu = m; 
+                this.mainmenu = m;
             },
-            () => {
-               
-             });
+            (error) => {
+                if (error && error.status)
+                    this.router.navigate(['/error', { errorcode: error.status }]);
+                else
+                    this.router.navigate(['/error', { errorcode: error }]);
+            });
 
 
     }

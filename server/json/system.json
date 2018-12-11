@@ -1,0 +1,14 @@
+{
+
+    "spreadsheetName": "system",
+    "sheets": [{
+        "sheetName": "logs",
+        "fields": ["log_date", "log_user", "log_descr"],
+        "fields_types": ["d", "", ""],
+        "entities": [{
+            "entityName": "SystemLog",
+            "ukey": "uid"
+
+        }]
+    }]
+}

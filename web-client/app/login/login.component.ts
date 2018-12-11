@@ -29,7 +29,7 @@ declare var $: any;
 })
 export class LoginComponent implements OnInit, AfterContentInit {
 
-
+    public domain : string;
     constructor(public router: Router,
         private http: HttpClient,
         private cookieService: CookieService) {
@@ -37,8 +37,7 @@ export class LoginComponent implements OnInit, AfterContentInit {
 
 
     signInWithGoogle(): void {
-
-        window.open("/login/google", "_self");
+        window.open("/login/google/domain/" + this.domain, "_self");
     }
 
     ngAfterContentInit() {
@@ -54,45 +53,6 @@ export class LoginComponent implements OnInit, AfterContentInit {
 
 
     ngOnInit() {
-
-    }
-
-
-    checkAuthentication(provider: String) {
-        // let url = '/login/' + provider + '/?callback=JSONP_CALLBACK';
-        // this.jsonp.get(url)
-        //     // .error(error => {
-
-        //     //      return Observable.of('Server error');
-        //     // })
-        //     .subscribe((res: Response) => {
-        //         var response = res.json();
-
-        //         //localStorage.setItem('fbk_access_token', response['fbk_access_token']);
-
-        //         this.router.navigate(['/dashboard']);
-        //     });
-
-
-        // this.http
-        //     .post('checkAuthorization', {'resource': '/'}, null)
-        //     .subscribe(r => {
-        //         var response = r.json();
-        //         if (response.isAuthorized == true)
-        //         {
-        //             localStorage.setItem('isLoggedin', 'true'); 
-        //             this.router.navigate(['/dashboard']); 
-        //         }
-        //     });
-        // this.http
-        //     .get('/login/facebook')
-        //     .subscribe(resp => {
-        //         console.log(resp);
-        //     });
-
-
-
-
 
     }
 }

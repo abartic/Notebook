@@ -46,7 +46,7 @@ export class Company extends BaseEntity {
 
     public adjustShellInfo() {
         this.shellInfo.filter.autoApply = true;
-        this.shellInfo.filter.commands = [];
+        this.shellInfo.filter.commands = [{ caption: 'Refresh', handler: 'onApply', primary : true },];
         this.shellInfo.commands = [
             { caption: 'Save', handler: 'onSave', primary : true },
             { caption: 'Undo', handler: 'onUndo' }

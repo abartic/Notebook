@@ -634,14 +634,15 @@ export class BaseEntity {
         }
         return where;
     }
-
-    protected _shellInfo = null;
+    
+    
+    protected f_shellInfo;
 
     public get shellInfo(): IShellInfo {
 
-        if (!this._shellInfo)
+        if (!this.f_shellInfo)
         {
-            this._shellInfo = {
+            this.f_shellInfo = {
                 filter: {
                     fields: {
                         add: [],
@@ -668,7 +669,7 @@ export class BaseEntity {
             };
             this.adjustShellInfo();
         }
-        return this._shellInfo;
+        return this.f_shellInfo;
     }
 
     public adjustShellInfo()

@@ -5,14 +5,12 @@ import * as path from 'path';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
 import { SheetRoute } from "../routes/sheets_route";
 import { SheetsMgr } from '../common/sheets-mgr';
-import { AccountsMgr } from '../common/accounts-mgr';
+import { KeyedCollection } from '../utils/dictionary';
+
 
 export class AppAcl {
 
-    private acl = new Acl(new Acl.memoryBackend());
-
-
-
+    public acl = new Acl(new Acl.memoryBackend());
 
     private constructor() {
 
@@ -26,7 +24,7 @@ export class AppAcl {
             (error, data) => {
                 var domains = <Array<IDomain>>JSON.parse(data);
                 for (let domain of domains)
-                    this.acl.addUserRoles(domain.admin.accountName, "proj-admin");
+                    this.acl.addUserRoles(domain.admin.accountName + domain.domainId, "proj-admin");
             });
     }
 
@@ -40,8 +38,8 @@ export class AppAcl {
         return AppAcl.aclInstance;
     }
 
-    public isAdmin(userId: string) {
-        return new Promise<boolean>((cb, cerr) => this.acl.hasRole(userId, 'proj-admin', (err, isAdmin) => {
+    public isAdmin(userToken: string) {
+        return new Promise<boolean>((cb, cerr) => this.acl.hasRole(userToken, 'proj-admin', (err, isAdmin) => {
             if (err)
                 cerr(err);
             else
@@ -49,52 +47,30 @@ export class AppAcl {
         }));
     }
 
+
     public getAclRequest() {
         return (req: Request, res: Response, next: NextFunction) => {
-            let token = req.session['google_access_token'];
+            // let accessToken = req.session['google_access_token'];
+            //let enrollmentDate = parseInt(req.session['enrollmentDate']);
             let userId = req.session['userId'];
-            //let status_timestamp: number = req.session['status_timestamp'];
-            let f_acl = this.acl.middleware();
+            let domainId = req.session['domainId'];
+            let accountsFileId = req.session['accountsFileId'];
+            
 
+            if (!accountsFileId) {
+                res.status(401);
+                return res.send({ error: 'domain data missing or account missing' });
+            }
 
-            this.acl.hasRole(userId, 'proj-admin', (err, isAdmin) => {
-                if (isAdmin) {
-                    f_acl(req, res, next);
-                }
-                else {
+            let f_acl = this.acl.middleware(null,
+                (req) => {
+                    return req.session.userId + req.session.domainId;
+                },
+                null);
 
-                    SheetsMgr.uniqueInstance.get(token)
-                        .then(spreadsheetsSet => {
-                            if (spreadsheetsSet === null || spreadsheetsSet.spreadsheets.length === 0) {
-                                return Promise.reject({ error: 'Sheets not created!' });
-                            }
-                            return AccountsMgr.uniqueInstance.getAccount(token, spreadsheetsSet.accountsFileId, userId);
-                        })
-                        .then(account => {
-                            if (!account)
-                                return Promise.reject({ error: 'Account not enrolled!' });
+            f_acl(req, res, next);
 
-                            this.acl.userRoles(userId, (err, roles) => {
+        }
+    };
 
-                                if (err) return Promise.reject({ error: err });
-                                this.acl.removeUserRoles(userId, roles, (err) => {
-                                    if (err) return Promise.reject({ error: err });
-
-                                    this.acl.addUserRoles(account.accountName, account.role);
-                                    f_acl(req, res, next);
-                                })
-                            });
-                        })
-                        .catch(err => {
-                            return Promise.reject({ error: err });
-                        });
-                }
-            });
-        };
-    }
-
-
-    public isAllowed(user: String, resource: String) {
-        return this.acl.isAllowed(user, resource, ['get']);
-    }
 }

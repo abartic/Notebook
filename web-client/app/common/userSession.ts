@@ -3,4 +3,6 @@ export class UserSession {
     public Language: string;
     public DomainId: string;
     public DomainName: string;
+
+    public WaitingForAction : boolean;
   }

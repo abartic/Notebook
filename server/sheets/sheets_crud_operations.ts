@@ -292,14 +292,14 @@ export class SheetsCrudOperations {
 
                             cb({ error: err });
                     }
+                    else {
+                        if (!result.replies || result.replies.length === 0) {
+                            cb({ error: "ERROR_APPEND" });
 
+                        }
 
-                    if (!result.replies || result.replies.length === 0) {
-                        cb({ error: "ERROR_APPEND" });
-
+                        cb({ error: null });
                     }
-
-                    cb({ error: null });
                 });
 
         });
@@ -310,12 +310,8 @@ export class SheetsCrudOperations {
     static createAppendCellsReq(sheetDef, entityPackage) {
         let appendCellReqs = [];
 
-
-        let sheetName, sheetID, ID, selectEntity, values;
-        sheetName = entityPackage.sheetName;
+        let sheetID, values;
         sheetID = entityPackage.sheetID;
-        ID = entityPackage.ID;
-        selectEntity = entityPackage.selectEntity;
         values = entityPackage.values;
 
         let rowData = { values: [] };

@@ -49,7 +49,7 @@ export class IndexRoute extends BaseRoute {
   public index(req: Request, res: Response, next: NextFunction) {
     
     //var csrf = csrfProtection(req,res,next);
-    res.cookie("XSRF-TOKEN", req.csrfToken());
+    res.cookie("xsrf-token", req.csrfToken());
     res.render("index.html");
   }
 }

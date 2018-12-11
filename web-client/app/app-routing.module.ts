@@ -6,6 +6,7 @@ import { MessagesComponent } from './shared/components/messages/messages.compone
 
 const routes: Routes = [
     { path: 'login', loadChildren: './login/login.module#LoginModule' },
+    { path: 'error', loadChildren: './error/error.module#ErrorModule' },
     { path: '', loadChildren: './layout/layout.module#LayoutModule',canActivate: [AuthGuard] },
     //{ path: 'message/:value', component: MessagesComponent , runGuardsAndResolvers: 'always' },
    

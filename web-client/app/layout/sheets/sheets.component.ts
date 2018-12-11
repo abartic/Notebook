@@ -11,11 +11,23 @@ import { routerTransition } from '../../router.animations';
 export class SheetsComponent implements OnInit {
 
   public response: string = null;
-  public enrolledUser : string = '';
+  public user: string = '';
 
   constructor(private httpCaller: HttpCallerService) { }
 
   ngOnInit() {
+
+  }
+
+  private getError(err): string {
+    if (err === null || err === undefined)
+      return 'generic error';
+    else if (err instanceof String)
+      return err.toString();
+    else if (err['error'])
+      return this.getError(err['error']);
+    else
+      return JSON.stringify(err);
 
   }
 
@@ -24,19 +36,18 @@ export class SheetsComponent implements OnInit {
     this.httpCaller.callPost(
       '/sheetdata/create-spreadsheet',
       {
-        spreadsheetNames: ['inventory', 'movements', 'partners', 'budgets', 'settings']
+        spreadsheetNames: ['inventory', 'movements', 'partners', 'budgets', 'settings', 'system']
       },
       result => {
         if (result.error)
           this.response = result.error;
-        else
-        {
+        else {
           this.response = 'Sheets created.';
-          this.enrolledUser = null;
+          this.user = null;
         }
       },
       err => {
-        this.response = 'Error - ' + err;
+        this.response = 'Error: ' + this.getError(err);
       });
   }
 
@@ -45,22 +56,43 @@ export class SheetsComponent implements OnInit {
     this.httpCaller.callPost(
       '/sheetdata/enrolle-user-spreadsheet',
       {
-        enrolledUser : this.enrolledUser.trim()
+        user: this.user.trim()
       },
       result => {
-        
+
         if (result.error)
           this.response = result.error;
-        else
-        {
+        else {
           this.response = 'Used enrolled.';
-          this.enrolledUser = null;
+          this.user = null;
         }
       },
       err => {
-        this.response = 'Error - ' + err;
+        this.response = 'Error: ' + this.getError(err);
       });
   }
+
+  onDisenrollingUser() {
+    this.response = null;
+    this.httpCaller.callPost(
+      '/sheetdata/disenrolle-user-spreadsheet',
+      {
+        user: this.user.trim()
+      },
+      result => {
+
+        if (result.error)
+          this.response = result.error;
+        else {
+          this.response = 'Used disenrolled.';
+          this.user = null;
+        }
+      },
+      err => {
+        this.response = 'Error: ' + this.getError(err);
+      });
+  }
+
 
   onDeleteMetadata() {
     this.response = null;
@@ -72,14 +104,13 @@ export class SheetsComponent implements OnInit {
       result => {
         if (result.error)
           this.response = result.error;
-        else
-        {
+        else {
           this.response = 'Metadata deleted!';
         }
       },
       err => {
-        this.response = 'Error - ' + err;
+        this.response = 'Error: ' + this.getError(err);
       });
   }
-  
+
 }

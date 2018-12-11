@@ -10,9 +10,11 @@ import * as path from 'path';
 import refresh = require('passport-oauth2-refresh')
 import { SheetRoute } from "../routes/sheets_route";
 import { SheetsMgr } from "../common/sheets-mgr";
-import { AccountsMgr } from "../common/accounts-mgr";
-import { AppAcl } from "../acl/app-acl";
 
+import { AppAcl } from "../acl/app-acl";
+import { eFileOperationType } from "../sheets/sheets_common_operations";
+import { DriveOperations } from "../drive/drive_operations";
+import Acl = require("acl");
 // import { Db } from "../models/db";
 // import * as  Sequelize from "sequelize";
 // import { Accounts } from "../models/accounts_dev";
@@ -25,20 +27,23 @@ import { AppAcl } from "../acl/app-acl";
  */
 export class PassportManager {
 
-
-    private static getDomain (account, userId) {
+    private static getDomainById(domainId) {
         let data = fs.readFileSync(path.join(__dirname, '../json/domains.json'), 'utf8')
         var domains = <Array<IDomain>>JSON.parse(data);
         for (let domain of domains) {
-            if (account) {
-                if (domain.domainId === account.domainId) {
-                    return domain;
-                }
+            if (domain.domainId === domainId) {
+                return domain;
             }
-            else {
-                if (domain.admin.accountName === userId){
-                    return domain;
-                }
+        }
+        return null;
+    }
+
+    private static getDomainByName(domainName) {
+        let data = fs.readFileSync(path.join(__dirname, '../json/domains.json'), 'utf8')
+        var domains = <Array<IDomain>>JSON.parse(data);
+        for (let domain of domains) {
+            if (domain.domainName === domainName) {
+                return domain;
             }
         }
         return null;
@@ -49,20 +54,26 @@ export class PassportManager {
 
         let authHandler = function (req, accessToken, refreshToken, profile, callBack) {
 
-            let emails: Array<{ value: String; type?: String; }> = profile.emails;
-            let emailAccounts = <Array<String>>emails.map(e => e.value);
-            if (!emailAccounts || emailAccounts.length === 0)
-                callBack(null, null);
+            // if (req.session.populated === false)
+            //     return;
+
+            let emails: Array<{ value: string; type?: string; }> = profile.emails;
+            let emailAccounts = <Array<string>>emails.map(e => e.value);
+            if (!emailAccounts || emailAccounts.length === 0){
+                callBack('user profile missing or incomplete', null);
+                return;
+            }
 
             let userId = emailAccounts[0].valueOf();
-            let f_auth = (account: IAccount) => {
+            let domain = PassportManager.getDomainByName(req.session['domainName']);
+            if (domain === null || domain.isActive === false) {
+                console.log('domain suspended');
+                callBack('domain missing or suspended', null);
+                return;
+            }
 
-                let domain = PassportManager.getDomain(account, userId);
-                if (domain === null || domain.isActive === false) {
-                    console.log('domain suspended');
-                    callBack('domain missing or suspended', null);
-                    return;
-                }
+            let domainId = domain.domainId;
+            let f_auth = (account: IAccount) => {
 
                 if (profile.provider === "google") {
                     req.session['google_access_token'] = accessToken;
@@ -71,40 +82,66 @@ export class PassportManager {
 
                 req.session['userId'] = profile.emails[0].value;
                 req.session['lastAuthTime'] = Date.now().toString();
-                req.session['domainId'] = domain.domainId;
-                req.session['domainName'] = domain.domainName;
+                req.session['domainId'] = domainId;
                 callBack(null, profile);
             };
 
-            AppAcl.aclInstance.isAdmin(userId).then((isAdmin) => {
+            AppAcl.aclInstance.isAdmin((userId + domainId)).then((isAdmin) => {
                 if (isAdmin) {
+                    req.session['accountsFileId'] = 'none';
+                    //req.session['enrollmentDate'] = 0;
                     f_auth(null);
                 }
                 else {
-                    SheetsMgr.uniqueInstance.get(accessToken)
+                    SheetsMgr.uniqueInstance.get(accessToken, domainId)
                         .then((ss) => {
                             if (ss && ss.accountsFileId) {
-                                AccountsMgr.uniqueInstance.getAccounts(accessToken, ss.accountsFileId)
+                                let userId = emailAccounts[0];
+                                DriveOperations.getConfigFile<IAccountsSet>(accessToken, ss.accountsFileId, domainId, eFileOperationType.accounts)
                                     .then(accountsSet => {
-                                        for (let account of accountsSet.accounts) {
-                                            if (emailAccounts.indexOf(account.accountName) > -1) {
-                                                if (account !== undefined) {
-                                                    f_auth(account);
-                                                    return;
-                                                }
+                                        if (accountsSet) {
+                                            let accountIdex = accountsSet.accounts.findIndex(a => a.accountName === userId);
+                                            if (accountIdex < 0) {
+                                                callBack('User not enrolled!', null)
+                                            }
+                                            else {
+                                                let account = accountsSet.accounts[accountIdex];
+                                                let acl = AppAcl.aclInstance.acl;
+                                                acl.userRoles(userId, (err, roles) => {
+                                                    if (err) return Promise.reject({ error: err });
+                                                    acl.removeUserRoles(userId, roles, (err) => {
+                                                        if (err) return Promise.reject({ error: err });
+                                                        acl.addUserRoles(account.accountName + domainId, account.role,
+                                                            (err) => {
+                                                                if (err) return Promise.reject({ error: err });
+                                                                req.session['accountsFileId'] = ss.accountsFileId;
+                                                                //req.session['enrollmentDate'] = account.enrollmentDate;
+                                                                f_auth(account);
+                                                            });
+
+                                                    })
+                                                });
+
                                             }
                                         }
-                                        callBack(null, null);
+                                        else {
+                                            callBack('Domain accounts missing', null);
+                                        }
                                     });
+
                             }
+                            else {
+                                callBack('Data domain missing or user not enrolled', null);
+                            }
+
+                        })
+                        .catch(e => {
+                            console.log(e);
+                            callBack(JSON.stringify(e), null);
                         });
                 }
-            }).catch(e => {
-                console.log(e);
-                callBack(e, null);
+
             });
-
-
 
             // let accounts = new Accounts(Db.instance);
             // return accounts.checkUser(profile.emails).then(existsUser => {
@@ -142,7 +179,7 @@ export class PassportManager {
         refresh.use(googleStrategy);
     }
 
-   
+
 
     public init() {
         return passport.initialize();
@@ -179,7 +216,6 @@ export class PassportManager {
                 'https://spreadsheets.google.com/feeds'
             ]
 
-
         };
         //overwirte
         options['accessType'] = 'offline';
@@ -202,34 +238,18 @@ export class PassportManager {
 
         let userId = req.session['userId'];
         let accessToken = req.session['google_access_token'];
-
+        let domainId = req.session['domainId'];
+        let accountsFileId = req.session['accountsFileId'];
         if (userId === undefined || accessToken === undefined)
-            return reject('domain suspended');
+            return reject('User session error');
 
-        AppAcl.aclInstance.isAdmin(userId).then((isAdmin) => {
-            if (isAdmin) {
-                let domain = PassportManager.getDomain(null, userId);
-                if (domain === null || domain.isActive === false) {
-                    console.log('domain suspended');
-                    return reject('domain suspended');
-                }
-            }
-            else {
-                SheetsMgr.uniqueInstance.get(accessToken)
-                    .then((ss) => {
-                        if (ss && ss.accountsFileId) {
-                            AccountsMgr.uniqueInstance.getAccount(accessToken, ss.accountsFileId, userId)
-                                .then(account => {
-                                    let domain = PassportManager.getDomain(account, userId);
-                                    if (domain === null || domain.isActive === false) {
-                                        console.log('domain suspended');
-                                        return reject('domain suspended');
-                                    }
-                                });
-                        }
-                    });
-            }
+        let domain = PassportManager.getDomainById(domainId);
+        if (domain === null || domain.isActive === false) {
+            console.log('domain suspended');
+            return reject('Domain missing or suspended');
+        }
 
+        let check = () => {
             refresh.requestNewAccessToken('google',
                 req.session['google_refresh_token'],
                 function (err, accessToken, refreshToken) {
@@ -243,10 +263,43 @@ export class PassportManager {
                     }
 
                 });
+        };
 
-        }).catch(e => {
-            console.log(e);
-            return reject(e);
+        AppAcl.aclInstance.isAdmin((userId + domainId)).then((isAdmin) => {
+            if (isAdmin) {
+                check();
+            }
+            else {
+
+                DriveOperations.getConfigFile<IAccountsSet>(accessToken, accountsFileId, domainId, eFileOperationType.accounts)
+                    .then(accountsSet => {
+                        if (accountsSet) {
+                            let accountIdex = accountsSet.accounts.findIndex(a => a.accountName === userId);
+                            if (accountIdex < 0) {
+                                let acl = AppAcl.aclInstance.acl;
+                                acl.userRoles(userId, (err, roles) => {
+                                    if (err) return Promise.reject({ error: err });
+                                    acl.removeUserRoles(userId, roles, (err) => {
+                                        if (err) return Promise.reject({ error: err });
+
+                                        return reject('User not enrolled');
+                                    })
+                                });
+                            }
+                            else {
+                                check();
+                            }
+                        }
+                        else {
+                            return reject('Domain accounts missing', null);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        return reject(err);
+                    });
+            }
+
         });
 
 

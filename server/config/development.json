@@ -29,5 +29,6 @@
     "reportsConfig": {
         "rootURL": "http://localhost:8080"
 
-    }
+    },
+    "service_account": "test-service@reporter-184014.iam.gserviceaccount.com"
 }

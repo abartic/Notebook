@@ -1,9 +1,14 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Router, RouterEvent, NavigationCancel, NavigationStart, NavigationError, NavigationEnd, 
-    ActivatedRoute } from '@angular/router';
+
+import { Component, OnInit, Input, Inject } from '@angular/core';
+import {
+    Router, RouterEvent, NavigationCancel, NavigationStart, NavigationError, NavigationEnd,
+    ActivatedRoute
+} from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertDialogWnd } from '../dialog/alertDialog/alertDialogWnd';
 import { Observable } from 'rxjs';
+import { UserSessionService } from '../services/userSessionService';
+import { UserSession } from '../common/userSession';
 
 @Component({
     selector: 'app-layout',
@@ -14,47 +19,49 @@ export class LayoutComponent implements OnInit {
 
     public screen_loading = false;
     navigationSubscription;
-    //paramSubscription;
+    private userSession: UserSession = new UserSession();
 
-    constructor(public router: Router, private activeRoute: ActivatedRoute, private modalService: NgbModal) {
+
+    constructor(public router: Router,
+        private activeRoute: ActivatedRoute,
+        private modalService: NgbModal,
+        @Inject(UserSessionService) private userSessionService: UserSessionService) {
+
         this.navigationSubscription = router.events.subscribe(event => {
             if (event instanceof NavigationStart) {
-                this.screen_loading = true;
+                this.userSession.WaitingForAction = true;
             }
             else if (event instanceof NavigationEnd) {
-                this.screen_loading = false;
-                this.initialiseInvites();
+                this.userSession.WaitingForAction = false;
             }
             else if (event instanceof NavigationCancel || event instanceof NavigationError) {
-                this.screen_loading = false;
+                this.userSession.WaitingForAction = false;
             }
 
+
         }, error => {
-            this.screen_loading = false;
+            this.userSession.WaitingForAction = false;
+
         }, () => {
-            this.screen_loading = false;
+            this.userSession.WaitingForAction = false;
         });
-        // this.paramSubscription = this.activeRoute.params.subscribe(params => {
-            
-        // });
+
     }
 
     ngOnInit() {
         if (this.router.url === '/') {
             this.router.navigate(['/dashboard']);
         }
-        // else{
-        //     let param = this.activeRoute.snapshot.paramMap.get('value');
-        //     if (param === 'route-error')
-        //     {
-        //         console.log('error');
-        //     }
-        // }
+
+
+        this.userSessionService.userSession.subscribe(
+            us => { this.userSession = us },
+            error => {
+                this.router.navigate(['/error', { errorcode: 'user sessions missing.' }]);
+            });
+
     }
 
-    initialiseInvites() {
-        // Set default values and re-fetch any data you need.
-    }
     ngOnDestroy() {
         // avoid memory leaks here by cleaning up after ourselves. If we  
         // don't then we will continue to run our initialiseInvites()   

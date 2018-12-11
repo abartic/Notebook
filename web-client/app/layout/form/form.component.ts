@@ -13,7 +13,9 @@ import { CookieService } from 'ngx-cookie-service';
 import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
 
 
-
+function instanceOfIPackageController(object: any): object is IPackageController {
+  return 'member' in object;
+}
 
 @Component({
   selector: 'app-form',
@@ -23,33 +25,38 @@ import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
 })
 export class FormComponent implements OnInit {
 
-  
+
   private packageCtrl: IPackageController
-  constructor(private route: ActivatedRoute, private router: Router, private cookieService: CookieService,) {
-   
+  constructor(private route: ActivatedRoute, private router: Router, private cookieService: CookieService, ) {
+
   }
 
   get package() {
     return this.packageCtrl === null ? null : this.packageCtrl.package;
   }
 
-  get entityType()
-  {
-    return this.packageCtrl.entityType; 
+  get entityType() {
+    return this.packageCtrl.entityType;
   }
 
   ngOnInit() {
     this.route.data
       .subscribe(data => {
-        if (data['packCtrl'] === 401) ///credential error
-            this.router.navigate(['/login']);
 
-        this.packageCtrl = <IPackageController>data['packCtrl'];
-        // this.packageCtrl.userSession = new UserSession();
-        // this.packageCtrl.userSession.Username = this.cookieService.get("userId")
+        let packCtrl = <IPackageController>data['packCtrl'];
+        if (packCtrl.package_initialized === true) {
+          this.packageCtrl = packCtrl;
+        }
+        else {
+          let errorcode = data['packCtrl'];
+          this.router.navigate(['/error', { errorcode: errorcode }]);
+        }
+
+      }, error => {
+        this.router.navigate(['/error', { errorcode: error }]);
       });
   }
 
 
-  
+
 }

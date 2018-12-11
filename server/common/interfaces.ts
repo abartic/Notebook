@@ -37,6 +37,7 @@ interface IDomain
     domainId : string;
     admin : IAccount;
     isActive : boolean;
+    isLogging : boolean;
 }
 
 interface IAccount
@@ -46,13 +47,13 @@ interface IAccount
     enrollmentDate : number,
     role : string,
     domainId : string,
-    domainName : string,
+    permissions? : {fileId: string, permissionId : string}[],
 }
 
 interface IAccountsSet
 {
     //id : string,
     domainId : string,
-    domainName : string,
+    //domainName : string,
     accounts : Array<IAccount>
 }
