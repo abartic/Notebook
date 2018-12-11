@@ -29,7 +29,7 @@ function total(items) {
     var sum = 0;
     items.forEach(function(i) {
 
-        sum += i.qty * i.price_out;
+        sum += i.qty_out * i.price_out;
     });
     return sum;
 }
