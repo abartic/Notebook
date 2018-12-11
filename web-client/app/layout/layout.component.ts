@@ -19,7 +19,7 @@ export class LayoutComponent implements OnInit {
 
     public screen_loading = false;
     navigationSubscription;
-    private userSession: UserSession = new UserSession();
+    userSession: UserSession = new UserSession();
 
 
     constructor(public router: Router,
