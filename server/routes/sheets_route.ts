@@ -54,7 +54,6 @@ export class SheetRoute extends BaseRoute {
         jsreport.init()
             .then(() => console.log('js reports initiated.'))
             .catch(err => {
-                //LogsManager.uniqueInstance.write('', '', JSON.stringify(err));
                 console.log('js reports NOT initiated.')
                 console.log(err);
             });

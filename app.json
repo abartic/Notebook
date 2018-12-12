@@ -4,5 +4,6 @@
     "repository": "https://git.heroku.com/notebook-ultimate.git",
 
     "keywords": ["node", "express", "heroku"],
-    "image": "heroku/nodejs"
+    "image": "heroku/nodejs",
+    "stack": "heroku-16"
 }
