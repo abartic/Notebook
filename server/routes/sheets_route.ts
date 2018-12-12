@@ -24,7 +24,7 @@ var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 const jsreport = require('jsreport-core')({
     templatingEngines: { strategy: 'in-process' },
-    tempDirectory: path.join(__dirname, 'jsReportsTempFolder')
+    //tempDirectory: path.join(__dirname, 'jsReportsTempFolder')
 })
 
 
@@ -38,6 +38,7 @@ export class SheetRoute extends BaseRoute {
 
     public static create(router: Router, csrfProtection: RequestHandler) {
 
+        console.log(path.join(__dirname, 'jsReportsTempFolder'))
         jsreport.use(require('jsreport-handlebars')())
         jsreport.use(require('jsreport-jsrender')());
         jsreport.use(require('jsreport-phantom-pdf')({ strategy: 'phantom-server' }))
