@@ -26,7 +26,7 @@ const jsreport = require('jsreport-core')({
     templatingEngines: { strategy: 'in-process' },
     tempDirectory: path.join(__dirname, '../jsReportsTempFolder'),
     logger: {
-		silent: false
+		silent: true
 	}
 })
 
