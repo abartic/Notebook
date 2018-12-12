@@ -1138,6 +1138,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     public onPrint() {
+
+        this.setWaiting(true);
+
         let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
         pack['reportType'] = this.package.entity.entityName.toLocaleLowerCase();
 
@@ -1186,9 +1189,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         },
                         err => {
                             observer.error();
+                            
                         });
                 }).catch((err) => {
                     observer.error();
+
+                    
                 })
 
             }
@@ -1198,6 +1204,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         preloadObs.subscribe(() => { },
             () => {
                 this.package.error_msg = 'report error...';
+                this.setWaiting(false);
             },
             () => {
                 this.httpCaller.callPdf(
@@ -1205,9 +1212,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     pack,
                     reportUrl => {
                         this.showReport(reportUrl);
+                        this.setWaiting(false);
                     },
                     err => {
                         this.package.error_msg = this.getError(err);
+                        this.setWaiting(false);
                     });
             })
 
