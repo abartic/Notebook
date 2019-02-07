@@ -27,7 +27,13 @@ export class PivotRelationComponent implements OnInit {
   @Input()
   set list(value: BaseEntity[]) {
     //console.log(value);
-    this.updatePivotDataSource();
+    this.updatePivotDataSource(true);
+  }
+
+  @Input()
+  set needRefresh(value: boolean) {
+    if (value === true)
+      this.updatePivotDataSource(true);
   }
 
   constructor(private modalService: NgbModal) { }
@@ -57,7 +63,7 @@ export class PivotRelationComponent implements OnInit {
   //   });
   // }
 
-  updatePivotDataSource() {
+  updatePivotDataSource(forceRedraw: boolean) {
 
     if (!this.package.entity[this.relation + '_relation'])
       return;
@@ -65,7 +71,7 @@ export class PivotRelationComponent implements OnInit {
     let objs = this.package.entity[this.relation + '_relation'].map(e => {
       return e.adjustDataForPivoting();
     });
-    if (this.child.webDataRocks.getColumns().length > 0) {
+    if (this.child.webDataRocks.getColumns().length > 0 && forceRedraw === false) {
       this.child.webDataRocks.updateData({
         data: objs
       });
@@ -150,7 +156,7 @@ export class PivotRelationComponent implements OnInit {
       this.validate,
       () => {
         this.refreshCurrentRecord();
-        this.updatePivotDataSource();
+        this.updatePivotDataSource(false);
       });
 
 
@@ -158,7 +164,7 @@ export class PivotRelationComponent implements OnInit {
 
   onCreateEntityByRelation() {
     if (this.package.entity.getAdjustedShellInfoSlice() === []) {
-      this.showAlert("Set pivot by property");
+      this.showAlert("Set pivot_by property");
       return;
     }
 
@@ -166,7 +172,7 @@ export class PivotRelationComponent implements OnInit {
       this.validate,
       () => {
         this.refreshCurrentRecord();
-        this.updatePivotDataSource();
+        this.updatePivotDataSource(false);
       })
   }
 

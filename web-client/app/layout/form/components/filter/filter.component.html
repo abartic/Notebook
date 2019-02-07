@@ -25,7 +25,9 @@
                         <tbody>
                             <tr>
                                 <td *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation,false) ">
-                                    <input type="text " class="form-control " [(ngModel)]="package.filter_details[relation][property.propName] " placeholder="{{property.propName}} " />
+                                    <input type="text" class="form-control " [(ngModel)]="package.filter_details[relation][property.propName] " placeholder="{{property.propName}}" />
+
+
                                 </td>
                             </tr>
                         </tbody>
@@ -61,6 +63,9 @@
                         <td *ngFor="let property of packageCtrl.filterProperties ">
                             <div [ngSwitch]="packageCtrl.getInputType(property)">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                                <div class="input-group" *ngSwitchCase="'checkbox'">
+                                    <input class="form-control" type="checkbox" [checked]="row[property.propName]">
+                                </div>
                                 <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
                             </div>
                         </td>

@@ -57,7 +57,7 @@
         {
             "sheetName": "art_inventory",
             "isView": true,
-            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I) WHERE D <> '' AND M = true group by D, E label SUM(H) 'qty_in', SUM(I) 'qty_out', SUM(H)-SUM(I) 'qty_net'\", 1)",
+            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I),SUM(H)-SUM(I) WHERE D <> '' AND M = true group by D, E label SUM(H) 'qty_in', SUM(I) 'qty_out', SUM(H)-SUM(I) 'qty_net'\", 1)",
             "fields": ["code_art", "code_store", "qty_in", "qty_out", "qty_net"],
             "fields_types": ["", "", "n", "n", "n"],
             "entities": [{
@@ -68,7 +68,7 @@
         {
             "sheetName": "accounts_inventory",
             "isView": true,
-            "formula": "QUERY(documents!A:Z,\"select D, SUM(N), SUM(M) WHERE D <> '' AND L = TRUE group by D label SUM(M) 'credit_value', SUM(N) 'debit_value', SUM(N)-SUM(M) 'balance'\", 1)",
+            "formula": "QUERY(documents!A:Z,\"select D, SUM(N), SUM(M),SUM(N)-SUM(M) WHERE D <> '' AND L = TRUE group by D label SUM(M) 'credit_value', SUM(N) 'debit_value', SUM(N)-SUM(M) 'balance'\", 1)",
             "fields": ["code_part", "debit_value", "credit_value", "balance"],
             "fields_types": ["", "n", "n", "n"],
             "entities": [{

@@ -57,7 +57,7 @@ export class LayoutComponent implements OnInit {
         this.userSessionService.userSession.subscribe(
             us => { this.userSession = us },
             error => {
-                this.router.navigate(['/error', { errorcode: 'user sessions missing.' }]);
+                this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
             });
 
     }

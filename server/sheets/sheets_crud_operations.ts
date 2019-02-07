@@ -138,7 +138,7 @@ export class SheetsCrudOperations {
                 });
             })
             .catch((err) => {
-                return Promise.resolve({ error: 'Cannot save. Lock of record(s) failed! Please retry!' });
+                return { error: 'Cannot save. Lock of record(s) failed! Please retry!' };
             });
 
     }

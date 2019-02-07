@@ -694,6 +694,8 @@ export class BaseEntity {
         return this === other;
     }
 
+    public requestShellInfoSliceRefresh : boolean = false;
+
     public getAdjustedShellInfoSlice() {
 
     }

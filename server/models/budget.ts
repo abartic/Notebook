@@ -19,7 +19,14 @@ export class Budget extends BaseEntity {
 
     public title: string;
 
-    public pivot_by: string;
+    private _pivot_by = null;
+    public get pivot_by(): string {
+        return this._pivot_by;
+    }
+    public set pivot_by(value: string) {
+        this._pivot_by = value;
+        this.requestShellInfoSliceRefresh = true;
+    }
 
     public type_doc: string;
 
@@ -110,11 +117,14 @@ export class Budget extends BaseEntity {
 
 
     public getAdjustedShellInfoSlice() {
+
+       this.requestShellInfoSliceRefresh = false;
+
         if (!this.pivot_by || this.pivot_by === '')
             return [];
 
         let fields = this.pivot_by.split(',').map(f => f.trim());
-        let slice = this.shellInfo.pivotInfo.slice;
+        let slice = JSON.parse(JSON.stringify(this.shellInfo.pivotInfo.slice));
         let row_delete = [];
         for (let row of slice.rows) {
             let index = fields.findIndex(f => f === row.uniqueName);

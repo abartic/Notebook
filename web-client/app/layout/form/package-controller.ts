@@ -103,7 +103,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             .subscribe(
             us => { this.userSession = us },
             error => {
-                this.router.navigate(['/error', { errorcode: 'user sessions missing.' }]);
+                this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
             });
     }
 
@@ -922,7 +922,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 this.package.entity_relation = undefined;
             }
 
-            cb();
+            if (cb)
+                cb();
 
         }, (reason) => {
             this.package.entity_relation = undefined;

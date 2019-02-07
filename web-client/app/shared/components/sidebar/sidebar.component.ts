@@ -42,10 +42,10 @@ export class SidebarComponent implements OnInit {
                 this.mainmenu = m;
             },
             (error) => {
-                if (error && error.status)
-                    this.router.navigate(['/error', { errorcode: error.status }]);
-                else
-                    this.router.navigate(['/error', { errorcode: error }]);
+                //if (error && error.status)
+                    this.router.navigate(['/login']);
+                //else
+                //    this.router.navigate(['/error', { errorcode: error }]);
             });
 
 

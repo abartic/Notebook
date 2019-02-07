@@ -70,7 +70,8 @@
     <div *ngFor="let relation of (package.entity.entityInfo.relations)">
         <form-editor-relation [package]="package" *ngIf="!package.entity.shellInfo.pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
 
-        <form-editor-pivot-relation *ngIf="package.entity.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']">
+        <form-editor-pivot-relation *ngIf="package.entity.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']" [needRefresh]="package.entity.requestShellInfoSliceRefresh">
+
 
         </form-editor-pivot-relation>
     </div>
