@@ -195,7 +195,7 @@ export class Budget extends BaseEntity {
     public get pivot_by_ar() {
 
         if (!this._pivot_by_ar) {
-            if (this.pivot_by === undefined) {
+            if (!this.pivot_by) {
                 this._pivot_by_ar = [];
             }
             else {

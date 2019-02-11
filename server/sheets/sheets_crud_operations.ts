@@ -199,16 +199,15 @@ export class SheetsCrudOperations {
         }
 
         return SheetsCommonOperations.setMetadataWithRetry(accessToken, entitiesPackage)
-            .then(resps => {
+            .then(resp => {
                 let results = [];
-                for (let result of resps) {
-                    if (result === false) {
-                        throw false;
-                    }
+
+                if (resp === false) {
+                    throw false;
                 }
 
                 return new Promise((cb) => {
-                    sheets.spreadsheets.values.batchCleanByDataFilter(cleanDataFilterReq, function (err, result) {
+                    sheets.spreadsheets.values.batchClearByDataFilter(cleanDataFilterReq, function (err, result) {
                         if (err) {
                             console.log(err);
                             throw false;
@@ -231,8 +230,8 @@ export class SheetsCrudOperations {
 
                 });
             })
-            .catch(() => {
-                return { error: 'Cannot save. Lock of record(s) failed! Please retry!' };
+            .catch((r) => {
+                return { error: 'Cannot save. Lock of record(s) failed! Please retry! ('  + r + ')'};
             });
     }
 
