@@ -1,5 +1,5 @@
 import { UserSession } from './../common/userSession';
-import { UserSession } from './../shared/components/header/header.component';
+
 
 import { Observable } from 'rxjs/Observable';
 import { Injectable } from '@angular/core';
