@@ -1,4 +1,4 @@
-import { UserSession } from './../common/userSession';
+
 
 
 import { Observable } from 'rxjs/Observable';
@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 //import { forkJoin } from 'rxjs/observable/forkJoin';
 import 'rxjs/add/observable/forkJoin';
 import { HttpClient } from '@angular/common/http';
-import { CookieService } from 'ngx-cookie-service';
+import { UserSession } from '../common/userSession';
 
 
 interface HttpResponse {
@@ -26,7 +26,10 @@ interface HttpResponseError {
 @Injectable()
 export class HttpCallerService {
 
-  constructor(private router: Router, private http: HttpClient, private userSession: UserSession) { }
+  constructor(private router: Router, private http: HttpClient) {
+
+
+  }
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
@@ -56,15 +59,18 @@ export class HttpCallerService {
       });
   }
 
-  public callPdf(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
+  public callPdf(url: string, userSession: UserSession, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    let language = this.userSession.Language;
+    let language = 'en';
+    if (userSession && userSession.Language !== 'en')
+      language = userSession.Language;
+
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
     // options.responseType = ResponseContentType.Blob;
     this.http.post(url, pack, {
       headers: {
         'Accept-Language': language
-      }, 
+      },
       responseType: 'blob'
     })
       .subscribe(result => {

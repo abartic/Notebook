@@ -1212,6 +1212,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             () => {
                 this.httpCaller.callPdf(
                     '/sheetdata/report  ',
+                    this.userSession,
                     pack,
                     reportUrl => {
                         this.showReport(reportUrl);
