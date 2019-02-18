@@ -29,6 +29,8 @@ export class Purchase extends BaseEntity {
     @LookupProp("store", ["code_store", "descr_store"])
     public code_store: string;
 
+    public currency: string;
+    
     public has_movements: boolean;
 
     public has_payments: boolean;

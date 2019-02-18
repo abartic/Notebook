@@ -79,6 +79,8 @@ export class HeaderComponent implements OnInit {
 
     changeLang(language: string) {
         this.translate.use(language);
+        this.userSession.Language = language;
+        this.cookieService.set("language",language);
     }
 
     ngOnDestroy() {

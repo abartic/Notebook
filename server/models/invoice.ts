@@ -13,6 +13,8 @@ export class Invoice extends BaseEntity {
 
     public type_doc: string;
 
+    public currency: string;
+
     public creation_date: Date;
 
     public due_date: Date;

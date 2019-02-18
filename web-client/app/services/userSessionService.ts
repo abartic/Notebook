@@ -16,6 +16,7 @@ export class UserSessionService {
         userSession.Username = cookieService.get("userId");
         userSession.DomainId = cookieService.get("domainId");
         userSession.DomainName = cookieService.get("domainName");
+        userSession.Language = cookieService.get("language");
         this.userSessionDataSource = new BehaviorSubject<UserSession>(userSession);
         this.userSession = this.userSessionDataSource.asObservable();
     }

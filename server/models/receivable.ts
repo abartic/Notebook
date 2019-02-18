@@ -15,6 +15,8 @@ export class Receivable extends BaseEntity {
     @LookupProp("partner", ["code_part", "name_partner", "descr_partner"])
     public code_part: string;
 
+    public currency: string;
+    
     public type_doc: string;
 
     public creation_date: Date;

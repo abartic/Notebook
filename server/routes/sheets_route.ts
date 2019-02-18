@@ -40,6 +40,28 @@ export class SheetRoute extends BaseRoute {
     }
 
     public static create(router: Router, csrfProtection: RequestHandler) {
+
+
+        var areIntlLocalesSupported = require('intl-locales-supported');
+
+        var localesMyAppSupports = [
+            'en', 'ro', 'fr'
+        ];
+
+        if (global.Intl) {
+            // Determine if the built-in `Intl` has the locale data we need.
+            if (!areIntlLocalesSupported(localesMyAppSupports)) {
+                // `Intl` exists, but it doesn't have the data we need, so load the
+                // polyfill and replace the constructors with need with the polyfill's.
+                var IntlPolyfill = require('intl');
+                Intl.NumberFormat = IntlPolyfill.NumberFormat;
+                Intl.DateTimeFormat = IntlPolyfill.DateTimeFormat;
+            }
+        } else {
+            // No `Intl`, so use and load the polyfill.
+            global.Intl = require('intl');
+        }
+
         jsreport.use(require('jsreport-handlebars')());
         jsreport.use(require('jsreport-jsrender')());
         jsreport.use(require('jsreport-phantom-pdf')({ strategy: 'phantom-server' }))
@@ -308,11 +330,12 @@ export class SheetRoute extends BaseRoute {
                     });
             });
 
-
+        var appLocales = ['ro', 'en', 'fr'];
         router.post('/sheetdata/report',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
 
+                var locale = req.acceptsLanguages(appLocales) || 'en';
                 let entityPackage = <IEntityPackage>req.body;
                 let accessToken = req.session['google_access_token'];
                 let domainId = req.session['domainId'];
@@ -330,6 +353,9 @@ export class SheetRoute extends BaseRoute {
                             throw 'Company not set!'
 
                         let renderer = (content, helpers) => {
+
+                            content = '{{#intl locales="' + locale + '"}}' + content + '{{/intl}}'
+                            
                             jsreport.render({
                                 template: {
                                     content: content,
@@ -349,14 +375,15 @@ export class SheetRoute extends BaseRoute {
                                     res.send({ error: err });
                             });
                         };
-                        if (!company.custom_invoice_report) {
+                        let field_name = company['custom_' + reportType + '_report'];
+                        if (!company[field_name]) {
                             let content = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_template.html')), 'utf8');
                             let helpers = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_script.js')), 'utf8');
-
+                            
                             return renderer(content, helpers);
                         }
                         else {
-                            let invoice_files = company.custom_invoice_report.split(';')
+                            let invoice_files = company['field_name'].split(';')
                             DriveOperations.getConfigFile<string>(accessToken, invoice_files[0], null, eFileOperationType.read)
                                 .then(c => {
                                     DriveOperations.getConfigFile<string>(accessToken, invoice_files[1], null, eFileOperationType.read).then(h => {

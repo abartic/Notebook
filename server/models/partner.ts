@@ -17,6 +17,8 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
     public unit: String;
 
+    public currency: string;
+
     public www_address : string;
 
     public email : string;

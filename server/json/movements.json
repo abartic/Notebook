@@ -10,9 +10,9 @@
                 "discount_perc", "tax_perc",
                 "credit_value", "debit_value",
                 "discount_value", "tax_value",
-                "notes", "partner_notes", "type_movement"
+                "notes", "partner_notes", "type_movement", "currency"
             ],
-            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "n", "n", "n", "n", "", "", ""],
+            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "n", "n", "n", "n", "", "", "", ""],
             "hidden_fields": ["type_movement"],
             "entities": [{
                     "entityName": "Invoice",

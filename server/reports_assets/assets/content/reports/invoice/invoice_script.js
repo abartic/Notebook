@@ -31,6 +31,10 @@
      return stringDate;
  }
 
+ function toDate(date) {
+     return date ? new Date(date.year, date.month - 1, date.day) : null;
+ }
+
 
  function total(items) {
      var sum = 0;
@@ -52,23 +56,23 @@
  }
 
 
- function formatNum(num) {
+ //  function formatNum(num) {
 
-     var context = {
-         value: num,
-         date: new Date()
-     };
+ //      var context = {
+ //          value: num,
+ //          date: new Date()
+ //      };
 
-     var intlData = {
-         "locales": "fr-FR"
-     };
+ //      var intlData = {
+ //          "locales": "ro-RO"
+ //      };
 
-     var template = handlebars.compile("{{formatDate date day='numeric' month='long' year='numeric'}}");
-     var html = template(context, {
-         data: {
-             intl: intlData
-         }
-     });
+ //      var template = handlebars.compile("{{formatNumber value}}");
+ //      var html = template(context, {
+ //          data: {
+ //              intl: intlData
+ //          }
+ //      });
 
-     return html;
- }
+ //      return html;
+ //  }
