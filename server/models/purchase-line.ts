@@ -1,6 +1,7 @@
 
-import { BaseEntity, LookupProp, SheetInfo, IEntityInfo } from "./base-entity";
+import { BaseEntity, LookupProp, SheetInfo, IEntityInfo, IPropInfo } from "./base-entity";
 import { Purchase } from "./purchase";
+import { eFieldDataType } from "../common/enums";
 
 @SheetInfo("movements", "document_lines","PurchaseLine")
 export class PurchaseLine extends BaseEntity {
@@ -18,6 +19,14 @@ export class PurchaseLine extends BaseEntity {
     public qty_in : number;
 
     private qty_out : number;
+
+    public discount_perc: number;
+
+    public discount_value: number;
+
+    public tax_perc: number;
+
+    public tax_value: number;
 
     public discount : number;
     
@@ -39,13 +48,40 @@ export class PurchaseLine extends BaseEntity {
         }
     }
 
-    // public adjustProperties(entityInfo: IEntityInfo) {
-    //     for (let dprop of ['price_out', 'qty_out']) {
-    //         let item = entityInfo.properties.find(i => i.propName === dprop)
-    //         item.isHidden = true;
-    //     }
-    //     return entityInfo;
-    // }
+    public get credit_value(): number {
+        let credit = (this.price_in * this.qty_in);
+        let discount = 0;
+
+        if (this.discount_perc) {
+            discount = credit * this.discount_perc / 100;
+        }
+        else if (this.discount_value) {
+            discount = this.discount_value
+        }
+
+        return credit - discount;
+    }
+
+    private _props = null;
+    get properties(): Array<IPropInfo> {
+
+        if (this._props === null) {
+            this._props = this.entityInfo.properties;
+
+            if (this._props.findIndex(i => i.propName === 'credit_value') < 0) {
+                this._props.push(<IPropInfo>{
+                    propName: 'credit_value',
+                    propCaption: 'credit_value',
+                    dataType: eFieldDataType.Numeric,
+                    isFilterHidden: true,
+                    isCustom: true,
+                    isReadOnly : true
+                });
+            }
+
+        }
+        return this._props;
+    }
 
     
 }

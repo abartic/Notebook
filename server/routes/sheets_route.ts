@@ -23,11 +23,11 @@ import { LogsManager } from '../logs/logs-manager';
 var googleApi = require('googleapis');
 var sheets = googleApi.sheets('v4');
 const jsreport = require('jsreport-core')({
-    templatingEngines: { strategy: 'in-process' },
+    templatingEngines: { strategy: 'in-process', allowedModules: '*' },
     tempDirectory: path.join(__dirname, '../jsReportsTempFolder'),
     logger: {
-		silent: true
-	}
+        silent: true
+    }
 })
 
 
@@ -40,9 +40,7 @@ export class SheetRoute extends BaseRoute {
     }
 
     public static create(router: Router, csrfProtection: RequestHandler) {
-
-        
-        jsreport.use(require('jsreport-handlebars')())
+        jsreport.use(require('jsreport-handlebars')());
         jsreport.use(require('jsreport-jsrender')());
         jsreport.use(require('jsreport-phantom-pdf')({ strategy: 'phantom-server' }))
         jsreport.use(require('jsreport-assets')({
@@ -52,7 +50,12 @@ export class SheetRoute extends BaseRoute {
             rootUrlForLinks: Config.get<string>("reportsConfig.rootURL"),
         }))
         jsreport.init()
-            .then(() => console.log('js reports initiated.'))
+            .then(() => {
+                console.log('js reports initiated.');
+                // const handlebars = require('handlebars');
+                // const HandlebarsIntl = require('handlebars-intl');
+                // HandlebarsIntl.registerWith(handlebars);
+            })
             .catch(err => {
                 console.log('js reports NOT initiated.')
                 console.log(err);

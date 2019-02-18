@@ -7,10 +7,12 @@
                 "creation_date", "due_date", "register_date",
                 "internal_reference", "code_store",
                 "has_movements", "has_payments",
+                "discount_perc", "tax_perc",
                 "credit_value", "debit_value",
+                "discount_value", "tax_value",
                 "notes", "partner_notes", "type_movement"
             ],
-            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "", "", ""],
+            "fields_types": ["", "", "", "d", "d", "d", "", "", "b", "b", "n", "n", "n", "n", "n", "n", "", "", ""],
             "hidden_fields": ["type_movement"],
             "entities": [{
                     "entityName": "Invoice",
@@ -21,7 +23,7 @@
                 {
                     "entityName": "Receivable",
                     "ukey": "code_doc",
-                    "hidden_fields": ["debit_value"]
+                    "hidden_fields": ["debit_value", "tax_perc", "tax_value", "discount_perc", "discount_value", "has_movements", "code_store", "has_payments", "due_date"]
                 },
                 {
                     "entityName": "Purchase",
@@ -32,17 +34,27 @@
                 {
                     "entityName": "Payment",
                     "ukey": "code_doc",
-                    "hidden_fields": ["credit_value"]
+                    "hidden_fields": ["credit_value", "tax_perc", "tax_value", "discount_perc", "discount_value", "has_movements", "code_store", "has_payments", "due_date"]
                 }
             ]
 
-        }, {
+        },
+        {
             "sheetName": "document_lines",
             "fields": ["code_doc", "code_art", "code_store",
-                "price_in", "price_out", "qty_in", "qty_out",
-                "discount", "move_date", "notes", "has_movements"
+                "price_in", "price_out",
+                "qty_in", "qty_out",
+                "discount_perc", "discount_value",
+                "tax_perc", "tax_value",
+                "move_date", "notes", "has_movements"
             ],
-            "fields_types": ["", "", "", "n", "n", "n", "n", "n", "d", "", "b"],
+            "fields_types": ["", "", "",
+                "n", "n",
+                "n", "n",
+                "n", "n",
+                "n", "n",
+                "d", "", "b"
+            ],
             "hidden_fields": ["has_movements", "move_date"],
             "entities": [{
                     "entityName": "InvoiceLine",
@@ -57,7 +69,7 @@
         {
             "sheetName": "art_inventory",
             "isView": true,
-            "formula": "QUERY(document_lines!A:Z,\"select D, E, SUM(H), SUM(I),SUM(H)-SUM(I) WHERE D <> '' AND M = true group by D, E label SUM(H) 'qty_in', SUM(I) 'qty_out', SUM(H)-SUM(I) 'qty_net'\", 1)",
+            "formula": "QUERY(document_lines!A:AC,\"select D, E, SUM(H), SUM(I),SUM(H)-SUM(I) WHERE D <> '' AND P = true group by D, E label SUM(H) 'qty_in', SUM(I) 'qty_out', SUM(H)-SUM(I) 'qty_net'\", 1)",
             "fields": ["code_art", "code_store", "qty_in", "qty_out", "qty_net"],
             "fields_types": ["", "", "n", "n", "n"],
             "entities": [{
@@ -68,7 +80,7 @@
         {
             "sheetName": "accounts_inventory",
             "isView": true,
-            "formula": "QUERY(documents!A:Z,\"select D, SUM(N), SUM(M),SUM(N)-SUM(M) WHERE D <> '' AND L = TRUE group by D label SUM(M) 'credit_value', SUM(N) 'debit_value', SUM(N)-SUM(M) 'balance'\", 1)",
+            "formula": "QUERY(documents!A:AD,\"select D, SUM(O), SUM(P),SUM(O)-SUM(P) WHERE D <> '' AND L = TRUE group by D label SUM(O) 'credit_value', SUM(P) 'debit_value', SUM(O)-SUM(P) 'balance'\", 1)",
             "fields": ["code_part", "debit_value", "credit_value", "balance"],
             "fields_types": ["", "n", "n", "n"],
             "entities": [{

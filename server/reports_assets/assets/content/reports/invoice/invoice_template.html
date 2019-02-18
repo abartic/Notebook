@@ -26,11 +26,11 @@
             vertical-align: top;
         }
         
-        .invoice-box table tr td:nth-child(3) {
+        .invoice-box table tr td:nth-child(6) {
             text-align: right;
         }
         
-        .invoice-box table tr td:nth-child(4) {
+        .invoice-box table tr td:nth-child(7) {
             text-align: right;
         }
         
@@ -66,7 +66,7 @@
             border-bottom: none;
         }
         
-        .invoice-box table tr.total td:nth-child(4) {
+        .invoice-box table tr.total td:nth-child(6) {
             border-top: 2px solid #eee;
             font-weight: bold;
         }
@@ -86,41 +86,36 @@
     </style>
 
 
+
 </head>
 
 <body>
+
     <div class="invoice-box">
         <table cellpadding="0" cellspacing="0">
             <tr class="top">
-                <td colspan="4">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <img src="{#asset reports/invoice/logo.png @encoding=link}" style="width:100%; max-width:300px;" />
-                            </td>
-                            <td>
-                                Invoice #: {{code_doc}}
-                                <br> Created: {{toUserFormatDate creation_date}}
-                                <br> Due: {{toUserFormatDate due_date}}
-                            </td>
-                        </tr>
-                    </table>
+
+                <td class="title" colspan="3 ">
+                    <img src="{#asset reports/invoice/logo.png @encoding=link}" style="width:100%; max-width:300px;" />
                 </td>
+                <td></td>
+                <td colspan="3 ">
+                    Invoice #: {{code_doc}}
+                    <br> Created: {{toUserFormatDate creation_date}}
+                    <br> Due: {{toUserFormatDate due_date}}
+                </td>
+
             </tr>
             <tr class="information ">
-                <td colspan="4 ">
-                    <table>
-                        <tr>
-                            <td>
-                                {{company.name_comp}}<br> {{company.address}}
-                                <br> {{company.city}},{{company.county}},{{company.zip_code}}
-                            </td>
-                            <td>
-                                {{partner_lookup_entity.name_partner}}<br> {{partner_address_lookup_entity.line_address}}
-                                <br> {{partner_address_lookup_entity.city}} {{partner_address_lookup_entity.county}} {{partner_address_lookup_entity.zip_code}}
-                            </td>
-                        </tr>
-                    </table>
+                <td colspan="3 ">
+
+                    {{company.name_comp}}<br> {{company.address}}
+                    <br> {{company.city}},{{company.county}},{{company.zip_code}}
+                </td>
+                <td></td>
+                <td colspan="3 ">
+                    {{partner_lookup_entity.name_partner}}<br> {{partner_address_lookup_entity.line_address}}
+                    <br> {{partner_address_lookup_entity.city}} {{partner_address_lookup_entity.county}} {{partner_address_lookup_entity.zip_code}}
                 </td>
             </tr>
             <tr class="heading ">
@@ -131,10 +126,19 @@
                     Item
                 </td>
                 <td>
+                    Qty
+                </td>
+                <td>
                     Price
                 </td>
                 <td>
-                    Qty
+                    Discount
+                </td>
+                <td>
+                    Tax %
+                </td>
+                <td>
+                    Tax
                 </td>
             </tr>
             {{#each invoiceline_relation}}
@@ -146,24 +150,63 @@
                     {{article_lookup_entity.descr_art}}
                 </td>
                 <td>
-                    {{price_out}}
+                    {{formatNumber qty_out}}
                 </td>
                 <td>
-                    {{qty_out}}
+                    {{formatNumber price_out}}
+                </td>
+                <td>
+                    {{formatNumber discount_value}}
+                </td>
+                <td>
+                    {{formatNumber tax_perc}}
+                </td>
+                <td>
+                    {{formatNumber tax_value}}
                 </td>
             </tr>
             {{/each}}
+
+            <br>
+            <tr class="total ">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td colspan="2">
+                    Total taxes: {{formatNum tax_value}}
+                </td>
+
+            </tr>
 
             <tr class="total ">
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>
-                    Total: {{total invoiceline_relation}}
+                <td></td>
+                <td></td>
+
+                <td colspan="2">
+                    Total discount: {{formatNumber discount_value}}
+                </td>
+            </tr>
+
+            <tr class="total ">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+
+                <td colspan="2">
+                    Total: {{formatNumber debit_value}}
                 </td>
             </tr>
         </table>
     </div>
+
 </body>
 
 </html>

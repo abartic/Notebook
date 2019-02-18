@@ -39,6 +39,7 @@ module.exports = function(grunt) {
                     module: "commonjs",
                     target: "ES6",
                     allowJs: true,
+                    lib: ["es6", "dom", "es2017"],
                     experimentalDecorators: true
                 }
             }

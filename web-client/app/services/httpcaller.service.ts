@@ -48,8 +48,8 @@ export class HttpCallerService {
           errcb(result.error);
         }
       }, error => {
-       
-          errcb(error);
+
+        errcb(error);
       });
   }
 
@@ -57,15 +57,20 @@ export class HttpCallerService {
 
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
     // options.responseType = ResponseContentType.Blob;
-    this.http.post(url, pack, { responseType: 'blob' })
+    this.http.post(url, pack, {
+      // headers: {
+      //   'Accept-Language': 'ro'
+      // }, 
+      responseType: 'blob'
+    })
       .subscribe(result => {
         //var file = new Blob([result.blob()], { type: 'application/pdf' });
         var file = new Blob([result], { type: 'application/pdf' });
         var fileURL = URL.createObjectURL(file);
         cb(fileURL);
       }, error => {
-       
-          errcb(error);
+
+        errcb(error);
       });
 
 
@@ -109,8 +114,8 @@ export class HttpCallerService {
         else
           cb(results);
       }, error => {
-       
-          errcb(error);
+
+        errcb(error);
       });
   }
 
@@ -133,8 +138,8 @@ export class HttpCallerService {
           errcb(result.error);
         }
       }, error => {
-       
-          errcb(error);
+
+        errcb(error);
       });
   }
 }

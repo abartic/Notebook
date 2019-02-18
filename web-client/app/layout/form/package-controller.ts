@@ -763,7 +763,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     private openEditDialog(title: string, validation?: () => boolean, relation?) {
 
-        const modalRef = this.modalService.open(EditEntityDialogWnd);
+        const modalRef = this.modalService.open(EditEntityDialogWnd,
+            { windowClass: 'report-modal' }
+        );
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;

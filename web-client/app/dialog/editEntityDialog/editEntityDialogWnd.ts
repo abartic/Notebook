@@ -1,5 +1,5 @@
 
-import { Component, Inject, Injectable, Input } from '@angular/core';
+import { Component, Inject, Injectable, Input, ViewEncapsulation } from '@angular/core';
 import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPackageController } from '../../layout/form/package-controller';
 import { AlertDialogWnd } from '../alertDialog/alertDialogWnd';
@@ -9,7 +9,9 @@ import { AskDialogWnd } from '../askDialog/askDialogWnd';
 
 @Component({
   selector: 'edit-entity-dialog-wnd',
-  templateUrl: './editEntityDialog.html'
+  templateUrl: './editEntityDialog.html',
+  encapsulation: ViewEncapsulation.None,
+  styleUrls: ['./editEntityDialog.component.css'],
 })
 export class EditEntityDialogWnd {
 
