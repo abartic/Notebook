@@ -355,7 +355,7 @@ export class SheetRoute extends BaseRoute {
                         let renderer = (content, helpers) => {
 
                             content = '{{#intl locales="' + locale + '"}}' + content + '{{/intl}}'
-                            
+
                             jsreport.render({
                                 template: {
                                     content: content,
@@ -375,15 +375,15 @@ export class SheetRoute extends BaseRoute {
                                     res.send({ error: err });
                             });
                         };
-                        let field_name = company['custom_' + reportType + '_report'];
-                        if (!company[field_name]) {
+                        let report_info = company['custom_' + reportType + '_report'];
+                        if (!report_info) {
                             let content = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_template.html')), 'utf8');
                             let helpers = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_script.js')), 'utf8');
                             
                             return renderer(content, helpers);
                         }
                         else {
-                            let invoice_files = company['field_name'].split(';')
+                            let invoice_files = report_info.split(';')
                             DriveOperations.getConfigFile<string>(accessToken, invoice_files[0], null, eFileOperationType.read)
                                 .then(c => {
                                     DriveOperations.getConfigFile<string>(accessToken, invoice_files[1], null, eFileOperationType.read).then(h => {
