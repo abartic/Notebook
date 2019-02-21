@@ -14,6 +14,7 @@
                 "ukey": "code_doc",
                 "relations": ["budgetline"],
                 "hidden_fields": []
+
             },
             {
                 "entityName": "Expenses",
