@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpCallerService } from '../../services/httpcaller.service';
 import { routerTransition } from '../../router.animations';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sheets',
@@ -24,6 +25,8 @@ export class SheetsComponent implements OnInit {
       return 'generic error';
     else if (err instanceof String)
       return err.toString();
+    else if (err instanceof HttpErrorResponse)
+      return err.message;
     else if (err['error'])
       return this.getError(err['error']);
     else

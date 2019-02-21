@@ -42,7 +42,13 @@ export class Company extends BaseEntity {
 
     public IBAN_bank : string;
 
-    public custom_invoice_report : string;
+    public invoice_report : string;
+    public invoice_ext_report : string;
+
+    public receivable_report : string;
+    public receivable_ext_report : string;
+
+    public expenses_report : string;
 
     public adjustShellInfo() {
         this.shellInfo.filter.autoApply = true;

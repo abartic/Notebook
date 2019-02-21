@@ -17,11 +17,11 @@ import { KeyedCollection } from '../../../../server/utils/dictionary';
 import { ISelectObj } from '../../../../server/common/select-obj';
 import { ReportDialogWnd } from '../../dialog/reportDialog/reportDialogWnd';
 import { Observable } from 'rxjs/Observable';
-import { CalendarDialogWnd } from '../../dialog/calendarDialog/calendarDialogWnd';
-//import { UserSession } from '../../app.component';
 import { eFieldDataType } from '../../../../server/common/enums';
 import { UserSessionService } from '../../services/userSessionService';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+
 
 
 
@@ -101,10 +101,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.package = new Package<T>(type);
         this.userSessionService.userSession
             .subscribe(
-            us => { this.userSession = us },
-            error => {
-                this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
-            });
+                us => { this.userSession = us },
+                error => {
+                    this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
+                });
     }
 
     public fetchEntityInfo() {
@@ -699,7 +699,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.saveEntity(eEntityAction.Delete, this.package.entity, () => {
             this.package.entity.status = eEntityStatus.Deleted;
             let index = this.package.rows.indexOf(this.package.selected_entity);
-            this.package.rows = this.package.rows.splice(index, 1);
+            this.package.rows.splice(index, 1);
             this.package.entity_status_msg = 'Entity deleted.';
         });
 
@@ -734,6 +734,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             return 'generic error';
         else if (err instanceof String)
             return err.toString();
+        else if (err instanceof HttpErrorResponse)
+             return err.message;
         else if (err['error'])
             return this.getError(err['error']);
         else
@@ -749,7 +751,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private showReport(reportUrl: string) {
 
         const modalRef = this.modalService.open(ReportDialogWnd,
-            { windowClass: 'report-modal' }
+            { windowClass: 'report-modal', size: 'lg'  }
         );
         modalRef.componentInstance.reportUrl = reportUrl;
     }
@@ -764,7 +766,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private openEditDialog(title: string, validation?: () => boolean, relation?) {
 
         const modalRef = this.modalService.open(EditEntityDialogWnd,
-            { windowClass: 'report-modal' }
+            { windowClass: 'edit-modal', size: 'lg' }
         );
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.package = this.package;
@@ -1145,7 +1147,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.setWaiting(true);
 
         let pack = this.getEntitySaveCallPack(eEntityAction.Update, this.package.entity);
-        pack['reportType'] = this.package.entity.entityName.toLocaleLowerCase();
+        pack['reportType'] = this.package.entity.getReportType();
 
         pack.values = this.package.entity;
         let preloadObs = new Observable((observer) => {
@@ -1192,12 +1194,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         },
                         err => {
                             observer.error();
-                            
+
                         });
                 }).catch((err) => {
                     observer.error();
 
-                    
+
                 })
 
             }

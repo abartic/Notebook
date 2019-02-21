@@ -3,11 +3,11 @@
     "spreadsheetName": "budgets",
     "sheets": [{
         "sheetName": "budget_definitions",
-        "fields": ["code_doc", "author", "title", "pivot_by",
-            "creation_date", "balance",
+        "fields": ["code_doc", "author", "author_notes", "title", "pivot_by",
+            "creation_date", "debit", "credit",
             "notes", "type_doc"
         ],
-        "fields_types": ["", "", "", "", "d", "n", "", ""],
+        "fields_types": ["", "", "", "", "", "d", "n", "n", "", ""],
         "hidden_fields": ["type_doc", "pivot_by"],
         "entities": [{
                 "entityName": "Budget",

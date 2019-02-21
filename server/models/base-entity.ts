@@ -125,6 +125,7 @@ export function LookupProp(entityName: string, propNames: (string)[]) {
 
 
 export class BaseEntity {
+    
 
 
 
@@ -710,7 +711,9 @@ export class BaseEntity {
 
     public onChildrenUpdate() { }
 
-
+    public getReportType(): any {
+        return this.entityName.toLocaleLowerCase();
+    }
 
 
 }

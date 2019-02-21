@@ -354,8 +354,9 @@ export class SheetRoute extends BaseRoute {
 
                         let renderer = (content, helpers) => {
 
-                            content = '{{#intl locales="' + locale + '"}}' + content + '{{/intl}}'
+                            content = '{{#intl locales="' + locale + `" formats=(getFormat)}}` + content + '{{/intl}}'
 
+                            entityPackage.values.formats = {};
                             jsreport.render({
                                 template: {
                                     content: content,
@@ -375,7 +376,7 @@ export class SheetRoute extends BaseRoute {
                                     res.send({ error: err });
                             });
                         };
-                        let report_info = company['custom_' + reportType + '_report'];
+                        let report_info = company[reportType + '_report'];
                         if (!report_info) {
                             let content = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_template.html')), 'utf8');
                             let helpers = fs.readFileSync(path.join(__dirname, ('../assets/content/reports/' + reportType + '/' + reportType + '_script.js')), 'utf8');
@@ -386,6 +387,7 @@ export class SheetRoute extends BaseRoute {
                             let invoice_files = report_info.split(';')
                             DriveOperations.getConfigFile<string>(accessToken, invoice_files[0], null, eFileOperationType.read)
                                 .then(c => {
+// tslint:disable-next-line: max-line-length
                                     DriveOperations.getConfigFile<string>(accessToken, invoice_files[1], null, eFileOperationType.read).then(h => {
                                         return renderer(c, h);
                                     })

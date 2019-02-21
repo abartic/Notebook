@@ -1,12 +1,9 @@
-.report-modal .modal-content {
-    width: 750px;
+.edit-modal .modal-content {
     margin: 0 auto;
 }
 
-.report-modal .modal-body {
-    width: 750px;
-}
+.edit-modal .modal-body {}
 
-.report-modal .close {
+.edit-modal .close {
     color: white;
 }

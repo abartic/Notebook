@@ -14,14 +14,16 @@ export class AppComponent implements OnInit {
 
 
   constructor(private router: Router,
-    
+    private cookieService: CookieService,
     private translate: TranslateService,
     private userSessionService: UserSessionService) {
 
     translate.addLangs(['en', 'ro']);
     translate.setDefaultLang('en');
     const browserLang = translate.getBrowserLang();
-    translate.use(browserLang.match(/en|ro/) ? browserLang : 'en');
+
+    let language = this.cookieService.get("language") || (browserLang.match(/en|ro/) ? browserLang : 'en');
+    translate.use(language);
 
   }
 

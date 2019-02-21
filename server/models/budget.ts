@@ -11,11 +11,11 @@ import { BudgetLine } from './budget-line';
 @SheetInfo("budgets", "budget_definitions", "Budget", "code_doc")
 export class Budget extends BaseEntity {
 
-
-
     public code_doc: string;
 
     public author: string;
+
+    public author_notes: string;
 
     public title: string;
 
@@ -34,8 +34,9 @@ export class Budget extends BaseEntity {
 
     public notes: string;
 
-    public balance: number;
+    public debit: number;
 
+    public credit: number;
 
     public budgetline_relation: (BudgetLine)[];
 
@@ -111,7 +112,8 @@ export class Budget extends BaseEntity {
 
     public onNew(parent: BaseEntity) {
         super.onNew(parent);
-        this.balance = 0;
+        this.debit = 0;
+        this.credit = 0;
         this.type_doc = eTypeBudget.Budget;
     }
 
@@ -154,10 +156,12 @@ export class Budget extends BaseEntity {
         if (this._props === null) {
             this._props = this.entityInfo.properties;
 
-            let index = this._props.findIndex(i => i.propName === 'balance')
-            if (index >= 0)
-                this._props[index].isReadOnly = true;
-
+            const pp : Array<string> = ['debit','credit'];
+            this._props
+                .filter((v, index, array) => {
+                    return pp.includes(v.propName, 0)
+                })
+                .forEach(p => p.isReadOnly = true);
 
             if (this._props.findIndex(i => i.propName === 'pivot_by_ar') < 0) {
                 this._props.push(<IPropInfo>{
@@ -187,8 +191,24 @@ export class Budget extends BaseEntity {
                 });
             }
 
+            if (this._props.findIndex(i => i.propName === 'balance') < 0) {
+                this._props.push(<IPropInfo>{
+                    propName: 'balance',
+                    propCaption: 'balance',
+                    dataType: eFieldDataType.Numeric,
+                    isFilterHidden: true,
+                    isCustom: true,
+                    isReadOnly : true
+                });
+            }
+
         }
         return this._props;
+    }
+
+    
+    public get balance() {
+        return (this.credit || 0) - (this.debit || 0);
     }
 
     _pivot_by_ar = undefined;
@@ -217,8 +237,12 @@ export class Budget extends BaseEntity {
     public onChildrenUpdate() {
 
         if (this.budgetline_relation) {
-            this.balance = 0;
-            this.budgetline_relation.map(i => this.balance += (i.debit - i.credit));
+            this.debit = 0;
+            this.credit = 0;
+            this.budgetline_relation.map(i => {
+                this.debit += i.debit;
+                this.credit += i.credit;
+            });
         }
     }
 }

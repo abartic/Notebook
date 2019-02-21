@@ -248,6 +248,23 @@ export class SheetsCrudOperations {
             }
         }
 
+        //check which sheets will be appended
+        let entitiesSheets = [];
+        entitiesPackage.entityPackages
+            .map(p => {
+                let index = entitiesSheets.findIndex(s => s['sheetName'] === p.sheetName)
+                if (index >= 0) {
+                    entitiesSheets[index]['entities'].push(p);
+                }
+                else {
+                    entitiesSheets.push({
+                        'sheetName': p.sheetName,
+                        'sheetID': p.sheetID,
+                        'entities': [p]
+                    })
+                }
+            });
+
         var oauth2Client = SheetsCommonOperations.createAuth(access_token);
         let data = fs.readFileSync(path.join(__dirname, ('../json/' + spreadsheetName + '.json')), 'utf8');
         let spreadsheetDefinition = JSON.parse(data);
@@ -269,6 +286,21 @@ export class SheetsCrudOperations {
 
             let temp = SheetsCrudOperations.createAppendCellsReq(sheetDef, entityPackage);
             appendCellReqs = appendCellReqs.concat(temp);
+        }
+
+        for (let entitySheet of entitiesSheets) {
+            appendCellReqs.push({
+                "sortRange": {
+                    "range": {
+                        "sheetId": entitySheet['sheetID'],
+                        "startRowIndex": 1,
+                    },
+                    "sortSpecs": [{
+                        "dimensionIndex": 1,
+                        "sortOrder": "DESCENDING"
+                    }]
+                }
+            });
         }
 
         return new Promise((cb) => {

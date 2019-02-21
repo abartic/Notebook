@@ -1,6 +1,7 @@
 import { InvoiceLine } from './invoice-line';
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo, IEntityInfo } from "./base-entity";
 import { eTypeMovement } from '../common/enums';
+import { Partner } from './partner';
 
 
 @SheetInfo("movements", "documents", "Invoice", "code_doc")
@@ -141,5 +142,12 @@ export class Invoice extends BaseEntity {
 
         }
         return this._props;
+    }
+
+    public getReportType(): any {
+        if (this['partner_lookup_entity'] && (<Partner>this['partner_lookup_entity']).invoice_report_type)
+            return (<Partner>this['partner_lookup_entity']).invoice_report_type;
+        else
+            return this.entityName.toLocaleLowerCase();
     }
 }

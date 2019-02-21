@@ -8,8 +8,8 @@
 
     <div *ngFor="let property of (package.entity_relation.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity, package.entity_relation)" [ngSwitch]="property.dataType">
-            <label class="col-2 col-form-label">{{ property.propCaption | translate }}</label>
-            <div class="mb-3 col-10" [ngSwitch]="packageCtrl.getInputType(property)">
+            <label class="col-3 col-form-label">{{ property.propCaption | translate }}</label>
+            <div class="col-9" [ngSwitch]="packageCtrl.getInputType(property)">
 
                 <div class="input-group" *ngSwitchCase="'date'">
                     <input class="form-control" [readonly]="property.isReadOnly" placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity_relation[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity_relation,property)" ngbDatepicker #d="ngbDatepicker"

@@ -27,6 +27,7 @@ export class Receivable extends BaseEntity {
 
     public internal_reference: string;
 
+// tslint:disable-next-line: quotemark
     @LookupProp("store", ["code_store", "descr_store"])
     public code_store: string;
 
@@ -67,5 +68,14 @@ export class Receivable extends BaseEntity {
         this.debit_value = 0;
         this.credit_value = 0;
         this.type_movement = eTypeMovement.Receivable;
+    }
+
+    public getReportType(): any {
+// tslint:disable-next-line: curly
+        if (this['partner_lookup_entity'] && (<Partner>this['partner_lookup_entity']).receivable_report_type)
+            return (<Partner>this['partner_lookup_entity']).receivable_report_type;
+// tslint:disable-next-line: curly
+        else
+            return this.entityName.toLocaleLowerCase();
     }
 }

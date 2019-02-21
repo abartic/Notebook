@@ -35,6 +35,9 @@ import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 
     public IBAN_bank : string;
 
+    public invoice_report_type : string;
+    public receivable_report_type : string;
+
     public address_relation: (Address)[];
 
     public contact_relation: (Contact)[];

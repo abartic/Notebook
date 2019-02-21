@@ -20,12 +20,12 @@
     <br>
     <div class="row ">
 
-        <div class="col-xl-6 col-lg-6 col-md-9 col-xs-12">
+        <div class="col-xl-6 col-lg-8 col-md-10 col-sm-12">
 
-            <div *ngFor="let property of (package.entity.properties)">
-                <div class="form-group row" *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
-                    <label for="example-text-input" class="col-4 col-form-label">{{ property.propCaption | translate }}</label>
-                    <div class="col-6" [ngSwitch]="packageCtrl.getInputType(property)">
+            <div *ngFor="let property of (package.entity.properties)" class="container-fluid">
+                <div class="form-group row " *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
+                    <label for="example-text-input" class="col-sm-4 col-form-label">{{ property.propCaption | translate }}</label>
+                    <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
                         <div class="input-group datepicker-input" *ngSwitchCase="'date'">
                             <input class="form-control" [readonly]="property.isReadOnly" ngbDatepicker placeholder="dd/mm/yyyy" name="dp" [(ngModel)]="package.entity[property.propName]" [disabled]="packageCtrl.isDisabled(package.entity, property)" #d="ngbDatepicker" placement="top">
 
