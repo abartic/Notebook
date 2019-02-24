@@ -1,4 +1,4 @@
-<div [@routerTransition]>
+<div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
 
     <div class="row">
         <!-- <div class="btn-toolbar" role="toolbar"> -->
@@ -15,7 +15,7 @@
 
                 <div *ngFor="let relation of (package.filter.entityInfo.relations) ">
                     {{relation}} filter:
-                    <table class="table table-hover table-striped ">
+                    <table class="table table-hover table-striped">
 
                         <thead>
                             <tr>
@@ -61,7 +61,8 @@
                     <tr *ngFor="let row of package.rows; index as i " (click)="onSelectEntity(row) ">
                         <td>{{i+1}}</td>
                         <td *ngFor="let property of packageCtrl.filterProperties ">
-                            <div [ngSwitch]="packageCtrl.getInputType(property)">
+                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                                 <div class="input-group" *ngSwitchCase="'checkbox'">
                                     <input class="form-control" type="checkbox" [checked]="row[property.propName]">

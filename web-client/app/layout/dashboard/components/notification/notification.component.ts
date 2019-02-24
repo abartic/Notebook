@@ -1,18 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { HttpCallerService } from '../../../../services/httpcaller.service';
 
 
 @Component({
     selector: 'dashboard-notification',
     templateUrl: './notification.component.html',
-    styleUrls: ['./notification.component.scss'],
-    
+    styleUrls: ['./notification.component.css'],
+
 })
 export class NotificationComponent implements OnInit {
     constructor(private httpCaller: HttpCallerService) { }
 
+    @ViewChild('rootdiv') rootdiv: ElementRef;
+
+    public screensize: string;
+
+
     public rows = [];
-    ngOnInit() { 
+    ngOnInit() {
+
+        const style = window.getComputedStyle(this.rootdiv.nativeElement);
+        this.screensize = style.getPropertyValue('--screensize');
+
 
         this.httpCaller.callPost(
             '/sheetdata/select',
@@ -31,5 +40,17 @@ export class NotificationComponent implements OnInit {
             err => {
                 this.rows = [];
             });
+    }
+
+
+
+
+    onResize(event) {
+        const style = window.getComputedStyle(this.rootdiv.nativeElement);
+        this.screensize = style.getPropertyValue('--screensize');
+    }
+
+    checkSize() {
+        return (this.screensize || '').trim() === 'sm';
     }
 }

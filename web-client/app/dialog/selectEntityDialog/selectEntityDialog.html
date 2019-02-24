@@ -4,7 +4,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
 </div>
-<div class="modal-body" style="min-height:500px">
+<div class="modal-body" #rootdiv class="hosttable" (window:resize)="onResize($event)">
 
     <p>
         <ngb-progressbar type="info" value="50" striped="true" animated="true" *ngIf="package.lookup_rows === undefined"></ngb-progressbar>
@@ -24,7 +24,8 @@
         <tbody>
             <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
                 <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                    <div [ngSwitch]="packageCtrl.getInputType(property)">
+                    <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                    <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
                         <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                         <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
                     </div>
