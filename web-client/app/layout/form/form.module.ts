@@ -16,7 +16,8 @@ import { WebDataRocksPivot } from '../../webdatarocks/webdatarocks.angular4';
 import { PivotRelationComponent } from './components/pivot-relation/pivot.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { AngularMultiSelectModule } from 'angular4-multiselect-dropdown/dist/multiselect.component';
-
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule}  from '@angular/material';
 @NgModule({
   imports: [
     CommonModule,
@@ -26,7 +27,11 @@ import { AngularMultiSelectModule } from 'angular4-multiselect-dropdown/dist/mul
     LoadingModule,
     SharedModule,
     TranslateModule,
-    AngularMultiSelectModule
+    AngularMultiSelectModule,
+    MatInputModule,
+    MatSelectModule
+
+  //  SelectDropDownModule
   ],
   declarations: [
     FormComponent,

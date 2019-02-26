@@ -1,4 +1,4 @@
-<div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
+<div [@routerTransition] #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
 
     <div class="row">
         <!-- <div class="btn-toolbar" role="toolbar"> -->
@@ -42,16 +42,20 @@
 
 
     <BR>
+
+
+
+
     <div class="row ">
         <div class="col" style="overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
             <table class="table table-hover table-striped table-bordered table-md ">
                 <thead class="thead-light ">
-                    <tr>
+                    <!-- <tr>
                         <th></th>
                         <th *ngFor="let property of packageCtrl.filterProperties ">
                             <input type="text " class="form-control " [(ngModel)]="package.filter[property.propName] " placeholder="{{property.propName}} " />
                         </th>
-                    </tr>
+                    </tr> -->
                     <tr>
                         <th>#</th>
                         <th *ngFor="let property of packageCtrl.filterProperties ">{{property.propName}}</th>
@@ -77,6 +81,8 @@
         </div>
     </div>
 
+
+
     <BR>
     <div class="row justify-content-end " *ngIf="package.rows.length> 0">
         <nav aria-label="Page navigation example">
@@ -94,6 +100,27 @@
 
         </nav>
     </div>
+
+
+    <div class="row">
+        <div class="col">
+            <mat-form-field>
+                <select matNativeControl required>
+                  <option value="volvo">Volvo</option>
+                  <option value="saab">Saab</option>
+                  <option value="mercedes">Mercedes</option>
+                  <option value="audi">Audi</option>
+                </select>
+            </mat-form-field>
+            <!-- <div class="row">
+                <div class="col s12 l6">
+                    <ngx-select-dropdown [config]="dropdownSettings" [options]="packageCtrl.filterProperties" [(ngModel)]="selectedValue" [multiple]="false">
+                    </ngx-select-dropdown>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
 
 
 </div>

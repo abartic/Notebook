@@ -31,6 +31,12 @@ export class FilterComponent implements OnInit {
   @ViewChild('rootdiv') rootdiv: ElementRef;
 
   public screensize: string;
+  public dropdownSettings = {
+    displayKey: "propName",
+    search: false,
+    placeholder: 'Filter'
+  };
+  public selectedValue;
 
   ngOnInit() {
     const style = window.getComputedStyle(this.rootdiv.nativeElement);

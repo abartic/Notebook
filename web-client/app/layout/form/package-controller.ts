@@ -7,11 +7,9 @@ import { ModelFactory } from './../../../../server/models/modelFactory';
 import { HttpCallerService } from './../../services/httpcaller.service';
 import { BaseEntity, IPropInfo, IEntityInfo, eEntityStatus, eEntityAction } from './../../../../server/models/base-entity';
 import { Package } from './package';
-import { Input, Inject, Injectable } from '@angular/core';
-import { toInteger } from '@ng-bootstrap/ng-bootstrap/util/util';
 import { AlertDialogWnd } from '../../dialog/alertDialog/alertDialogWnd';
 import { AskDialogWnd } from '../../dialog/askDialog/askDialogWnd';
-import { NgbModal, NgbModalOptions, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import { EditEntityDialogWnd } from '../../dialog/editEntityDialog/editEntityDialogWnd';
 import { KeyedCollection } from '../../../../server/utils/dictionary';
 import { ISelectObj } from '../../../../server/common/select-obj';
@@ -21,6 +19,7 @@ import { eFieldDataType } from '../../../../server/common/enums';
 import { UserSessionService } from '../../services/userSessionService';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
+
 
 
 
@@ -251,7 +250,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 }
                 else {
                     let pages = (entities_count) / this.package.row_page_max;
-                    this.package.row_pages = new Array<number>(toInteger(pages));
+                    this.package.row_pages = new Array<number>(Math.ceil(pages));
                 }
                 this.package.filter_loading = false;
             },
@@ -277,7 +276,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 }
                 else {
                     let pages = (entities_count) / this.package.row_page_max;
-                    this.package.lookup_row_pages = new Array<number>(toInteger(pages));
+                    this.package.lookup_row_pages = new Array<number>(Math.ceil(pages));
                 }
                 this.package.lookup_loading = false;
             },
