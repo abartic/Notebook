@@ -2,10 +2,15 @@
     --screensize: ;
 }
 
+.hor-scrollable {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
 @media only screen and (max-width: 760px),
 (min-device-width: 768px) and (max-device-width: 1024px) {
     /* Force table to not be like tables anymore */
-    table,
     thead,
     tbody,
     th,
@@ -28,6 +33,11 @@
         border-bottom: 1px solid #eee;
         position: relative;
         white-space: nowrap;
+    }
+    table {
+        display: block;
+        overflow-x: hidden;
+        overflow-y: hidden;
     }
     /*
 	Label the data

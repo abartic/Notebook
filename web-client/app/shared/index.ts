@@ -1,4 +1,4 @@
-export * from './pipes/shared-pipes.module';
+export * from './pipes/date-userformat-pipe';
 export * from './components';
 export * from './modules';
 export * from './guard/auth.guard';

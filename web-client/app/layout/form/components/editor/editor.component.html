@@ -1,9 +1,10 @@
-<div [@routerTransition]>
+<div [@routerTransition] class="container-fluid">
     <div class="row ">
-
-        <div class="btn-toolbar" role="toolbar">
-            <div class="btn-group mr-2" role="group">
-                <button *ngFor="let command of (package.filter.shellInfo.commands)" type="button" (click)="packageCtrl[command.handler]()" class="btn btn-secondary" [class]="command.primary ? 'btn btn-primary' : 'btn btn-secondary'">{{command.caption | translate}}</button>
+        <div class="col">
+            <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group mr-2" role="group">
+                    <button *ngFor="let command of (packageCtrl.shellInfo.commands)" type="button" ngbTooltip="{{command.caption}}" (click)="packageCtrl[command.handler]()" class="btn btn-secondary" [class]="'btn btn-secondary '  + command.image"></button>
+                </div>
             </div>
         </div>
 
@@ -23,7 +24,7 @@
         <div class="col-xl-6 col-lg-8 col-md-10 col-sm-12">
 
             <div *ngFor="let property of (package.entity.properties)" class="container-fluid">
-                <div class="form-group row " *ngIf="packageCtrl.isVisible(property, undefined, package.entity)">
+                <div class="form-group row " *ngIf="packageCtrl.isVisible(property, undefined)">
                     <label for="example-text-input" class="col-sm-4 col-form-label">{{ property.propCaption | translate }}</label>
                     <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
                         <div class="input-group datepicker-input" *ngSwitchCase="'date'">
@@ -67,10 +68,10 @@
         </div>
     </div>
 
-    <div *ngFor="let relation of (package.entity.entityInfo.relations)">
-        <form-editor-relation [package]="package" *ngIf="!package.entity.shellInfo.pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
+    <div *ngFor="let relation of (packageCtrl.entityInfo.relations)">
+        <form-editor-relation [package]="package" *ngIf="!packageCtrl.shellInfo.pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
 
-        <form-editor-pivot-relation *ngIf="package.entity.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']" [needRefresh]="package.entity.requestShellInfoSliceRefresh">
+        <form-editor-pivot-relation *ngIf="packageCtrl.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']" [needRefresh]="package.entity.requestShellInfoSliceRefresh">
 
 
         </form-editor-pivot-relation>

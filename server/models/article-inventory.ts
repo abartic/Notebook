@@ -15,8 +15,5 @@ export class ArticleInventory extends BaseEntity {
 
     public qty_net: number;
 
-    public adjustShellInfo() {
-        this.shellInfo.commands = [];
-    }
 
 }

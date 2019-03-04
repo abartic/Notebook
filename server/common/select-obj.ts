@@ -8,18 +8,20 @@ export interface ISelectObj {
 }
 
 export interface IEntityPackage {
-    sheetName,
-    sheetID,
-    ID,
-    rowid,
-    selectEntity,
-    values,
-    action
+    
+    sheetName;
+    sheetID;
+    ID;
+    rowid;
+    selectEntity;
+    values;
+    action;
+    reportType?: any;
 }
 
 export interface IEntitiesPackage {
-    spreadsheetID,
-    spreadsheetName,
-    entityPackages: IEntityPackage[],
-    action,
+    spreadsheetID;
+    spreadsheetName;
+    entityPackages: IEntityPackage[];
+    action;
 }

@@ -1,9 +1,8 @@
-import { ArticleInventory } from './article-inventory';
-
 import { BaseEntity, SheetInfo } from "./base-entity";
 
-@SheetInfo("inventory", "articles", "Article", "code_art")  
+@SheetInfo("inventory", "articles", "Article", null, "code_art")  
 export class Article extends BaseEntity {
+
 
     public code_art : string;
 

@@ -7,7 +7,7 @@
 <div class="modal-body">
 
     <div *ngFor="let property of (package.entity_relation.properties)" class="container-fluid">
-        <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity, package.entity_relation)" [ngSwitch]="property.dataType">
+        <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity)" [ngSwitch]="property.dataType">
             <label class="col-sm-4 col-form-label">{{ property.propCaption | translate }}</label>
             <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
 

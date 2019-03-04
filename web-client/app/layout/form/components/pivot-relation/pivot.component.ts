@@ -2,7 +2,7 @@ import { map } from 'rxjs/operators';
 
 import { eEntityAction, eEntityStatus, BaseEntity } from './../../../../../../server/models/base-entity';
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
-import { IPackageController } from '../../package-controller';
+import { IPackageController } from '../../ipackage-controller';
 import { routerTransition } from '../../../../router.animations';
 import { WebDataRocksPivot } from '../../../../webdatarocks/webdatarocks.angular4';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -55,13 +55,7 @@ export class PivotRelationComponent implements OnInit {
   }
 
 
-  // onPivotComplete(): void {
-  //   this.child.webDataRocks.off("reportcomplete");
-  //   this.packageCtrl.setPivotData((data: Array<any>, pivotInfo) => {
-
-  //     this.updatePivotDataSource();
-  //   });
-  // }
+  
 
   updatePivotDataSource(forceRedraw: boolean) {
 

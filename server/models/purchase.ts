@@ -1,14 +1,10 @@
 
 import { PurchaseLine } from './purchase-line';
-import { ModelInfos } from './modelProperties';
-import { ISelectObj } from './../common/select-obj';
-
-
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
-import { Partner } from './partner';
+import { BaseEntity, SheetInfo, LookupProp, IPropInfo } from "./base-entity";
 import { eTypeMovement } from '../common/enums';
+import { PurchaseShell } from '../shells/purchase-shell';
 
-@SheetInfo("movements", "documents", "Purchase", "code_doc")
+@SheetInfo("movements", "documents", "Purchase", PurchaseShell.adjustShellInfo, "code_doc")
 export class Purchase extends BaseEntity {
 
     public code_doc: string;
@@ -83,25 +79,7 @@ export class Purchase extends BaseEntity {
         });
     }
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksInput }];
-        this.shellInfo.filter.commands[2].isDisabled = false;
-        this.shellInfo.report = {
-            preloads: [
-                {
-                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                        this['partner_lookup_entity'] = p;
-                    }
-                },
-
-                {
-                    entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                        this['partner_address_lookup_entity'] = pa;
-                    }
-                }
-            ]
-        };
-    }
+    
 
     public onNew(parent: BaseEntity)
     {

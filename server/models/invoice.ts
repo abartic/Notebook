@@ -2,9 +2,10 @@ import { InvoiceLine } from './invoice-line';
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo, IEntityInfo } from "./base-entity";
 import { eTypeMovement } from '../common/enums';
 import { Partner } from './partner';
+import { InvoiceShell } from '../shells/invoice-shell';
 
 
-@SheetInfo("movements", "documents", "Invoice", "code_doc")
+@SheetInfo("movements", "documents", "Invoice", InvoiceShell.adjustShellInfo, "code_doc")
 export class Invoice extends BaseEntity {
 
     public code_doc: string;
@@ -92,29 +93,7 @@ export class Invoice extends BaseEntity {
         });
     }
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksOutput }];
-        this.shellInfo.filter.commands[2].isDisabled = false;
-        this.shellInfo.commands = this.shellInfo.commands.concat([
-            { caption: 'Print', handler: 'onPrint' },
-        ]);
-       
-        this.shellInfo.report = {
-            preloads: [
-                {
-                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                        this['partner_lookup_entity'] = p;
-                    }
-                },
-
-                {
-                    entity_name: 'address', ukey_prop_name: 'code_part', cb: pa => {
-                        this['partner_address_lookup_entity'] = pa;
-                    }
-                }
-            ]
-        };
-    }
+    
 
 
 

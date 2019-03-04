@@ -1,13 +1,10 @@
-
-
-import { ModelInfos } from './modelProperties';
-import { ISelectObj } from './../common/select-obj';
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
-import { Partner } from './partner';
-import { eTypeMovement, eFieldDataType, eTypeBudget } from '../common/enums';
+import { BaseEntity, SheetInfo, IPropInfo } from "./base-entity";
+import {eFieldDataType, eTypeBudget } from '../common/enums';
 import { ExpenseLine } from './expense-line';
+import { ExpensesShell } from '../shells/expenses-shell';
+import { ShellInfos } from './modelProperties';
 
-@SheetInfo("budgets", "budget_definitions", "Expenses", "code_doc")
+@SheetInfo("budgets", "budget_definitions", "Expenses", ExpensesShell.adjustShellInfo, "code_doc")
 export class Expenses extends BaseEntity {
 
 
@@ -53,54 +50,7 @@ export class Expenses extends BaseEntity {
         this.type_doc = eTypeBudget.Expenses;
     }
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Expenses }];
-        this.shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
-        this.shellInfo.filter.commands = [
-            { caption: 'Apply', handler: 'onApply', primary: true },
-            { caption: 'Clear', handler: 'onClear' },
-            { caption: 'Details', handler: 'onDetailsFilter' },
-            { caption: 'New', handler: 'onNew' },
-        ];
-        this.shellInfo.commands = this.shellInfo.commands.concat([
-            { caption: 'Print', handler: 'onPrint' },
-        ]);
-        this.shellInfo.pivotInfo = {
-            slice: {
-                columns: [],
-                rows: [
-                    {
-                        dimensionName: "attr1",
-                        caption: "Chapter",
-                        uniqueName: "attr1",
-                    },
-                    {
-                        dimensionName: "attr2",
-                        caption: "Sub-chapter",
-                        uniqueName: "attr2",
-                    },
-                    {
-                        dimensionName: "attr3",
-                        caption: "Title",
-                        uniqueName: "attr3",
-                    }
-                ],
-                measures: [
-                    {
-                        uniqueName: "debit",
-                        caption: "Value",
-                        aggregation: "SUM"
-                    }
-
-
-                ],
-                expands: {
-                    expandAll: true,
-
-                }
-            }
-        }
-    }
+  
 
     public getAdjustedShellInfoSlice() {
 
@@ -110,7 +60,8 @@ export class Expenses extends BaseEntity {
             return [];
 
         let fields = this.pivot_by.split(',').map(f => f.trim());
-        let slice = JSON.parse(JSON.stringify(this.shellInfo.pivotInfo.slice));
+        let shellInfo = ShellInfos.uniqueInstance.get(this.entityName);
+        let slice = JSON.parse(JSON.stringify(shellInfo.pivotInfo.slice));
         let row_delete = [];
         for (let row of slice.rows) {
             let index = fields.findIndex(f => f === row.uniqueName);

@@ -1,16 +1,6 @@
-
-
-
-
-import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
-import { map } from 'rxjs/operators';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { Package } from './../../package';
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
-
+import { Component, OnInit, Input} from '@angular/core';
 import { routerTransition } from "../../../../router.animations";
-import { IPackageController } from '../../package-controller';
+import { IPackageController } from '../../ipackage-controller';
 
 
 @Component({

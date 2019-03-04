@@ -14,7 +14,7 @@
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
                         "outputPath": "dist/middletier/app",
-                        "index": "web-client/views/index.html",
+                        "index": "web-client/views/a_index.html",
                         "main": "web-client/main.ts",
                         "polyfills": "web-client/polyfills.ts",
                         "tsConfig": "web-client/tsconfig.app.json",

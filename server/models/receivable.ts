@@ -1,13 +1,12 @@
-import { InvoiceLine } from './invoice-line';
-import { ModelInfos } from './modelProperties';
-import { ISelectObj } from './../common/select-obj';
 
 
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
+
+import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 import { Partner } from './partner';
 import { eTypeMovement } from '../common/enums';
+import { ReceivableShell } from '../shells/receivable-shell';
 
-@SheetInfo("movements", "documents", "Receivable", "code_doc")
+@SheetInfo("movements", "documents", "Receivable", ReceivableShell.adjustShellInfo, "code_doc")
 export class Receivable extends BaseEntity {
 
     public code_doc: string;
@@ -45,21 +44,7 @@ export class Receivable extends BaseEntity {
 
     public type_movement: string;
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.Receivable }];
-        this.shellInfo.commands =this.shellInfo.commands.concat([
-            { caption: 'Print', handler: 'onPrint' },
-        ]);
-        this.shellInfo.report = {
-            preloads: [
-                {
-                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                        this['partner_lookup_entity'] = p;
-                    }
-                }
-            ]
-        };
-    }
+   
 
     public onNew(parent: BaseEntity) {
         super.onNew(parent);

@@ -1,11 +1,14 @@
-import { ISelectObj } from './../common/select-obj';
-import { IEntityInfo, IPropInfo } from './base-entity';
-import { ModelInfos } from "./modelProperties";
+import { ExpenseLine } from './expense-line';
+
+
+import { IEntityInfo, IPropInfo, IShellInfo } from './base-entity';
+import { ModelInfos, ShellInfos } from "./modelProperties";
 import "reflect-metadata"
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as uuidv1 from 'uuid/v1';
 import { eFieldDataType } from '../common/enums';
-import { Observable } from 'rxjs/Observable';
+
+
 
 function padNumber(value: number) {
     if (isNumber(value)) {
@@ -25,22 +28,25 @@ function toInteger(value: any): number {
 
 
 export interface IEntityInfo {
-    spreadsheetID: string,
-    sheetID: string,
-    spreadsheetName: string,
-    sheetName: string,
-    entityName: string,
-    relations: string[],
-    isView?: boolean,
-    properties: Array<IPropInfo>
+    spreadsheetID?: string;
+    sheetID?: string;
+    spreadsheetName?: string;
+    sheetName?: string;
+    entityName?: string;
+    relations?: string[];
+    isView?: boolean;
+    ukeyPropName?: string;
+    properties?: Array<IPropInfo>;
+    entityLookups?: Map<string, { entityName: string, propNames: (string)[] }>;
+    fetched: boolean;
 }
 
 export interface IPropInfo {
-    propName: string,
-    propCaption?: string,
+    propName: string;
+    propCaption?: string;
     dataType: string;
 
-    path?: string,
+    path?: string;
     cellName?: string;
 
     mask?: string;
@@ -53,6 +59,7 @@ export interface IPropInfo {
     dropdownlist?;
     dropdownsettings?;
     customInputType?: string;
+    //relation?: string;
 }
 
 export interface IShellInfo {
@@ -62,16 +69,16 @@ export interface IShellInfo {
             remove: string[]
         },
         static_filter?: { key: string, value: string }[],
-        commands?: { caption: string, handler: string, primary? : boolean, isDisabled? : boolean }[],
-        autoApply? : boolean,
-        hasDetails? : boolean
-    },
-    properties?: { name: string, datatype: string, isReadOnly: boolean }[],
-    commands?: { caption: string, handler: string, primary? : boolean, isDisabled? : boolean }[],
+        commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, isActive? : (pack)=>boolean }[];
+        autoApply?: boolean,
+        hasDetails?: boolean
+    };
+    properties?: { name: string, datatype: string, isReadOnly: boolean }[];
+    commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string }[];
     report?: {
-        preloads: { entity_name: string, ukey_prop_name: string, cb: (p) => void }[]
-    },
-    pivotInfo?: any
+        preloads: { entity_name: string, ukey_prop_name: string, cb: (entity, lentity) => void }[]
+    };
+    pivotInfo?: any;
 }
 
 export enum eEntityStatus {
@@ -90,44 +97,59 @@ export enum eEntityAction {
 }
 
 
-export function SheetInfo(spreadsheetName: string, sheetName: string, entityName: string, ukeyPropName?: string) {
+export function SheetInfo(spreadsheetName: string, sheetName: string, entityName: string, adjustShellInfo?: (IShellInfo) => void, ukeyPropName?: string) {
     return (ctor: Function) => {
         ctor.prototype['spreadsheet_name'] = spreadsheetName;
         ctor.prototype['sheet_name'] = sheetName;
         ctor.prototype['entity_name'] = entityName;
         ctor.prototype['ukey_prop_name'] = ukeyPropName;
+        ModelInfos.uniqueInstance.addOrUpdate(entityName, { spreadsheetName, sheetName, entityName, ukeyPropName, fetched: false });
+        let shellinfo = {
+            filter: {
+                fields: {
+                    add: [],
+                    remove: []
+                },
+                static_filter: [],
+                commands: [
+                    { caption: 'Add Cond.', handler: 'onAddFilterCond', image: 'fa fa-search-plus' },
+                    { caption: 'Apply', handler: 'onApply', primary: true, image: 'fa fa-search' },
+                    { caption: 'Clear', handler: 'onClear', image: 'fa fa-eraser', isActive: (packctrl)=>{return packctrl.filterItems.length > 0;} },
+                    { caption: 'New', handler: 'onNew', image: 'fa fa-pencil' },
+                ]
+            },
+            properties: [],
+            commands: [
+                { caption: 'New', handler: 'onNew', primary: true, image: 'fa fa-pencil' },
+                { caption: 'Save', handler: 'onSave', image: 'fa fa-floppy-o' },
+                { caption: 'Delete', handler: 'onDelete', image: 'fa fa-trash-o' },
+                { caption: 'Undo', handler: 'onUndo', image: 'fa fa-undo' }
+            ],
+            report: {
+                preloads: []
+            }
+        };
+        if (adjustShellInfo)
+            adjustShellInfo(shellinfo);
+        ShellInfos.uniqueInstance.add(entityName, shellinfo);
     }
 }
+
 
 export function LookupProp(entityName: string, propNames: (string)[]) {
-
     return (prototype: any, propName: string) => {
-
-        if (!prototype['lookups'])
-            prototype['lookups'] = new Map<string, { entityName: string, propNames: (string)[] }>();
-        prototype['lookups'].set(propName, { entityName, propNames });
+        let info: IEntityInfo = ModelInfos.uniqueInstance.get(prototype.constructor.name);
+        if (!info) {
+            info = {entityLookups: null, fetched: false};
+            ModelInfos.uniqueInstance.addOrUpdate(prototype.constructor.name, info);
+        }
+        if (!info.entityLookups)
+            info.entityLookups = new Map<string, { entityName: string, propNames: (string)[] }>();
+        info.entityLookups.set(propName, { entityName, propNames });
     }
-
 }
 
-// export function RelationProp(groupby: string[], pivot: string[]) {
-
-//     return (prototype: any, propName: string) => {
-
-//         prototype['relation_prop_' + propName] = {
-//             groupby: groupby,
-//             pivot: pivot,
-//             needPivot : true
-//         };
-//     }
-
-// }
-
-
 export class BaseEntity {
-    
-
-
 
     public rowid: number;
 
@@ -141,11 +163,15 @@ export class BaseEntity {
 
     private spreadsheet_name: string;
 
+    //private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
+
     public fetchAll: boolean;
 
-    private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
-
     public status: eEntityStatus = eEntityStatus.None;
+
+    public static getEntityInformation() {
+
+    }
 
     get spreadsheetName(): string {
         return this.spreadsheet_name;
@@ -153,7 +179,6 @@ export class BaseEntity {
     get sheetName(): string {
         return this.sheet_name;
     }
-
 
     get entityName(): string {
 
@@ -170,7 +195,7 @@ export class BaseEntity {
     }
 
     get entityLookups(): Map<string, { entityName: string, propNames: (string)[] }> {
-        return this.lookups;
+        return this.entityInfo.entityLookups;
     }
 
     get properties(): Array<IPropInfo> {
@@ -178,10 +203,6 @@ export class BaseEntity {
 
         return props;
     }
-
-    // public adjustProperties(entityInfo: IEntityInfo) {
-    //     return entityInfo;
-    // }
 
     public toArray(): (String | Number | Date)[] {
         let array = [];
@@ -196,15 +217,6 @@ export class BaseEntity {
         }
 
         return array;
-    }
-
-    public clearFilter() {
-
-        for (let p of this.properties) {
-            if (this[p.propName]) {
-                this[p.propName] = undefined;
-            }
-        }
     }
 
     public static dateToStandardDate(date: Date): string {
@@ -420,13 +432,16 @@ export class BaseEntity {
         return query;
     }
 
-    public static toFilter(entity: BaseEntity, keys, offset: number, limit: number, forFkey?: string): string {
-
-        let entityInfo = entity.entityInfo;
+    public static toFilter(
+        shellInfo: IShellInfo,
+        entityInfo: IEntityInfo,
+        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
+        keys, offset: number, limit: number, 
+        forFkey?: string): string {
 
         let query = 'select ';
         let fkeycell = '';
-        for (let p of entity.properties) {
+        for (let p of entityInfo.properties) {
             if (p.isCustom === true)
                 continue;
 
@@ -441,71 +456,14 @@ export class BaseEntity {
         query = query.slice(0, query.length - 1);
         query = query + ' where ';
 
-        let where = ' 1=1 ';
-        let where_keys = '';
-        let exists_filter = false;
-        let not_string = false;
-        for (let p of entity.properties) {
-            if (p.isCustom === true)
-                continue;
-
-            if (entity[p.propName] && entity[p.propName] !== '') {
-                exists_filter = true;
-                let fvalue = entity[p.propName].toString().toUpperCase();
-                let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
-                //date, time
-                if (p.dataType === eFieldDataType.Date || p.dataType === eFieldDataType.Time) {
-                    if (li >= 0) {
-                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
-                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
-                    }
-                    else {
-                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue));
-                        where = where + ' and ' + p.cellName + ' = date "' + datevalue + '"';
-                    }
-                }
-                //number
-                else if (p.dataType === eFieldDataType.Numeric) {
-                    if (li >= 0) {
-                        where = where + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
-                    }
-                    else {
-                        where = where + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
-                    }
-                } //number
-                else if (p.dataType === eFieldDataType.Boolean) {
-                    where = where + ' and ' + p.cellName + ' = ' + fvalue.toString();
-                }
-                //string
-                else if (fvalue.indexOf('%') >= 0)
-                    where = where + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
-                else if (li >= 0)
-                    where = where + ' and upper(' + p.cellName + ')' + fvalue.substring(0, li + 1) + '"' + fvalue.substring(li + 1) + '"';
-                else
-                    where = where + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
-            }
-            if (p.propName === entity.ukeyPropName) {
-                if (keys && keys.length > 0) {
-
-                    where_keys = where_keys + ' and ( 1=0 ';
-                    for (let key of keys) {
-                        if (key instanceof Number)
-                            where_keys = where_keys + ' or ' + p.cellName + ' = ' + key;
-                        else
-                            where_keys = where_keys + ' or ' + p.cellName + ' = "' + key + '"';
-                    }
-                    where_keys = where_keys + ')';
-                }
-            }
-
-        }
-        if (!exists_filter && forFkey)
+        let where = this.addFilterWhereClause(shellInfo, entityInfo, filterItems, keys);
+        if (where.length === 0 && forFkey)
             return null;
 
-        query = query + where + where_keys;
+        query = query + ' 1=1 ' + where;
 
-        if (entity.shellInfo.filter && entity.shellInfo.filter.static_filter) {
-            let static_where = entity.getStaticFilter(entity.shellInfo.filter.static_filter);
+        if (shellInfo.filter && shellInfo.filter.static_filter) {
+            let static_where = BaseEntity.getStaticFilter(shellInfo.filter.static_filter, entityInfo.properties);
             if (static_where)
                 query = query + ' and ' + static_where;
         }
@@ -522,65 +480,95 @@ export class BaseEntity {
         return query;
     }
 
-    public toCountFilter(keys?): string {
+    public static toCountFilter(shellInfo: IShellInfo,
+        entityInfo: IEntityInfo,
+        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
+        keys?): string {
 
-        let query = 'select count(A) where 1=1 ';
+        let query = 'select count(A) where ';
 
-        for (let p of this.properties) {
-            if (p.isCustom === true)
+        let where = ' 1=1 ';
+        where = where + this.addFilterWhereClause(shellInfo, entityInfo, filterItems, keys);
+
+        query = query + where;
+        return query;
+    }
+
+    static addFilterWhereClause(shellInfo: IShellInfo,
+        entityInfo: IEntityInfo,
+        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
+        keys?) {
+        let where = '', where_keys = '';
+
+        if (!filterItems)
+            return where;
+
+        for (let item of filterItems) {
+            if (item.filterCondition.property.isCustom === true || item.filterCondition.entityName !== entityInfo.entityName)
+                continue;
+            if (item.filterConditionValue === null || item.filterConditionValue === '')
                 continue;
 
-            if (this[p.propName]) {
-                let fvalue = this[p.propName].toString().toUpperCase();
-                let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
-                //date or time
-                if (p.dataType === eFieldDataType.Date || p.dataType === eFieldDataType.Time) {
-                    if (li >= 0) {
-                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
-                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
-                    }
-                    else {
-                        let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue));
-                        query = query + ' and ' + p.cellName + ' = date "' + datevalue + '"';
-                    }
-                }
-                //number
-                else if (p.dataType === eFieldDataType.Numeric) {
-                    if (li >= 0) {
-                        query = query + ' and ' + p.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
-                    }
-                    else {
-                        query = query + ' and ' + p.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
-                    }
-                }
-                //boolean
-                else if (p.dataType === eFieldDataType.Boolean) {
-                    query = query + ' and ' + p.cellName + ' = ' + fvalue.toString();
-                }
-                //string
-                else if (fvalue.indexOf('%') >= 0)
-                    query = query + ' and upper(' + p.cellName + ') like "' + fvalue + '"';
-                else if (li >= 0)
-                    query = query + ' and upper(' + p.cellName + ')' + fvalue.substring(0, li + 1) + '"' + fvalue.substring(li + 1) + '"';
-                else
-                    query = query + ' and upper(' + p.cellName + ') like "%' + fvalue + '%"';
-            }
 
-            if (p.propName === this.ukeyPropName) {
+            let fvalue = item.filterConditionValue.toUpperCase();
+            let li = Math.max(fvalue.lastIndexOf('<'), fvalue.lastIndexOf('>'), fvalue.lastIndexOf('='));
+            //date, time
+            if (item.filterCondition.property.dataType === eFieldDataType.Date || item.filterCondition.property.dataType === eFieldDataType.Time) {
+                if (li >= 0) {
+                    let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue.substring(li + 1)));
+                    where = where + ' and ' + item.filterCondition.property.cellName + fvalue.substring(0, li + 1) + ' date "' + datevalue + '"';
+                }
+                else {
+                    let datevalue = BaseEntity.dateStructToStandardDate(BaseEntity.parseDateStruct(fvalue));
+                    where = where + ' and ' + item.filterCondition.property.cellName + ' = date "' + datevalue + '"';
+                }
+            }
+            //number
+            else if (item.filterCondition.property.dataType === eFieldDataType.Numeric) {
+                if (li >= 0) {
+                    where = where + ' and ' + item.filterCondition.property.cellName + fvalue.substring(0, li + 1) + BaseEntity.parseNumber(fvalue.substring(li + 1)).toString();
+                }
+                else {
+                    where = where + ' and ' + item.filterCondition.property.cellName + ' = ' + BaseEntity.parseNumber(fvalue).toString();
+                }
+            } //number
+            else if (item.filterCondition.property.dataType === eFieldDataType.Boolean) {
+                where = where + ' and ' + item.filterCondition.property.cellName + ' = ' + fvalue.toString();
+            }
+            //string
+            else if (fvalue.indexOf('%') >= 0) {
+                if (fvalue.startsWith('<>'))
+                    where = where + ' and not upper(' + item.filterCondition.property.cellName + ') like "' + fvalue.replace('<>', '') + '"';
+                else
+                    where = where + ' and upper(' + item.filterCondition.property.cellName + ') like "' + fvalue + '"';
+            }
+            else if (li >= 0)
+                where = where + ' and upper(' + item.filterCondition.property.cellName + ')' + fvalue.substring(0, li + 1) + '"' + fvalue.substring(li + 1) + '"';
+            else {
+                if (fvalue.startsWith('<>'))
+                    where = where + ' and not upper(' + item.filterCondition.property.cellName + ') like "%' + fvalue + '%"';
+                else
+                    where = where + ' and upper(' + item.filterCondition.property.cellName + ') like "%' + fvalue + '%"';
+            }
+        }
+
+        for (let property of entityInfo.properties) {
+            if (property.propName === entityInfo.ukeyPropName) {
                 if (keys && keys.length > 0) {
-                    query = query + ' and ( 1=0 ';
+
+                    where_keys = where_keys + ' and ( 1=0 ';
                     for (let key of keys) {
                         if (key instanceof Number)
-                            query = query + ' or ' + p.cellName + ' = ' + key;
+                            where_keys = where_keys + ' or ' + property.cellName + ' = ' + key;
                         else
-                            query = query + ' or ' + p.cellName + ' = "' + key + '"';
+                            where_keys = where_keys + ' or ' + property.cellName + ' = "' + key + '"';
                     }
-                    query = query + ')';
+                    where_keys = where_keys + ')';
                 }
             }
         }
 
-        return query;
+        return where + where_keys;
     }
 
     static createInstance<T extends BaseEntity>(type: new () => T,
@@ -612,70 +600,27 @@ export class BaseEntity {
         return new_instance;
     }
 
-    public getStaticFilter(filter?: { key: string, value: any }[]): any {
+    public static getStaticFilter(filter: { key: string, value: any }[], properties: IPropInfo[]): any {
         let where = '';
-        if (filter) {
-            for (let item of filter) {
-                if (where.length > 0)
-                    where = where + ' and ';
-                for (let p of this.properties) {
-                    if (p.propName === item.key) {
-                        if (p.dataType === 'NUMBER') {
-                            where = where + p.cellName + ' = ' + BaseEntity.parseNumber(item.value).toString();
-                        }
-                        else if (p.dataType === 'BOOLEAN') {
-                            where = where + ' and ' + p.cellName + ' = ' + item.value.toString();
-                        }
-                        else {
-                            where = where + ' upper(' + p.cellName + ') = "' + item.value + '"';
-                        }
+        for (let item of filter) {
+            if (where.length > 0)
+                where = where + ' and ';
+            for (let p of properties) {
+                if (p.propName === item.key) {
+                    if (p.dataType === 'NUMBER') {
+                        where = where + p.cellName + ' = ' + BaseEntity.parseNumber(item.value).toString();
+                    }
+                    else if (p.dataType === 'BOOLEAN') {
+                        where = where + ' and ' + p.cellName + ' = ' + item.value.toString();
+                    }
+                    else {
+                        where = where + ' upper(' + p.cellName + ') = "' + item.value + '"';
                     }
                 }
             }
         }
+
         return where;
-    }
-    
-    
-    protected f_shellInfo;
-
-    public get shellInfo(): IShellInfo {
-
-        if (!this.f_shellInfo)
-        {
-            this.f_shellInfo = {
-                filter: {
-                    fields: {
-                        add: [],
-                        remove: []
-                    },
-                    static_filter: [],
-                    commands: [
-                        { caption: 'Apply', handler: 'onApply', primary : true },
-                        { caption: 'Clear', handler: 'onClear' },
-                        { caption: 'Details', handler: 'onDetailsFilter', isDisabled : true },
-                        { caption: 'New', handler: 'onNew' },
-                    ]
-                },
-                properties: [],
-                commands: [
-                    { caption: 'New', handler: 'onNew', primary : true  },
-                    { caption: 'Save', handler: 'onSave' },
-                    { caption: 'Delete', handler: 'onDelete' },
-                    { caption: 'Undo', handler: 'onUndo' }
-                ],
-                report: {
-                    preloads: []
-                }
-            };
-            this.adjustShellInfo();
-        }
-        return this.f_shellInfo;
-    }
-
-    public adjustShellInfo()
-    {
-
     }
 
     public onPrepareSave() { }
@@ -695,7 +640,7 @@ export class BaseEntity {
         return this === other;
     }
 
-    public requestShellInfoSliceRefresh : boolean = false;
+    public requestShellInfoSliceRefresh: boolean = false;
 
     public getAdjustedShellInfoSlice() {
 

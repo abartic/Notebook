@@ -1,56 +1,64 @@
 <div class="modal-header">
     <h4 class="modal-title">{{title}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
-          <span aria-hidden="true">&times;</span>
-        </button>
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
-<div class="modal-body" #rootdiv class="hosttable" (window:resize)="onResize($event)">
+
+<div class="modal-body" #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
 
     <p>
         <ngb-progressbar type="info" value="50" striped="true" animated="true" *ngIf="package.lookup_rows === undefined"></ngb-progressbar>
     </p>
 
-    <table class="table table-hover table-striped table-bordered table-md">
-        <thead class="thead-light">
-            <tr>
-                <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                    <input type="text" class="form-control" (ngModelChange)="packageCtrl.onLookupFilterChange()" [(ngModel)]="package.lookup_filter[property.propName]" placeholder="{{property.propName}}" />
-                </th>
-            </tr>
-            <tr>
-                <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">{{property.propName}}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
-                <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                    <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
-                    <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
-                        <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
-                        <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="row">
 
-    <div class="row justify-content-end" *ngIf="package.lookup_rows.length > 0">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page - 1) < 0}">
-                    <a class="page-link" (click)="onPreviousLookupPage()">Previous</a>
-                </li>
-                <li class="page-item" *ngFor="let page of package.lookup_row_pages; let i = index" [ngClass]="{'active':i===package.lookup_row_current_page}">
-                    <a class="page-link" (click)="onSelectLookupPage(i)">{{i+1}}</a>
-                </li>
-                <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page + 1) >= package.lookup_row_pages.length}">
-                    <a class="page-link" (click)="onNextLookupPage()">Next</a>
-                </li>
-            </ul>
+        <table class="table table-hover table-striped table-bordered table-md">
+            <thead class="thead-light">
+                <tr>
+                    <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
+                        <input type="text" class="form-control" (ngModelChange)="packageCtrl.onLookupFilterChange()" [(ngModel)]="package.lookup_filter[property.propName]" placeholder="{{property.propName}}" />
+                    </th>
+                </tr>
+                <tr>
+                    <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">{{property.propName}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
+                    <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
+                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                        <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
+                            <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                            <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-        </nav>
+    </div>
+
+    <div class="row" *ngIf="package.lookup_rows.length > 0">
+        <div class="col align-self-end">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page - 1) < 0}">
+                        <a class="page-link" (click)="onPreviousLookupPage()">Previous</a>
+                    </li>
+                    <li class="page-item" *ngFor="let page of package.lookup_row_pages; let i = index" [ngClass]="{'active':i===package.lookup_row_current_page}">
+                        <a class="page-link" (click)="onSelectLookupPage(i)">{{i+1}}</a>
+                    </li>
+                    <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page + 1) >= package.lookup_row_pages.length}">
+                        <a class="page-link" (click)="onNextLookupPage()">Next</a>
+                    </li>
+                </ul>
+
+            </nav>
+        </div>
     </div>
 </div>
+
 <div class="modal-footer">
 
     <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">Close</button>

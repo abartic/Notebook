@@ -204,7 +204,7 @@ export class Server {
 
             // respond with html page
             if (req.accepts('html')) {
-                res.render('index.html', { url: req.url })
+                res.render('../a_index.html', { url: req.url })
                 return;
             }
 

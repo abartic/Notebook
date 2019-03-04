@@ -1,6 +1,7 @@
+import { AccountInventoryShell } from './../shells/accountinventory-shell';
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
 
-@SheetInfo("movements", "accounts_inventory", "AccountInventory")
+@SheetInfo("movements", "accounts_inventory", "AccountInventory", AccountInventoryShell.adjustShellInfo)
 export class AccountInventory extends BaseEntity {
 
 
@@ -13,8 +14,6 @@ export class AccountInventory extends BaseEntity {
 
     public balance: number;
 
-    public adjustShellInfo() {
-        this.shellInfo.commands = [];
-    }
+    
 
 }

@@ -1,8 +1,9 @@
 import { Address } from './address';
 import { Contact } from './contact';
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
+import { ProspectShell } from '../shells/prospect-shell';
 
-@SheetInfo("partners", "partners", "Prospect", "code_part") export
+@SheetInfo("partners", "partners", "Prospect", ProspectShell.adjustShellInfo, "code_part") export
     class Prospect extends BaseEntity {
 
 
@@ -37,13 +38,7 @@ import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
 
     public contact_relation: (Contact)[];
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_partner', value: 'PRP' }];
-        this.shellInfo.commands = this.shellInfo.commands.concat([
-            { caption: 'New meeting', handler: 'onAddMeeting' },
-            { caption: 'Calendar', handler: 'onShowCalendar' },
-        ]);
-    }
+  
 
     public onNew(parent: BaseEntity) {
         super.onNew(parent);

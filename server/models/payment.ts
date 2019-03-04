@@ -1,13 +1,9 @@
-import { InvoiceLine } from './invoice-line';
-import { ModelInfos } from './modelProperties';
-import { ISelectObj } from './../common/select-obj';
 
-
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
-import { Partner } from './partner';
+import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
 import { eTypeMovement } from '../common/enums';
+import { PaymentShell } from '../shells/payment-shell';
 
-@SheetInfo("movements", "documents", "Payment", "code_doc")
+@SheetInfo("movements", "documents", "Payment", PaymentShell.adjustShellInfo, "code_doc")
 export class Payment extends BaseEntity {
 
     public code_doc: string;
@@ -44,19 +40,7 @@ export class Payment extends BaseEntity {
 
     public type_movement: string;
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.Payment }];
-        this.shellInfo.report = {
-            preloads: [
-                {
-                    entity_name: 'partner', ukey_prop_name: 'code_part', cb: p => {
-                        this['partner_lookup_entity'] = p;
-                    }
-                }
-            ]
-        };
-
-    }
+    
 
     public onNew(parent: BaseEntity) {
         super.onNew(parent);

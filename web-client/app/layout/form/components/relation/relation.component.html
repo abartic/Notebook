@@ -11,7 +11,7 @@
                             <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i
                   class="fa fa-plus "></i></button>
                         </th>
-                        <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(this.package.entity, relation,true) ">{{property.propName}}</th>
+                        <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(relation,true) ">{{property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,7 +20,7 @@
                             <button type="button " class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
                             <button type="button " class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
                         </th>
-                        <td scope="row " *ngFor="let property of packageCtrl.getRelationProperties(this.package.entity, relation,true)">
+                        <td scope="row " *ngFor="let property of packageCtrl.getRelationProperties(relation,true)">
                             <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
                             <div [ngSwitch]="packageCtrl.getInputType(property) " [ngClass]="{tdcontent: checkSize()}">
                                 <div class=" input-group " *ngSwitchCase=" 'date' ">{{row[property.propName] | datefrm}}</div>

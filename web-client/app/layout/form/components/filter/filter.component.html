@@ -1,77 +1,56 @@
 <div [@routerTransition] #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
 
     <div class="row">
-        <!-- <div class="btn-toolbar" role="toolbar"> -->
-        <div class="btn-group" role="group">
-            <button *ngFor="let command of (package.filter.shellInfo.filter.commands)" [disabled]="command.isDisabled === true" type="button" (click)="packageCtrl[command.handler]()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}" [class]="command.primary ? 'btn btn-primary' : 'btn btn-secondary'">{{command.caption | translate}}</button>
-        </div>
-        <!-- </div> -->
-    </div>
+        <div class="col-6 col-lg-4">
+            <div class="input-group">
+                <select class="form-control" [(ngModel)]="selectedFilterCond">
+          <option [ngValue]="null" selected>Select field</option>
+          <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.property.propName}}</option>
+          <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName}}-{{p.property.propName}}</option>
+        </select>
+                <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
 
-    <BR>
-    <div class="row">
-        <div class="col " style="overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
-            <div id=" detailsFilterArea " [ngbCollapse]="package.isDetailsFilterCollapsed ">
-
-                <div *ngFor="let relation of (package.filter.entityInfo.relations) ">
-                    {{relation}} filter:
-                    <table class="table table-hover table-striped">
-
-                        <thead>
-                            <tr>
-                                <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation,false) ">{{property.propName}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td *ngFor=" let property of packageCtrl.getRelationProperties(package.filter, relation,false) ">
-                                    <input type="text" class="form-control " [(ngModel)]="package.filter_details[relation][property.propName] " placeholder="{{property.propName}}" />
-
-
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-                <hr>
             </div>
 
         </div>
+        <div class="col">
+            <div class="btn-group" role="group">
+                <button *ngFor="let command of packageCtrl.filterCommands" [disabled]="command.isDisabled === true || (command.isActive && command.isActive(packageCtrl)===false)" type="button" (click)="this[command.handler]()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}"
+                    [class]="'btn btn-secondary ' + command.image" ngbTooltip="{{command.caption}}"></button>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col">
+            <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems' [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
+        </div>
     </div>
 
 
     <BR>
 
-
-
-
     <div class="row ">
-        <div class="col" style="overflow-x: auto; overflow-y: hidden; white-space: nowrap;">
-            <table class="table table-hover table-striped table-bordered table-md ">
-                <thead class="thead-light ">
-                    <!-- <tr>
-                        <th></th>
-                        <th *ngFor="let property of packageCtrl.filterProperties ">
-                            <input type="text " class="form-control " [(ngModel)]="package.filter[property.propName] " placeholder="{{property.propName}} " />
-                        </th>
-                    </tr> -->
+        <div class="col hor-scrollable">
+            <span *ngIf="packageCtrl.package.filter_rows.length === 0"><i>&lt;no data fetched&gt;</i></span>
+            <table *ngIf="packageCtrl.package.filter_rows.length !== 0" class="table table-hover table-striped table-bordered table-md " infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
+                <thead class="thead-light " #tableheader>
                     <tr>
                         <th>#</th>
-                        <th *ngFor="let property of packageCtrl.filterProperties ">{{property.propName}}</th>
+                        <th *ngFor="let p of packageCtrl.filterProperties ">{{p.property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of package.rows; index as i " (click)="onSelectEntity(row) ">
+                    <tr *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
                         <td>{{i+1}}</td>
-                        <td *ngFor="let property of packageCtrl.filterProperties ">
-                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
-                            <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
-                                <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
-                                <div class="input-group" *ngSwitchCase="'checkbox'">
-                                    <input class="form-control" type="checkbox" [checked]="row[property.propName]">
+                        <td *ngFor="let p of packageCtrl.filterProperties ">
+                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{p.property.propName}}:</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: checkSize()}">
+                                <div class="input-group" *ngSwitchCase="'date'" readonly="true">{{row[p.property.propName] | datefrm}}</div>
+                                <div class="input-group" *ngSwitchCase="'checkbox'" readonly>
+                                    <input class="form-control" type="checkbox" [checked]="row[p.property.propName]" readonly>
                                 </div>
-                                <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                                <div class="input-group" *ngSwitchDefault readonly="true">{{row[p.property.propName]}}</div>
                             </div>
                         </td>
                     </tr>
@@ -80,47 +59,11 @@
 
         </div>
     </div>
-
-
-
-    <BR>
-    <div class="row justify-content-end " *ngIf="package.rows.length> 0">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page - 1) < 0}">
-                    <a class="page-link" (click)="onPreviousPage()">Previous</a>
-                </li>
-                <li class="page-item" *ngFor="let page of package.row_pages; let i = index" [ngClass]="{'active':i===package.row_current_page}">
-                    <a class="page-link" (click)="onSelectPage(i)">{{i+1}}</a>
-                </li>
-                <li class="page-item" [ngClass]="{'disabled':(package.row_current_page + 1) >= package.row_pages.length}">
-                    <a class="page-link" (click)="onNextPage()">Next</a>
-                </li>
-            </ul>
-
-        </nav>
-    </div>
-
-
-    <div class="row">
+    <div class="row justify-content-end">
+        <div class="col-11">
+        </div>
         <div class="col">
-            <mat-form-field>
-                <select matNativeControl required>
-                  <option value="volvo">Volvo</option>
-                  <option value="saab">Saab</option>
-                  <option value="mercedes">Mercedes</option>
-                  <option value="audi">Audi</option>
-                </select>
-            </mat-form-field>
-            <!-- <div class="row">
-                <div class="col s12 l6">
-                    <ngx-select-dropdown [config]="dropdownSettings" [options]="packageCtrl.filterProperties" [(ngModel)]="selectedValue" [multiple]="false">
-                    </ngx-select-dropdown>
-                </div>
-            </div> -->
+            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.filter_rows.length !== 0" (click)="onScroll()"><i>load more...</i></button>
         </div>
     </div>
-
-
-
 </div>

@@ -1,9 +1,11 @@
 
 import { BaseEntity, SheetInfo } from "./base-entity";
+import { ModelInfos } from './modelProperties';
 
 @SheetInfo("partners", "addresses","Address")  
 export class Address extends BaseEntity {
 
+   
 
     public code_part : string;
 

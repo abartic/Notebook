@@ -1,7 +1,7 @@
 
 import { Component, Inject, Injectable, Input, ViewEncapsulation } from '@angular/core';
 import { NgbModal, ModalDismissReasons, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { IPackageController } from '../../layout/form/package-controller';
+import { IPackageController } from '../../layout/form/ipackage-controller';
 import { AlertDialogWnd } from '../alertDialog/alertDialogWnd';
 import { AskDialogWnd } from '../askDialog/askDialogWnd';
 

@@ -651,7 +651,8 @@ export class SheetsManagementOperations {
                     sheetName: sheet.sheetName,
                     entityName: entityName,
                     isView: sheet.isView,
-                    relations: map_relations
+                    relations: map_relations,
+                    fetched: true
                 };
 
             }).catch(err => {

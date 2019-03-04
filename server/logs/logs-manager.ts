@@ -69,7 +69,8 @@ export class LogsManager {
                                     rowid: null,
                                     selectEntity: null,
                                     values: [uuidv1(), log_date, userId, descr],
-                                    action: eEntityAction.Create
+                                    action: eEntityAction.Create,
+                                    
                                 },
                             ],
                             action: eEntityAction.Create,

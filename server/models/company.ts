@@ -1,7 +1,8 @@
 
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo } from "./base-entity";
+import { CompanyShell } from '../shells/company-shell';
 
-@SheetInfo("settings", "companies", "Company", "code_comp")
+@SheetInfo("settings", "companies", "Company", CompanyShell.adjustShellInfo,  "code_comp")
 export class Company extends BaseEntity {
 
     public code_comp: string;
@@ -50,13 +51,6 @@ export class Company extends BaseEntity {
 
     public expenses_report : string;
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.autoApply = true;
-        this.shellInfo.filter.commands = [{ caption: 'Refresh', handler: 'onApply', primary : true },];
-        this.shellInfo.commands = [
-            { caption: 'Save', handler: 'onSave', primary : true },
-            { caption: 'Undo', handler: 'onUndo' }
-        ];
-    }
+   
     
 }

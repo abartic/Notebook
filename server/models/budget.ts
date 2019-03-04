@@ -1,14 +1,11 @@
-import { InvoiceLine } from './invoice-line';
-import { ModelInfos } from './modelProperties';
-import { ISelectObj } from './../common/select-obj';
+import { ShellInfos } from './modelProperties';
 
-
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
-import { Partner } from './partner';
-import { eTypeMovement, eFieldDataType, eTypeBudget } from '../common/enums';
+import { BaseEntity, SheetInfo, IPropInfo } from "./base-entity";
+import { eFieldDataType, eTypeBudget } from '../common/enums';
 import { BudgetLine } from './budget-line';
+import { BudgetShell } from '../shells/budget-shell';
 
-@SheetInfo("budgets", "budget_definitions", "Budget", "code_doc")
+@SheetInfo("budgets", "budget_definitions", "Budget", BudgetShell.adjustShellInfo, "code_doc")
 export class Budget extends BaseEntity {
 
     public code_doc: string;
@@ -40,74 +37,7 @@ export class Budget extends BaseEntity {
 
     public budgetline_relation: (BudgetLine)[];
 
-    public adjustShellInfo() {
-        this.shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Budget }];
-        this.shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
-        this.shellInfo.pivotInfo = {
-            slice: {
-                columns: [
-                    {
-                        dimensionName: "year",
-                        caption: "year",
-                        uniqueName: "year",
-
-                    },
-                    {
-                        dimensionName: "month",
-                        caption: "month",
-                        uniqueName: "month",
-
-                    },
-                    {
-                        dimensionName: "week",
-                        caption: "week",
-                        uniqueName: "week",
-
-                    },
-                    {
-                        dimensionName: "day",
-                        caption: "day",
-                        uniqueName: "day",
-
-                    }
-                ],
-                rows: [
-                    {
-                        dimensionName: "attr1",
-                        caption: "Chapter",
-                        uniqueName: "attr1",
-                    },
-                    {
-                        dimensionName: "attr2",
-                        caption: "Sub-chapter",
-                        uniqueName: "attr2",
-                    },
-                    {
-                        dimensionName: "attr3",
-                        caption: "Title",
-                        uniqueName: "attr3",
-                    }
-                ],
-                measures: [
-                    {
-                        uniqueName: "debit",
-                        caption: "Projected",
-                        aggregation: "SUM"
-                    }
-
-                    , {
-                        uniqueName: "credit",
-                        caption: "Executed",
-                        aggregation: "SUM"
-                    }
-                ],
-                expands: {
-                    expandAll: true,
-
-                }
-            }
-        };
-    }
+   
 
 
     public onNew(parent: BaseEntity) {
@@ -126,7 +56,8 @@ export class Budget extends BaseEntity {
             return [];
 
         let fields = this.pivot_by.split(',').map(f => f.trim());
-        let slice = JSON.parse(JSON.stringify(this.shellInfo.pivotInfo.slice));
+        let shellInfo = ShellInfos.uniqueInstance.get(this.entityName);
+        let slice = JSON.parse(JSON.stringify(shellInfo.pivotInfo.slice));
         let row_delete = [];
         for (let row of slice.rows) {
             let index = fields.findIndex(f => f === row.uniqueName);

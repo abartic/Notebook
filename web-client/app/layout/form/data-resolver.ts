@@ -1,3 +1,4 @@
+import { ModelInfos } from './../../../../server/models/modelProperties';
 
 import { Injectable, Inject } from '@angular/core';
 import {
@@ -8,8 +9,9 @@ import { Observable } from 'rxjs';
 import { HttpCallerService } from '../../services/httpcaller.service';
 import { ModelFactory } from '../../../../server/models/modelFactory';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { PackageController, IPackageController } from './package-controller';
+import { PackageController } from './package-controller';
 import { UserSessionService } from '../../services/userSessionService';
+import { IPackageController } from './ipackage-controller';
 
 
 
@@ -25,6 +27,7 @@ export class DataResolver implements Resolve<IPackageController> {
 
         let param = route.paramMap.get('id');
         let type = ModelFactory.uniqueInstance.get(param);
+        let info = ModelInfos.uniqueInstance.get(param);
         if (type === undefined || type === null) {
             console.log('screen missing...');
             this.router.navigate(['/not-found']);
@@ -34,8 +37,9 @@ export class DataResolver implements Resolve<IPackageController> {
             let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller, this.userSessionService, this.router);
 
             return new Observable<IPackageController>((observer) => {
-                packageCtrl.fetchEntityInfo().then(() => {
+                packageCtrl.fetchEntityInfo(info).then(() => {
                     observer.next(packageCtrl);
+                    
                     observer.complete();
                 }).catch((err) => {
                     observer.error(err);

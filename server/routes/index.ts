@@ -50,6 +50,6 @@ export class IndexRoute extends BaseRoute {
     
     //var csrf = csrfProtection(req,res,next);
     res.cookie("xsrf-token", req.csrfToken());
-    res.render("index.html");
+    res.render("../a_index.html");
   }
 }

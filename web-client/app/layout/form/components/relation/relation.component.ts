@@ -1,8 +1,7 @@
-import { style } from '@angular/animations';
-import { Component, OnInit, Input, HostBinding, ElementRef, ViewChild } from '@angular/core';
-import { IPackageController } from '../../package-controller';
+import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
+import { IPackageController } from '../../ipackage-controller';
 import { routerTransition } from '../../../../router.animations';
-import { DomSanitizer } from '@angular/platform-browser';
+
 
 @Component({
   selector: 'form-editor-relation',
@@ -31,7 +30,7 @@ export class RelationComponent implements OnInit {
   onResize(event) {
     let style = window.getComputedStyle(this.rootdiv.nativeElement);
     this.screensize = style.getPropertyValue('--screensize');
-    console.log(this.screensize);
+    
   }
 
   checkSize()

@@ -1,8 +1,6 @@
 import { Budget } from './budget';
 import { Receivable } from './receivable';
 import { Payment } from './payment';
-import { BaseEntity } from './base-entity';
-import { Article } from './article';
 import { Partner } from './partner';
 import { Address } from './address';
 import { InvoiceLine } from './invoice-line';
@@ -19,6 +17,7 @@ import { BudgetLine } from './budget-line';
 import { Expenses } from './expenses';
 import { ExpenseLine } from './expense-line';
 import { LogEntry } from './log-entry';
+import { Article } from './article';
 
 export class ModelFactory {
     private static _uniqueInstance: ModelFactory;
@@ -27,35 +26,43 @@ export class ModelFactory {
         let entity = this.get(type);
         return new entity();
     }
-    
 
-    public get(type: string) : (new() => any ) {
-        
+    private typeSelector = (type) => {
+        if (type === "article") return Article;
+        else if (type === "partner") return Partner;
+        else if (type === "prospect") return Prospect;
+        else if (type === "address") return Address;
+        else if (type === "articleinventory") return ArticleInventory;
+        else if (type === "accountinventory") return AccountInventory;
+        else if (type === "contact") return Contact;
+        else if (type === "store") return Store;
+        else if (type === "invoice") return Invoice;
+        else if (type === "invoiceline") return InvoiceLine;
+        else if (type === "purchase") return Purchase;
+        else if (type === "purchaseline") return PurchaseLine;
+        else if (type === "company") return Company;
+        else if (type === "payment") return Payment;
+        else if (type === "receivable") return Receivable;
+        else if (type === "budget") return Budget;
+        else if (type === "budgetline") return BudgetLine;
+        else if (type === "expenses") return Expenses;
+        else if (type === "expenseline") return ExpenseLine;
+        else if (type === "logentry") return LogEntry;
+        else throw 'type is missing'
+    };
+
+    // public getInfo(type: string) {
+    //     type = type.toLowerCase();
+    //     return this.typeSelector(type).getEntityInformation();
+    //}
+
+    public get(type: string): (new () => any) {
+
         type = type.toLowerCase();
-         if (type === "article") return Article;
-         else if (type === "partner") return Partner;
-         else if (type === "prospect") return Prospect;
-         else if (type === "address") return Address;
-         else if (type === "articleinventory") return ArticleInventory;
-         else if (type === "accountinventory") return AccountInventory;
-         else if (type === "contact") return Contact;
-         else if (type === "store") return Store;
-         else if (type === "invoice") return Invoice;
-         else if (type === "invoiceline") return InvoiceLine;
-         else if (type === "purchase") return Purchase;
-         else if (type === "purchaseline") return PurchaseLine;
-         else if (type === "company") return Company;
-         else if (type === "payment") return Payment;
-         else if (type === "receivable") return Receivable;
-         else if (type === "budget") return Budget;
-         else if (type === "budgetline") return BudgetLine;
-         else if (type === "expenses") return Expenses;
-         else if (type === "expenseline") return ExpenseLine;
-         else if (type === "logentry") return LogEntry;
-         else throw 'type is missing'
+        return this.typeSelector(type);
     }
 
-    public static get uniqueInstance() : ModelFactory {
+    public static get uniqueInstance(): ModelFactory {
         if (ModelFactory._uniqueInstance === undefined) {
             ModelFactory._uniqueInstance = new ModelFactory();
         }

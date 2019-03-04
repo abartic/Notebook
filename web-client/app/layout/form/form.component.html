@@ -1,4 +1,4 @@
-<div [@routerTransition] class="container-fluid">
+<div [@routerTransition]>
 
     <div class="form-group row">
         <div class="col">
@@ -17,13 +17,12 @@
         <div class="col">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col">
-                        <button type="button " class="btn btn-link " (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false">Filter</button>
+                    <div class="col-9 col-md-10 col-lg-11">
+                        <u><H1>{{entityType}}</H1></u>
                     </div>
-                    <div class="col-md-auto">
-                        <u>
-                               <H1>{{entityType}}</H1> 
-                        </u>
+                    <div class="col-3 col-md-2 col-lg-1">
+                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search" (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false" ngbTooltip="Filter"></button>
+                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil" (click)="packageCtrl.onNew()" *ngIf="canHandleNew" ngbTooltip="Compose new doc."></button>
                     </div>
                 </div>
             </div>
