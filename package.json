@@ -12,7 +12,7 @@
         "lint": "ng lint",
         "e2e": "ng e2e",
         "test": "mocha --timeout 10000",
-        "postinstall": "ng build --build-optimizer=false --prod && grunt mbuild"
+        "postinstall": "ng build --build-optimizer=false && grunt mbuild"
     },
     "private": true,
     "dependencies": {
