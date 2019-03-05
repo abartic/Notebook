@@ -103,7 +103,7 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
         ctor.prototype['sheet_name'] = sheetName;
         ctor.prototype['entity_name'] = entityName;
         ctor.prototype['ukey_prop_name'] = ukeyPropName;
-        ModelInfos.uniqueInstance.addOrUpdate(entityName, { spreadsheetName, sheetName, entityName, ukeyPropName, fetched: false });
+        ModelInfos.uniqueInstance.addOrUpdate(entityName, { spreadsheetName, sheetName, entityName, ukeyPropName, fetched: false, entityLookups: ctor.prototype['lookups']  });
         let shellinfo = {
             filter: {
                 fields: {
@@ -138,14 +138,15 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
 
 export function LookupProp(entityName: string, propNames: (string)[]) {
     return (prototype: any, propName: string) => {
-        let info: IEntityInfo = ModelInfos.uniqueInstance.get(prototype.constructor.name);
-        if (!info) {
-            info = {entityLookups: null, fetched: false};
-            ModelInfos.uniqueInstance.addOrUpdate(prototype.constructor.name, info);
-        }
-        if (!info.entityLookups)
-            info.entityLookups = new Map<string, { entityName: string, propNames: (string)[] }>();
-        info.entityLookups.set(propName, { entityName, propNames });
+        
+        // let info: IEntityInfo = ModelInfos.uniqueInstance.get(prototype.constructor.name);
+        // if (!info) {
+        //     info = {entityLookups: null, fetched: false};
+        //     ModelInfos.uniqueInstance.addOrUpdate(prototype.constructor.name, info);
+        // }
+        if (!prototype['lookups'])
+            prototype['lookups'] = new Map<string, { entityName: string, propNames: (string)[] }>();
+        prototype['lookups'].set(propName, { entityName, propNames });
     }
 }
 
@@ -163,7 +164,7 @@ export class BaseEntity {
 
     private spreadsheet_name: string;
 
-    //private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
+    private lookups: Map<string, { entityName: string, propNames: (string)[] }>;
 
     public fetchAll: boolean;
 

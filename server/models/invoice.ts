@@ -1,5 +1,5 @@
 import { InvoiceLine } from './invoice-line';
-import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo, IEntityInfo } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp, IPropInfo } from "./base-entity";
 import { eTypeMovement } from '../common/enums';
 import { Partner } from './partner';
 import { InvoiceShell } from '../shells/invoice-shell';
