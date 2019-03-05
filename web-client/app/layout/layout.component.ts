@@ -74,4 +74,8 @@ export class LayoutComponent implements OnInit {
         // }
     }
 
+    collapedSideBar: boolean;
+    receiveCollapsed($event) {
+        this.collapedSideBar = $event;
+    }
 }

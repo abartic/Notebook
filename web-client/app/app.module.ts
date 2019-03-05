@@ -43,6 +43,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     ReportDialogWnd,
     CalendarDialogWnd,
     SafePipe,
+
     
   ],
   imports: [
@@ -66,8 +67,8 @@ export const createTranslateLoader = (http: HttpClient) => {
     AppRoutingModule,
     LoadingModule,
     SharedModule,
-    NgbModule.forRoot(),
-    
+    //NgbModule.forRoot(),
+    NgbModule,
 
   ],
   providers: [

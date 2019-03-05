@@ -15,10 +15,10 @@ import { MessagesComponent } from '../shared/components/messages/messages.compon
 @NgModule({
     imports: [
         CommonModule,
-        NgbDropdownModule.forRoot(),
-        TranslateModule,
         LoadingModule,
-        LayoutRoutingModule
+        LayoutRoutingModule,
+        NgbDropdownModule,
+        TranslateModule,
     ],
     declarations: [
         LayoutComponent,

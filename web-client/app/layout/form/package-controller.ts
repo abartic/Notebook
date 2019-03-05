@@ -782,7 +782,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private showReport(reportUrl: string) {
 
         const modalRef = this.modalService.open(ReportDialogWnd,
-            { windowClass: 'report-modal', size: 'lg' }
+            { size: 'lg' }
         );
         modalRef.componentInstance.reportUrl = reportUrl;
     }
@@ -797,7 +797,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private openEditDialog(title: string, validation?: () => boolean, relation?) {
 
         const modalRef = this.modalService.open(EditEntityDialogWnd,
-            { windowClass: 'edit-modal', size: 'lg' }
+            { size: 'lg' }
         );
         modalRef.componentInstance.title = title;
         modalRef.componentInstance.package = this.package;

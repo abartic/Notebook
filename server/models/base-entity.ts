@@ -420,7 +420,7 @@ export class BaseEntity {
             if (p.propName === ukey_prop_name)
                 cell_ukey = p.cellName;
             if (excludeCurrentUid === true && p.propName === 'uid')
-                additionalWhere = " and " + p.cellName + "<> '" + entity.uid + "'";
+                additionalWhere = " and " + p.cellName + " <> '" + entity.uid + "'";
             if (allFields === false && p.propName !== ukey_prop_name)
                 continue;
 
@@ -428,7 +428,7 @@ export class BaseEntity {
         }
 
         query = query.slice(0, query.length - 1);
-        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value || '').trim().toUpperCase() + '" ' + additionalWhere + ' limit 1';
+        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value.toString() || '').trim().toUpperCase() + '" ' + additionalWhere + ' limit 1';
         return query;
     }
 

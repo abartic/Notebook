@@ -8,7 +8,7 @@ import { FilterComponent } from './components/filter/filter.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EditorComponent } from './components/editor/editor.component';
 import { RelationComponent } from './components/relation/relation.component';
-import { NgbModule, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataResolver } from './data-resolver';
 import { LoadingModule } from 'ngx-loading';
 import { NgbDateFRParserFormatter } from '../../shared/pipes/ngbDateFRParserFormatter';

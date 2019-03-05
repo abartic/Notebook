@@ -1,6 +1,7 @@
 import { BaseEntity, SheetInfo, LookupProp, IShellInfo, IPropInfo } from "./base-entity";
+import { ArticleInventoryShell } from '../shells/articleinventory-shell';
 
-@SheetInfo("movements", "art_inventory", "ArticleInventory")  
+@SheetInfo("movements", "art_inventory", "ArticleInventory", ArticleInventoryShell.adjustShellInfo)  
 export class ArticleInventory extends BaseEntity {
 
     @LookupProp("article", ["code_art","descr_art", "UM"])

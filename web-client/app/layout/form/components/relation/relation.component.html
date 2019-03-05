@@ -1,15 +1,23 @@
 <div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
 
-    <div class=" row top-buffer">
+    <div class=" row ">
+
         <div class="col">
+            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-plus "></i></button>
+        </div>
+        <div class="col-auto">
             <h5>{{relation}}</h5>
-            <table class="table table-hover table-striped table-responsive table-bordered ">
+        </div>
+    </div>
+    <div class=" row">
+        <div class="col hor-scrollable">
+
+            <table class="table table-hover table-striped table-responsive">
 
                 <thead>
                     <tr>
                         <th scope="col ">
-                            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i
-                  class="fa fa-plus "></i></button>
+
                         </th>
                         <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{property.propName}}</th>
                     </tr>
@@ -17,8 +25,10 @@
                 <tbody>
                     <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
                         <th scope="row ">
-                            <button type="button " class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
-                            <button type="button " class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
+                            <div class="btn-group" role="group">
+                                <button type="button " class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
+                                <button type="button " class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
+                            </div>
                         </th>
                         <td scope="row " *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
                             <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
