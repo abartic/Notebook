@@ -2,8 +2,7 @@
 import { BaseEntity, IPropInfo, IEntityInfo, IShellInfo } from './../../../../server/models/base-entity';
 
 export interface IPackageController {
-    filterCommands: any;
-
+    
     package;
 
     filterItems;
@@ -14,19 +13,17 @@ export interface IPackageController {
 
     package_initialized: boolean;
 
-    canExecuteNew: boolean;
+    
 
     onClear();
 
-    onApply();
+    onApplyFilter();
 
-    onAddFilterCond(selectedFilterCond: {entityName: string, property: IPropInfo}, filterCondValue);
+    onAddFilterCond(selectedFilterCond: { entityName: string, property: IPropInfo }, filterCondValue);
 
     executeFilter();
 
-    checkFilter();
-
-    executeLookupFilter(count?: boolean);
+    executeLookupFilter(lookup_entity_name: string, filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[], reset: boolean);
 
     onSelectEntity(row);
 
@@ -44,7 +41,7 @@ export interface IPackageController {
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo);
 
-    lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]);
+    
 
     getRelationProperties(relation: string, addLookups: boolean, addEntityName: boolean);
 
@@ -55,9 +52,11 @@ export interface IPackageController {
     onEditEntityByRelation(entity: BaseEntity, relation: string, validation?: () => boolean, cb?: () => void);
 
     isDisabled(entity, property);
-    
-    entityInfo : IEntityInfo;
 
-    shellInfo : IShellInfo;
+    entityInfo: IEntityInfo;
+
+    shellInfo: IShellInfo;
+
+    filterCommands: any;
 
 }

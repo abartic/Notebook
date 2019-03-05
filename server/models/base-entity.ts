@@ -504,7 +504,7 @@ export class BaseEntity {
             return where;
 
         for (let item of filterItems) {
-            if (item.filterCondition.property.isCustom === true || item.filterCondition.entityName !== entityInfo.entityName)
+            if (item.filterCondition.property.isCustom === true || item.filterCondition.entityName.toUpperCase() !== entityInfo.entityName.toUpperCase())
                 continue;
             if (item.filterConditionValue === null || item.filterConditionValue === '')
                 continue;

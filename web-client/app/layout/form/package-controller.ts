@@ -25,6 +25,7 @@ import { IPackageController } from './ipackage-controller';
 
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
+    isLookupExecuting: boolean;
 
 
     constructor(
@@ -70,7 +71,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (this.filter_commands.length === 0) {
             for (const c of this.shellInfo.filter.commands) {
                 if (c.handler === 'onNew') {
-                    this.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
+                    this.package.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
                     continue;
                 }
 
@@ -80,7 +81,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_commands;
     }
 
-    public canExecuteNew: boolean = false;
+
 
 
     public package: Package<T>;
@@ -155,7 +156,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     private onViewLoaded() {
         if (this.shellInfo.filter.autoApply === true) {
-            this.onApply();
+            this.onApplyFilter();
         }
     }
 
@@ -214,7 +215,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.executeFilter();
     }
 
-    onApply() {
+    onApplyFilter() {
 
         this.package.filter_last_index = 0;
         this.package.filter_rows = [];
@@ -222,11 +223,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.executeFilter();
     }
 
-    checkFilter() {
-        if (this.package.filter_rows.length <= this.package.filter_items_max) {
-            this.executeFilter();
-        }
-    }
+
 
     private isFilterExecuting = false;
     executeFilter() {
@@ -235,47 +232,62 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         this.isFilterExecuting = true;
         this.package.error_msg = '';
-        this.package.filter_loading = true;
+        this.setWaiting(true);
         this.loadEntitiesByFilter(
             false,
             (entities_count, entities) => {
                 try {
                     if (entities) {
+                        this.package.filter_fetch_completed = entities.length !== this.package.fetched_items_max;
                         entities.forEach(item => {
                             this.package.filter_rows.push(item);
                         });
                         this.package.filter_last_index = this.package.filter_rows.length;
                     }
                 } finally {
-                    this.package.filter_loading = false;
+                    this.setWaiting(false);
                     this.isFilterExecuting = false;
                 }
             },
             () => {
                 this.isFilterExecuting = false;
                 this.package.show_filter = true;
-                this.package.filter_loading = false;
+                this.setWaiting(false);
             });
     }
 
-    executeLookupFilter(count?: boolean) {
-        this.package.lookup_loading = true;
-        this.package.lookup_rows = [];
 
-        if (!count) {
-            count = false;
+
+    executeLookupFilter(lookup_entity_name: string, filterItems, reset: boolean) {
+        if (this.isLookupExecuting === true)
+            return;
+
+        if (reset === true) { 
+            this.package.lookup_last_index = 0;
+            this.package.lookup_rows = [];
         }
-        this.loadEntitiesByFilter(
-            count,
+
+        this.isLookupExecuting = true;
+        this.package.lookup_loading = true;
+
+        const shellInfo = ShellInfos.uniqueInstance.get(lookup_entity_name);
+        const entityInfo = ModelInfos.uniqueInstance.get(lookup_entity_name);
+        this.loadLookupEntitiesByFilter(
+            shellInfo, entityInfo, filterItems,
             (entities_count, entities) => {
 
-                if (entities) {
-                    this.package.lookup_rows = entities;
-                } else {
-                    const pages = (entities_count) / this.package.filter_items_max;
-                    this.package.lookup_row_pages = new Array<number>(Math.ceil(pages));
+                try {
+                    if (entities) {
+                        this.package.lookup_fetch_completed = entities.length !== this.package.fetched_items_max;
+                        entities.forEach(item => {
+                            this.package.lookup_rows.push(item);
+                        });
+                        this.package.lookup_last_index = this.package.lookup_rows.length;
+                    }
+                } finally {
+                    this.package.lookup_loading = false;
+                    this.isLookupExecuting = false;
                 }
-                this.package.lookup_loading = false;
             },
             () => {
 
@@ -299,6 +311,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private readPackageEntity(entity: T, cb?: () => void) {
         this.readEntitiesByUkey(this.shellInfo,
             this.entityInfo,
+            null,
             null, entity.uid, null, null, -1,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
@@ -311,7 +324,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     for (const relation of entity.entityInfo.relations) {
                         let relation_entityInfo = ModelInfos.uniqueInstance.get(relation);
                         let relation_shellInfo = ShellInfos.uniqueInstance.get(relation);
-                        this.readEntitiesByUkey(relation_shellInfo, relation_entityInfo, null,
+                        this.readEntitiesByUkey(relation_shellInfo, relation_entityInfo, null, null,
                             entity[this.package.entity.ukeyPropName], null, relation, -1,
                             (entities_count, entities) => {
                                 this.package.entity[relation + '_relation'] = entities;
@@ -334,8 +347,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             if (prop.lookup_entity_name) {
                 let lookup_entityInfo = ModelInfos.uniqueInstance.get(prop.lookup_entity_name);
                 let lookup_shellInfo = ShellInfos.uniqueInstance.get(prop.lookup_entity_name);
-                this.readEntitiesByUkey(lookup_shellInfo, lookup_entityInfo,
-                    null, null, [prop.lookup_properties[0], entity[prop.propName]], null, this.package.lookup_row_current_page,
+                this.readEntitiesByUkey(lookup_shellInfo, lookup_entityInfo, null,
+                    null, null, [prop.lookup_properties[0], entity[prop.propName]], null, null,
                     (lk_entities_count, lk_entities) => {
                         if (lk_entities && lk_entities.length > 0) {
                             entity[prop.lookup_entity_name + '_lookup_entity'] = lk_entities[0];
@@ -442,7 +455,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 .then(count => {
                     cb(count, null);
                     if (count > 0) {
-                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
+                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
                     }
                     else {
                         this.package.filter_rows = [];
@@ -453,13 +466,24 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     cerr();
                 });
         } else {
-            this.readEntitiesByUkey(shellInfo, entityInfo, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
+            this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
         }
+    }
+
+    async loadLookupEntitiesByFilter(
+        shellInfo: IShellInfo, entityInfo: IEntityInfo,
+        filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
+        cb: (rows_count: number, rows: Array<any>) => void,
+        cerr: () => void) {
+
+        this.readEntitiesByUkey(shellInfo, entityInfo, filterItems, null, null, null, null, this.package.lookup_last_index, cb, cerr);
+
     }
 
     private readEntitiesByUkey(
         shellInfo: IShellInfo,
         entityInfo: IEntityInfo,
+        filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
         keys,
         uid: any,
         ukey: [string, any],
@@ -476,9 +500,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         } else if (uid) {
             query = BaseEntity.toUIDFilter(entityInfo, uid);
         } else {
-            let offset = this.package.filter_last_index; //fromIndex * this.package.filter_items_max;
-            const limit = this.package.filter_items_max;
-            query = BaseEntity.toFilter(shellInfo, entityInfo, this.filterItems, keys, offset, limit);
+
+            let offset = fromIndex;
+            const limit = this.package.fetched_items_max;
+            query = BaseEntity.toFilter(shellInfo, entityInfo, filterItems, keys, offset, limit);
         }
 
 
@@ -970,27 +995,18 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         }
     }
 
-
-
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo) {
 
-        this.package.lookup_row_current_page = 0;
-        this.package.lookup_rows = [];
-        this.package.lookup_row_pages = [];
-
-
-        const entityInfo = ModelInfos.uniqueInstance.get(lookupSourceProperty.lookup_entity_name);
-        const properties = lookupSourceProperty.lookup_properties;
-        this.package.lookup_filter = ModelFactory.uniqueInstance.create(lookupSourceProperty.lookup_entity_name);
+      
 
         const modalRef = this.modalService.open(SelectEntityDialogWnd, { size: 'lg' });
-        modalRef.componentInstance.title = 'select: ' + entityInfo.entityName;
+        modalRef.componentInstance.title = 'select: ' + lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupSource = lookupSource;
         modalRef.componentInstance.lookupSourceProperty = lookupSourceProperty.propName;
-        modalRef.componentInstance.lookupEntity = this.package.lookup_filter;
+        modalRef.componentInstance.lookupEntityName = lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupTargetProperty = lookupSourceProperty.lookup_properties[0];
 
-        modalRef.componentInstance.lookupProperties = properties;
+        modalRef.componentInstance.lookupProperties = lookupSourceProperty.lookup_properties;;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
         return modalRef.result.then((result) => {
@@ -1000,27 +1016,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         });
     }
 
-    public lookupProperties(lookupEntity: BaseEntity, lookupProperties: string[]) {
-
-        const entityInfo: IEntityInfo = lookupEntity.entityInfo;
-        const properties = [];
-        for (const property of entityInfo.properties) {
-            if (property.isHidden !== true && lookupProperties.includes(property.propName)) {
-                properties.push(property);
-            }
-        }
-        return properties;
-    }
 
     onSelectLookup(lookupSource: BaseEntity, lookupSourceProperty: string, lookupEntity: BaseEntity, lookupTargetProperty: string) {
 
         lookupSource[lookupEntity.entityName.toLowerCase() + '_lookup_entity'] = lookupEntity;
         lookupSource[lookupSourceProperty] = lookupEntity[lookupTargetProperty];
         this.removeValidation(lookupSource, lookupSourceProperty);
-    }
-
-    onLookupFilterChange() {
-        this.executeLookupFilter(true);
     }
 
     public getInputType(property: IPropInfo) {

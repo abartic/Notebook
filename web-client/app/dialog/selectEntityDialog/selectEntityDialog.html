@@ -12,51 +12,54 @@
     </p>
 
     <div class="row">
+        <div class="col-10">
+            <div class="input-group">
+                <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
+          <option [ngValue]="null" selected>Select field</option>
+          <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{p.propName}}</option>
 
-        <table class="table table-hover table-striped table-bordered table-md">
-            <thead class="thead-light">
-                <tr>
-                    <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                        <input type="text" class="form-control" (ngModelChange)="packageCtrl.onLookupFilterChange()" [(ngModel)]="package.lookup_filter[property.propName]" placeholder="{{property.propName}}" />
-                    </th>
-                </tr>
-                <tr>
-                    <th *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">{{property.propName}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let row of package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
-                    <td *ngFor="let property of packageCtrl.lookupProperties(lookupEntity, lookupProperties)">
-                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
-                        <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
-                            <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
-                            <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        </select>
+                <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
+
+            </div>
+
+        </div>
+        <div class="col">
+            <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'"></button>
+        </div>
 
     </div>
-
-    <div class="row" *ngIf="package.lookup_rows.length > 0">
-        <div class="col align-self-end">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page - 1) < 0}">
-                        <a class="page-link" (click)="onPreviousLookupPage()">Previous</a>
-                    </li>
-                    <li class="page-item" *ngFor="let page of package.lookup_row_pages; let i = index" [ngClass]="{'active':i===package.lookup_row_current_page}">
-                        <a class="page-link" (click)="onSelectLookupPage(i)">{{i+1}}</a>
-                    </li>
-                    <li class="page-item" [ngClass]="{'disabled':(package.lookup_row_current_page + 1) >= package.lookup_row_pages.length}">
-                        <a class="page-link" (click)="onNextLookupPage()">Next</a>
-                    </li>
-                </ul>
-
-            </nav>
+    <BR>
+    <div class="row">
+        <div class="col">
+            <table class="table table-hover table-striped table-md">
+                <thead #tableheader class="thead-light">
+                    <tr>
+                        <th *ngFor="let property of getLookupProperties()">{{property.propName}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of packageCtrl.package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
+                        <td *ngFor="let property of getLookupProperties()">
+                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
+                                <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                                <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+    <div class="row justify-content-end">
+        <div class="col-11">
+        </div>
+        <div class="col">
+            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.lookup_rows.length !== 0 && !packageCtrl.package.lookup_fetch_completed" (click)="onScroll()"><i>load more...</i></button>
+        </div>
+    </div>
+
 </div>
 
 <div class="modal-footer">

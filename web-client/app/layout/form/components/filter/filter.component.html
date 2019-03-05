@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-6 col-lg-4">
             <div class="input-group">
-                <select class="form-control" [(ngModel)]="selectedFilterCond">
+                <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
           <option [ngValue]="null" selected>Select field</option>
           <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.property.propName}}</option>
           <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName}}-{{p.property.propName}}</option>
@@ -36,13 +36,13 @@
             <table *ngIf="packageCtrl.package.filter_rows.length !== 0" class="table table-hover table-striped table-bordered table-md " infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
                 <thead class="thead-light " #tableheader>
                     <tr>
-                        <th>#</th>
+                        <!-- <th>#</th> -->
                         <th *ngFor="let p of packageCtrl.filterProperties ">{{p.property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
-                        <td>{{i+1}}</td>
+                        <!-- <td>{{i+1}}</td> -->
                         <td *ngFor="let p of packageCtrl.filterProperties ">
                             <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{p.property.propName}}:</div>
                             <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: checkSize()}">
@@ -63,7 +63,7 @@
         <div class="col-11">
         </div>
         <div class="col">
-            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.filter_rows.length !== 0" (click)="onScroll()"><i>load more...</i></button>
+            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.filter_rows.length !== 0 && !packageCtrl.package.filter_fetch_completed" (click)="onScroll()"><i>load more...</i></button>
         </div>
     </div>
 </div>

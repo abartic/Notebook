@@ -38,6 +38,12 @@ export class FilterComponent implements OnInit {
 
   }
 
+  onChangedFilterCond()
+  {
+    if (this.selectedFilterCond === null)
+      this.filterConditionValue = undefined;
+  }
+  
   onScroll() {
     this.packageCtrl.executeFilter();
   }
@@ -47,7 +53,10 @@ export class FilterComponent implements OnInit {
     this.screensize = style.getPropertyValue('--screensize');
 
     this.calculateMaxFilterItem();
-    this.packageCtrl.checkFilter();
+
+    if (this.packageCtrl.package.filter_rows.length <= this.packageCtrl.package.filter_items_max) {
+      this.packageCtrl.executeFilter();
+    }
   }
 
   checkSize() {
@@ -75,12 +84,12 @@ export class FilterComponent implements OnInit {
 
     this.calculateMaxFilterItem();
 
-    this.packageCtrl.onApply();
+    this.packageCtrl.onApplyFilter();
   }
 
   calculateMaxFilterItem() {
     if (this.rootdiv && this.tableheader && this.tableheader.nativeElement.offsetHeight > 0 && this.rootdiv.nativeElement.offsetHeight > 0) {
-      this.package.filter_items_max = Math.ceil((this.rootdiv.nativeElement.offsetHeight / this.tableheader.nativeElement.offsetHeight) * 1.5);
+      this.package.filter_items_max = Math.ceil((this.rootdiv.nativeElement.offsetHeight / this.tableheader.nativeElement.offsetHeight) * 1.8);
     }
   }
 

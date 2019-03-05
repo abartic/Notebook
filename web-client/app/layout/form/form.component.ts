@@ -28,7 +28,7 @@ export class FormComponent implements OnInit {
     return this.packageCtrl.entityType;
   }
 
-  canHandleNew : boolean = false;
+  
   
 
   ngOnInit() {
@@ -39,7 +39,7 @@ export class FormComponent implements OnInit {
         if (packCtrl.package_initialized === true) {
           this.packageCtrl = packCtrl;
           const fc = this.packageCtrl.filterCommands;
-          this.canHandleNew = this.package.show_filter!==false && this.packageCtrl.canExecuteNew
+  
         }
         else {
           let errorcode = data['packCtrl'];

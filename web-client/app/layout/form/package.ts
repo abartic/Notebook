@@ -5,36 +5,31 @@ import { ISelectObj } from '../../../../server/common/select-obj';
 
 export class Package<T extends BaseEntity> {
     
-    
-    
-    // public row_pages : Array<number> = [];
-    // public row_current_page : number = 0;
 
-    public filter_items_max : number = 25;
+    public fetched_items_max : number = 25;
     public show_filter : boolean = true;
     public filter_last_index: number;
     public selected_entity: T;
     public filter_rows : T[];
+    public filter_fetch_completed: boolean;
 
     public entity : T;
     public entity_relation: BaseEntity;
     public validations : KeyedCollection<ISelectObj>;
+    public canExecuteNew: boolean;
 
     public error_msg : string = '';
     public entity_status_msg : string = '';
 
-    public lookup_entity_name : string;
-    public lookup_filter : BaseEntity;
     public lookup_rows : Array<BaseEntity> = [];
-    public lookup_row_pages : Array<number> = [];
-    public lookup_row_current_page : number = 0;
-
-    public filter_loading : boolean= false;
     public lookup_loading : boolean= false;
+    lookup_fetch_completed: boolean;
+    lookup_last_index: number;
+    
     
 
     public constructor(type : new() => T) {
-        this.filter_rows = [];
+        
     }
      
 }

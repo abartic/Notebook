@@ -22,7 +22,7 @@
                     </div>
                     <div class="col-3 col-md-2 col-lg-1">
                         <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search" (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false" ngbTooltip="Filter"></button>
-                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil" (click)="packageCtrl.onNew()" *ngIf="canHandleNew" ngbTooltip="Compose new doc."></button>
+                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil" (click)="packageCtrl.onNew()" *ngIf="this.package.show_filter!==false && this.package.canExecuteNew" ngbTooltip="Compose new doc."></button>
                     </div>
                 </div>
             </div>
@@ -41,8 +41,8 @@
         </div>
     </div>
 
-    <div>
-        <ngx-loading [show]="package.filter_loading"></ngx-loading>
-    </div>
+    <!-- <div>
+        <ngx-loading [show]="packageCtrl.userSession.WaitingForAction"></ngx-loading>
+    </div> -->
 
 </div>
