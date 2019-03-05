@@ -10,7 +10,7 @@ export class Package<T extends BaseEntity> {
     public show_filter : boolean = true;
     public filter_last_index: number;
     public selected_entity: T;
-    public filter_rows : T[];
+    public filter_rows : T[] = [];
     public filter_fetch_completed: boolean;
 
     public entity : T;
