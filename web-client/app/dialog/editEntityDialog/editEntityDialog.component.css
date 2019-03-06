@@ -7,3 +7,8 @@
 .edit-modal .close {
     color: white;
 }
+
+.label-link:hover {
+    color: blue;
+    cursor: grab;
+}

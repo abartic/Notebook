@@ -1,48 +1,57 @@
-<div [@routerTransition] #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
+<div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
+    <h5>Filter:</h5>
+    <hr>
 
-    <div class="row">
-        <div class="col-6 col-lg-4">
-            <div class="input-group">
+    <div class="row no-gutters ustify-content-start">
+        <div class="col-10 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+            <div>
                 <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
           <option [ngValue]="null" selected>Select field</option>
           <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.property.propName}}</option>
           <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName}}-{{p.property.propName}}</option>
         </select>
-                <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
-
             </div>
+        </div>
+        <div class="col-auto order-md-3 m-1">
+            <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus" ngbTooltip="Add Filter Condition"></button>
+        </div>
+        <div class="col-10 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
+            <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
 
         </div>
-        <div class="col">
-            <div class="btn-group" role="group">
-                <button *ngFor="let command of packageCtrl.filterCommands" [disabled]="command.isDisabled === true || (command.isActive && command.isActive(packageCtrl)===false)" type="button" (click)="this[command.handler]()" [ngClass]="{'disabled':(packageCtrl.package_initialized !== true)}"
-                    [class]="'btn btn-secondary ' + command.image" ngbTooltip="{{command.caption}}"></button>
-            </div>
+
+        <div class="col-auto order-md-4 m-1">
+            <button type="button" (click)="onApply()" class="btn btn-secondary fa fa-search" ngbTooltip="Add Filter Condition"></button>
         </div>
 
     </div>
-    <div class="row">
-        <div class="col">
+
+    <div class="row no-gutters justify-content-between">
+
+        <div class="col m-2">
             <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems' [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
         </div>
+        <div class="col-auto m-1">
+            <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser" *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="Clear filters"></button>
+        </div>
     </div>
 
+    <br>
+    <h5>Results:</h5>
+    <hr>
 
-    <BR>
-
-    <div class="row ">
+    <div class="row no-gutters" *ngIf="packageCtrl.package.filter_rows.length !== 0">
         <div class="col hor-scrollable">
-            <span *ngIf="packageCtrl.package.filter_rows.length === 0"><i>&lt;no data fetched&gt;</i></span>
-            <table *ngIf="packageCtrl.package.filter_rows.length !== 0" class="table table-hover table-striped table-md " infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
+            <table class="table table-hover table-striped table-md " infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
                 <thead class="thead-light " #tableheader>
                     <tr>
-                        <!-- <th>#</th> -->
+
                         <th *ngFor="let p of packageCtrl.filterProperties ">{{p.property.propName}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
-                        <!-- <td>{{i+1}}</td> -->
+
                         <td *ngFor="let p of packageCtrl.filterProperties ">
                             <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{p.property.propName}}:</div>
                             <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: checkSize()}">
@@ -56,10 +65,23 @@
                     </tr>
                 </tbody>
             </table>
-
         </div>
     </div>
-    <div class="row justify-content-end">
+
+    <div class="row " *ngIf="packageCtrl.package.filter_rows.length === 0">
+        <div class="col">
+            <div class="jumbotron">
+                <h1 class="display-4">No data loaded</h1>
+                <p class="lead">Apply a filter or hit fetch data.</p>
+                <hr class="my-4">
+                <!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
+                <button class="btn btn-primary btn-lg" role="button" (click)="onApply()">Fetch data</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row no-gutters justify-content-end">
         <div class="col-11">
         </div>
         <div class="col">

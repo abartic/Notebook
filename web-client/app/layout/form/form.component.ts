@@ -38,8 +38,6 @@ export class FormComponent implements OnInit {
         let packCtrl = <IPackageController>data['packCtrl'];
         if (packCtrl.package_initialized === true) {
           this.packageCtrl = packCtrl;
-          const fc = this.packageCtrl.filterCommands;
-  
         }
         else {
           let errorcode = data['packCtrl'];

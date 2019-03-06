@@ -4,7 +4,7 @@ export class PurchaseShell
 {
     public static adjustShellInfo(shellInfo) {
         shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksInput }];
-        shellInfo.filter.commands[2].isDisabled = false;
+        //shellInfo.filter.commands[2].isDisabled = false;
         shellInfo.report = {
             preloads: [
                 {

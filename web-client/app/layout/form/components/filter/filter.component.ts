@@ -105,6 +105,7 @@ export class FilterComponent implements OnInit {
 
       event.preventDefault();
       this.onAddFilterCond();
+      this.onApply();
     }
 
   }

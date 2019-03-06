@@ -65,20 +65,20 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_properties;
     }
 
-    private filter_commands = [];
-    public get filterCommands() {
+    private editor_commands = [];
+    public get editorCommands() {
 
-        if (this.filter_commands.length === 0) {
-            for (const c of this.shellInfo.filter.commands) {
+        if (this.editor_commands.length === 0) {
+            for (const c of this.shellInfo.commands) {
                 if (c.handler === 'onNew') {
                     this.package.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
                     continue;
                 }
 
-                this.filter_commands.push(c);
+                this.editor_commands.push(c);
             }
         }
-        return this.filter_commands;
+        return this.editor_commands;
     }
 
 

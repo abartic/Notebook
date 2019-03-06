@@ -1,48 +1,35 @@
 <div [@routerTransition]>
 
-    <div class="form-group row">
+    <nav class="row no-gutters">
+        <div class="col" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <h1>{{entityType}}</h1>
+        </div>
+        <div>
+            <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search " (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false" ngbTooltip="Filter"></button>
+            <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil " (click)="packageCtrl.onNew()" *ngIf="this.package.show_filter!==false && this.package.canExecuteNew" ngbTooltip="Compose new doc."></button>
+        </div>
+    </nav>
+    <hr>
+
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="(package.entity_status_msg + package.error_msg).length > 0" [ngClass]="{'alert-success':(package.entity_status_msg.length > 0), 'alert-danger':(package.error_msg.length > 0)}">
+        <button type="button" class="close" aria-label="Close" (click)="packageCtrl.clearMsg()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+        <strong>{{package.entity_status_msg + package.error_msg}}</strong>
+    </div>
+
+
+    <div class="row no-gutters">
         <div class="col">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert" *ngIf="(package.entity_status_msg + package.error_msg).length > 0" [ngClass]="{'alert-success':(package.entity_status_msg.length > 0), 'alert-danger':(package.error_msg.length > 0)}">
-                <button type="button" class="close" aria-label="Close" (click)="packageCtrl.clearMsg()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-                <strong>{{package.entity_status_msg + package.error_msg}}</strong>
-            </div>
-
-
+            <form-filter [package]="package" [packageCtrl]="packageCtrl" *ngIf="package.show_filter"></form-filter>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row no-gutters" *ngIf="package.show_filter===false">
         <div class="col">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-9 col-md-10 col-lg-11">
-                        <u><H1>{{entityType}}</H1></u>
-                    </div>
-                    <div class="col-3 col-md-2 col-lg-1">
-                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search" (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter===false" ngbTooltip="Filter"></button>
-                        <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil" (click)="packageCtrl.onNew()" *ngIf="this.package.show_filter!==false && this.package.canExecuteNew" ngbTooltip="Compose new doc."></button>
-                    </div>
-                </div>
-            </div>
+            <form-editor [package]="package " [packageCtrl]="packageCtrl" *ngIf="package.show_filter===false"></form-editor>
         </div>
     </div>
 
-    <div class="row" *ngIf="package.show_filter">
-        <div class="col">
-            <form-filter [package]="package" [packageCtrl]="packageCtrl"></form-filter>
-        </div>
-    </div>
-
-    <div class="row " *ngIf="package.show_filter===false">
-        <div class="col">
-            <form-editor [package]="package " [packageCtrl]="packageCtrl "></form-editor>
-        </div>
-    </div>
-
-    <!-- <div>
-        <ngx-loading [show]="packageCtrl.userSession.WaitingForAction"></ngx-loading>
-    </div> -->
 
 </div>

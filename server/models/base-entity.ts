@@ -69,12 +69,12 @@ export interface IShellInfo {
             remove: string[]
         },
         static_filter?: { key: string, value: string }[],
-        commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, isActive? : (pack)=>boolean }[];
+        //commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, isActive? : (pack)=>boolean }[];
         autoApply?: boolean,
         hasDetails?: boolean
     };
     properties?: { name: string, datatype: string, isReadOnly: boolean }[];
-    commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string }[];
+    commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string, isActive? : (pack)=>boolean }[];
     report?: {
         preloads: { entity_name: string, ukey_prop_name: string, cb: (entity, lentity) => void }[]
     };
@@ -110,13 +110,7 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
                     add: [],
                     remove: []
                 },
-                static_filter: [],
-                commands: [
-                    { caption: 'Add Cond.', handler: 'onAddFilterCond', image: 'fa fa-search-plus' },
-                    { caption: 'Apply', handler: 'onApply', primary: true, image: 'fa fa-search' },
-                    { caption: 'Clear', handler: 'onClear', image: 'fa fa-eraser', isActive: (packctrl)=>{return packctrl.filterItems.length > 0;} },
-                    { caption: 'New', handler: 'onNew', image: 'fa fa-pencil' },
-                ]
+                static_filter: []
             },
             properties: [],
             commands: [

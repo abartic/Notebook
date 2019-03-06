@@ -6,9 +6,12 @@
 </div>
 <div class="modal-body">
 
-    <div *ngFor="let property of (package.entity_relation.properties)" class="container-fluid">
+    <div *ngFor="let property of (package.entity_relation.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity)" [ngSwitch]="property.dataType">
-            <label class="col-sm-4 col-form-label">{{ property.propCaption | translate }}</label>
+            <label class="col-sm-4 col-form-label" *ngIf="property.lookup_entity_name === undefined">{{ property.propCaption | translate }}</label>
+            <label class="col-sm-4 col-form-label label-link" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)" ngbTooltip="click to select...">
+                    <u>{{ property.propCaption | translate }}</u>
+          </label>
             <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
 
                 <div class="input-group" *ngSwitchCase="'date'">
@@ -30,9 +33,9 @@
                         (focusout)="packageCtrl.onEditorFocusChanged(package.entity_relation, property)" (blur)="packageCtrl.onEditorValueChanged(package.entity_relation, property) ">
                     <input class="form-control" [(ngModel)]="package.entity_relation[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity_relation[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
 
-                    <button type="button" class="input-group-addon" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)">
+                    <!-- <button type="button" class="input-group-addon" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)">
             ...
-          </button>
+          </button> -->
                 </div>
             </div>
         </div>
