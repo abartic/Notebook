@@ -57,6 +57,7 @@ export interface IPackageController {
 
     shellInfo: IShellInfo;
 
-    //filterCommands: any;
+    
+    editorCommands;
 
 }
