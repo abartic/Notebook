@@ -11,26 +11,24 @@
         <ngb-progressbar type="info" value="50" striped="true" animated="true" *ngIf="package.lookup_rows === undefined"></ngb-progressbar>
     </p>
 
-    <div class="row">
-        <div class="col-10">
-            <div class="input-group">
-                <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
-          <option [ngValue]="null" selected>Select field</option>
-          <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{p.propName}}</option>
-
-        </select>
-                <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
-
-            </div>
-
+    <div class="row no-gutters">
+        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+            <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
+                <option [ngValue]="null" selected>Select field</option>
+                <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{p.propName}}</option>
+            </select>
         </div>
-        <div class="col">
+        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+            <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
+        </div>
+
+        <div class="col-auto order-md-2 m-1">
             <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'"></button>
         </div>
 
     </div>
-    <hr>
-    <div class="row">
+    <hr class="mb-2 mt-1">
+    <div class="row no-gutters">
         <div class="col">
             <table class="table table-hover table-striped table-md">
                 <thead #tableheader class="thead-light">

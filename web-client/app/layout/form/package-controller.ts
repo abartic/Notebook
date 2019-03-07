@@ -148,8 +148,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 if (error && error.status) {
                     this.router.navigate(['/error', { errorcode: error.status }]);
                 }
+                else if (error && error.error && error.error.code) {
+                    this.router.navigate(['/error', { errorcode: error.error.code }]);
+                }
                 else {
-                    this.router.navigate(['/error', { errorcode: error }]);
+                    this.router.navigate(['/error', { errorcode: JSON.stringify(error) }]);
                 }
             });
     }

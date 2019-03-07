@@ -1,9 +1,9 @@
 <div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
-    <h5>Filter:</h5>
-    <hr>
+    <h5 class="m-0">Filter:</h5>
+    <hr class="mb-2 mt-1">
 
-    <div class="row no-gutters ustify-content-start">
-        <div class="col-10 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+    <div class="row no-gutters">
+        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <div>
                 <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
           <option [ngValue]="null" selected>Select field</option>
@@ -15,7 +15,7 @@
         <div class="col-auto order-md-3 m-1">
             <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus" ngbTooltip="Add Filter Condition"></button>
         </div>
-        <div class="col-10 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
+        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
             <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
 
         </div>
@@ -26,19 +26,19 @@
 
     </div>
 
-    <div class="row no-gutters justify-content-between">
+    <div class="row no-gutters ">
 
-        <div class="col m-2">
+        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems' [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
         </div>
-        <div class="col-auto m-1">
+        <div class="col-auto order-md-2 m-1">
             <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser" *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="Clear filters"></button>
         </div>
     </div>
 
     <br>
-    <h5>Results:</h5>
-    <hr>
+    <h5 class="m-0">Results:</h5>
+    <hr class="mb-2 mt-1">
 
     <div class="row no-gutters" *ngIf="packageCtrl.package.filter_rows.length !== 0">
         <div class="col hor-scrollable">
@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <div class="row " *ngIf="packageCtrl.package.filter_rows.length === 0">
+    <div class="row  no-gutters" *ngIf="packageCtrl.package.filter_rows.length === 0">
         <div class="col">
             <div class="jumbotron">
                 <h1 class="display-4">No data loaded</h1>

@@ -45,7 +45,7 @@ export class FormComponent implements OnInit {
         }
 
       }, error => {
-        this.router.navigate(['/error', { errorcode: error }]);
+        this.router.navigate(['/error', { errorcode: JSON.stringify(error) }]);
       });
   }
 

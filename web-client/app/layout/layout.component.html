@@ -3,14 +3,6 @@
 <section class="main-container" [ngClass]="{collapsed: collapedSideBar}">
     <router-outlet></router-outlet>
 </section>
-<div ngbDropdown placement="top-right" class="d-inline-block dropdown">
-    <button class="btn btn-outline-primary" ngbDropdownToggle>Toggle dropup</button>
-    <div ngbDropdownMenu>
-        <button class="dropdown-item">Action</button>
-        <button class="dropdown-item">Another Action</button>
-        <button class="dropdown-item">Something else is here</button>
-    </div>
-</div>
 <div>
     <ngx-loading [show]="userSession.WaitingForAction"></ngx-loading>
 </div>
