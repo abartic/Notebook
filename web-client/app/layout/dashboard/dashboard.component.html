@@ -1,43 +1,13 @@
 <div [@routerTransition]>
-    <h2 class="text-muted">Dashboard</h2>
+    <h2 class="text-muted">{{'Dashboard' | translate}}</h2>
 
-    <!-- <div class="row">
-        <div class="col-xl-3 col-lg-6">
-            <app-stat [bgClass]="'card-primary'" [icon]="'fa-comments'" [count]="26" [label]="'New Comments!'"></app-stat>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-            <app-stat [bgClass]="'card-info'" [icon]="'fa-tasks'" [count]="12" [label]="'New task!'"></app-stat>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-            <app-stat [bgClass]="'card-success'" [icon]="'fa-shopping-cart'" [count]="124" [label]="'New Orders!'"></app-stat>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-            <app-stat [bgClass]="'card-danger'" [icon]="'fa-support'" [count]="13" [label]="'New Tickets!'"></app-stat>
-        </div>
-    </div>
-    <hr />
-    <ngb-alert [type]="alert.type" (close)="closeAlert(alert)" *ngFor="let alert of alerts">{{ alert.message }}</ngb-alert>
-    <hr /> -->
+
     <div class="row no-gutters">
         <div class="col-lg-6">
-            <div class="card card-default">
-                <div class="card-header">
-                    <i class="fa fa-fw fa-desktop"></i> Inventory
-                </div>
-                <!-- /.card-header -->
-                <dashboard-notification></dashboard-notification>
-                <!-- /.card-body -->
-            </div>
+            <dashboard-notification></dashboard-notification>
         </div>
         <div class="col-lg-6">
-            <div class="card card-default">
-                <div class="card-header">
-                    <i class="fa fa-fw fa-bar-chart-o"></i> Daily Sales
-                </div>
-
-                <dashboard-charts></dashboard-charts>
-
-            </div>
+            <dashboard-charts></dashboard-charts>
         </div>
     </div>
 </div>

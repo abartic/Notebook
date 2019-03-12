@@ -1,10 +1,71 @@
 {
-    "Dashboard": "Principal",
+
     "Charts": "Grafice",
     "Menu": "Meniu",
     "Language": "Limba",
-    "English": "Engleza",
     "Search": "Cautare",
     "Profile": "Profil",
-    "Log Out": "Logout"
+    "Log Out": "Deconectare",
+
+    "Filter": "Filtru",
+    "Compose": "Creaza",
+
+    "English": "Engleza",
+    "Romanian": "Romana",
+
+    "Collapse Sidebar": "Ascunde menu",
+
+    "no data available": "date nedisponibile",
+
+    "code_art": "Cod Art.",
+    "qty": "Cant.",
+    "code_store": "Depozit",
+    "Inventory": "Top Stoc",
+
+    "6 Months Sales": "Vinzari 6 luni",
+    "Daily Sales": "Evolutie vinzari",
+
+    "Dashboard": "Panou bord",
+
+    "Alert": "Alerta",
+    "Close": "Inchide",
+
+    "Yes": "Da",
+    "No": "Nu",
+    "Calendar": "Calendar",
+
+    "New": "Creaza",
+    "Undo": "Anuleaza",
+    "Print": "Printeaza",
+    "Save": "Salveaza",
+    "Delete": "Sterge",
+    "Cancel": "Anuleaza",
+    "Add Filter Condition": "Adauga conditii filtrare",
+    "Apply_filter": "Executa filtru",
+    "Clear filters": "Sterge filtre",
+    "Results": "Rezultate",
+    "Fetch data": "Incarca date",
+    "Apply a filter or hit fetch data.": "Executa un filtru sau incarca datele.",
+    "No data loaded": "Nu exista date incarcate",
+
+    "Click to select": "Click pt. selectie",
+    "Report": "Raport",
+    "none": "(fara date)",
+    "Select field": "Selecteaza cimp",
+    "Value": "valoare",
+
+    "load more": "Incarca",
+    "Add": "Adauga",
+    "Edit": "Editeaza",
+    "select": "Selecteaza",
+
+    "invoice": "factura",
+    "invoice.code_doc": "numar fact.",
+
+
+    "invoiceline": "detalii factura",
+    "invoiceline.code_art": "Cod art.",
+
+    "partner": "partener",
+    "partner.code_part": "cod partener"
 }

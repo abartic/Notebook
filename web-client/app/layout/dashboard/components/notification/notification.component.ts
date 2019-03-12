@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { HttpCallerService } from '../../../../services/httpcaller.service';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -9,7 +10,7 @@ import { HttpCallerService } from '../../../../services/httpcaller.service';
 
 })
 export class NotificationComponent implements OnInit {
-    constructor(private httpCaller: HttpCallerService) { }
+    constructor(private httpCaller: HttpCallerService,private translate: TranslateService) { }
 
     @ViewChild('rootdiv') rootdiv: ElementRef;
 

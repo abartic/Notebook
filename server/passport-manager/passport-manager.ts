@@ -220,6 +220,7 @@ export class PassportManager {
         //overwirte
         options['accessType'] = 'offline';
         options['prompt'] = 'consent';
+        //options['approvalPrompt'] = 'force';
         let hdl = passport.authenticate('google', options);
         return hdl;
 

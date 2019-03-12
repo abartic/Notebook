@@ -1,72 +1,52 @@
-<nav class="sidebar" [ngClass]="{sidebarPushRight: isActive}">
-    <ul class="list-group" *ngFor="let menuitem of mainmenu">
-        <a [routerLink]="menuitem.link" [routerLinkActive]="['router-link-active']" class="list-group-item">
+<nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
+    <div class="list-group">
+        <a *ngFor="let menuitem of mainmenu" [routerLink]="menuitem.link" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i [class]="menuitem.image"></i>&nbsp;{{ menuitem.caption | translate }}
         </a>
-        <!-- <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-dashboard"></i>&nbsp;{{ 'Dashboard' | translate }}
-        </a>
-        <a routerLink="/form/article" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Articles' | translate }}
-        </a>
-        <a routerLink="/form/prospect" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Prospects' | translate }}
-        </a>
-        <a routerLink="/form/partner" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Partners' | translate }}
-        </a>
-        <a routerLink="/form/store" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Stores' | translate }}
-        </a>
-        <a routerLink="/form/invoice" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Invoices' | translate }}
-        </a>
-        <a routerLink="/form/receivable" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Receivables' | translate }}
-        </a>
-        <a routerLink="/form/purchase" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Purchases' | translate }}
-        </a>
-        <a routerLink="/form/payment" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Payments' | translate }}
-        </a>
-        <a routerLink="/form/articleinventory" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Stocks' | translate }}
-        </a>
-        <a routerLink="/form/accountinventory" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Accounts stats.' | translate }}
-        </a>
-        <a routerLink="/form/budget" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Budgets' | translate }}
-        </a>
-        <a routerLink="/form/expenses" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Expenses' | translate }}
-        </a>
-        <a routerLink="/form/company" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;{{ 'Settings' | translate }}
-        </a>
-        <a routerLink="/sheets-creation" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-wrench"></i>&nbsp;{{ 'Generate Sheets' | translate }}
-        </a> -->
 
-        <!-- <div class="nested-menu">
-            <a class="list-group-item" (click)="addExpandClass('pages')">
-                <span><i class="fa fa-plus"></i>&nbsp; {{ 'Menu' | translate }}</span>
+        <div class="header-fields">
+            <a (click)="rltAndLtr()" class="list-group-item">
+                <span><i class="fa fa-arrows-h"></i>&nbsp; RTL/LTR</span>
             </a>
-            <li class="nested" [class.expand]="showMenu === 'pages'">
-                <ul class="submenu">
-                    <li>
-                        <a href="javascript:void(0)"><span>{{ 'Submenu' | translate }}</span></a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0)"><span>{{ 'Submenu' | translate }}</span></a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0)"><span>{{ 'Submenu' | translate }}</span></a>
-                    </li>
-                </ul>
-            </li>
-        </div> -->
+            <div class="nested-menu">
+                <a class="list-group-item" (click)="addExpandClass('languages')">
+                    <span><i class="fa fa-language"></i>&nbsp; {{ 'Language' | translate }} <b class="caret"></b></span>
+                </a>
+                <li class="nested" [class.expand]="showMenu === 'languages'">
+                    <ul class="submenu">
+                        <li>
+                            <a href="javascript:void(0)" (click)="changeLang('en')">
+                {{ 'English' | translate }}
+              </a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0)" (click)="changeLang('ro')">
+                {{ 'Romana' | translate }}
+              </a>
+                        </li>
 
-    </ul>
+                    </ul>
+                </li>
+            </div>
+            <div class="nested-menu">
+                <a class="list-group-item" (click)="addExpandClass('profile')">
+                    <span><i class="fa fa-user"></i>&nbsp; {{userSession.Username}}</span>
+                </a>
+                <li class="nested" [class.expand]="showMenu === 'profile'">
+                    <ul class="submenu">
+
+                        <li>
+                            <a [routerLink]="['/login']" (click)="onLoggedout()">
+                                <span><i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </div>
+        </div>
+    </div>
+    <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
+        <i class="fa fa-fw fa-angle-double-{{collapsed?'right':'left'}}"></i>&nbsp;
+        <span>{{ 'Collapse Sidebar' | translate }}</span>
+    </div>
 </nav>

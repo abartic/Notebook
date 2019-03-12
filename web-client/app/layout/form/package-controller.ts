@@ -43,6 +43,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 error => {
                     this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
                 });
+
+        let c = this.editorCommands;
     }
     public get filterProperties() {
         let finfo = ModelInfos.uniqueInstance.get(this.entityType);
@@ -72,9 +74,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             for (const c of this.shellInfo.commands) {
                 if (c.handler === 'onNew') {
                     this.package.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
-                    continue;
                 }
-
                 this.editor_commands.push(c);
             }
         }
@@ -233,6 +233,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (this.isFilterExecuting === true)
             return;
 
+        
         this.isFilterExecuting = true;
         this.package.error_msg = '';
         this.setWaiting(true);

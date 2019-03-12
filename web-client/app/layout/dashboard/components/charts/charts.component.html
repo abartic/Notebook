@@ -1,8 +1,13 @@
-<div *ngIf="rows.length === 0">
-    <label><i>no data available</i></label>
-</div>
-<div *ngIf="rows.length !== 0 && lineChartLabels.length > 0" style="display: block;">
+<div class="card card-default">
+    <div class="card-header">
+        <i class="fa fa-fw fa-bar-chart-o"></i> {{'Daily Sales' | translate}}
+    </div>
+    <div *ngIf="rows.length === 0">
+        <label><i>{{'no data available' | translate}}</i></label>
+    </div>
+    <div *ngIf="rows.length !== 0 && lineChartLabels.length > 0" style="display: block;">
 
-    <canvas baseChart height="150" [datasets]="lineChartData" [options]="lineChartOptions" [labels]="lineChartLabels" [colors]="lineChartColors" legend="true" chartType="line">
-  </canvas>
+        <canvas baseChart height="150" [datasets]="lineChartData" [options]="lineChartOptions" [labels]="lineChartLabels" [colors]="lineChartColors" legend="true" chartType="line">
+    </canvas>
+    </div>
 </div>

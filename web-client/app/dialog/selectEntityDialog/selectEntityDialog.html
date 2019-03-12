@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{title}}</h4>
+    <h4 class="modal-title">{{'select' | translate}}:{{lookupEntityName | translate}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -14,32 +14,32 @@
     <div class="row no-gutters">
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
-                <option [ngValue]="null" selected>Select field</option>
-                <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{p.propName}}</option>
+                <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
+                <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{lookupEntityName + '.' + p.propName | translate}}</option>
             </select>
         </div>
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
-            <input type="text" class="form-control " placeholder="Value" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
+            <input type="text" class="form-control " placeholder="{{'Value' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
         </div>
 
         <div class="col-auto order-md-2 m-1">
-            <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'"></button>
+            <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'" ngbTooltip="{{'Apply_filter' | translate}}"></button>
         </div>
 
     </div>
     <hr class="mb-2 mt-1">
     <div class="row no-gutters">
-        <div class="col">
+        <div class="col textnowrap">
             <table class="table table-hover table-striped table-md">
                 <thead #tableheader class="thead-light">
                     <tr>
-                        <th *ngFor="let property of getLookupProperties()">{{property.propName}}</th>
+                        <th *ngFor="let property of getLookupProperties()">{{lookupEntityName + '.' + property.propName | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of packageCtrl.package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Close');">
+                    <tr *ngFor="let row of packageCtrl.package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Cancel');">
                         <td *ngFor="let property of getLookupProperties()">
-                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                            <div *ngIf="checkSize()" class="textnowrap" [ngClass]="{tdlabel: checkSize()}">{{lookupEntityName + '.' + property.propName | translate}}</div>
                             <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
                                 <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
                                 <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
@@ -54,7 +54,7 @@
         <div class="col-11">
         </div>
         <div class="col">
-            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.lookup_rows.length !== 0 && !packageCtrl.package.lookup_fetch_completed" (click)="onScroll()"><i>load more...</i></button>
+            <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.lookup_rows.length !== 0 && !packageCtrl.package.lookup_fetch_completed" (click)="onScroll()"><i>{{'load more' | translate}}...</i></button>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
 
 <div class="modal-footer">
 
-    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">Close</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">{{'Close' | translate}}</button>
 </div>
 <div>
     <ngx-loading [show]="package.lookup_loading"></ngx-loading>

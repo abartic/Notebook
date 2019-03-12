@@ -1,4 +1,5 @@
 
+
 import { UserSessionService } from './services/userSessionService';
 import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
 import { LoadingModule } from 'ngx-loading';
@@ -24,7 +25,9 @@ import { CheckLoginService } from './services/check-login-service';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
-import { SharedModule } from './shared-modules/shared.module';
+import { SharedModule } from './shared/modules/shared.module';
+
+
 
 
 
@@ -43,6 +46,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     ReportDialogWnd,
     CalendarDialogWnd,
     SafePipe,
+    
 
     
   ],
@@ -67,7 +71,6 @@ export const createTranslateLoader = (http: HttpClient) => {
     AppRoutingModule,
     LoadingModule,
     SharedModule,
-    //NgbModule.forRoot(),
     NgbModule,
 
   ],

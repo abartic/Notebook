@@ -114,7 +114,7 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
             },
             properties: [],
             commands: [
-                { caption: 'New', handler: 'onNew', primary: true, image: 'fa fa-pencil' },
+                { caption: 'New', handler: 'onNew', image: 'fa fa-pencil' },
                 { caption: 'Save', handler: 'onSave', image: 'fa fa-floppy-o' },
                 { caption: 'Delete', handler: 'onDelete', image: 'fa fa-trash-o' },
                 { caption: 'Undo', handler: 'onUndo', image: 'fa fa-undo' }

@@ -2,15 +2,15 @@
 
     <div class=" row ">
 
-        <div class="col">
-            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-plus "></i></button>
+        <div class="col m-1">
+            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-plus " ngbTooltip="{{'Add' | translate}}"></i></button>
         </div>
         <div class="col-auto">
-            <h5 class="m-0">{{relation}}</h5>
+            <h5 class="m-0">{{relation | translate}}</h5>
         </div>
     </div>
     <div class=" row">
-        <div class="col hor-scrollable">
+        <div class="col hor-scrollable textnowrap">
 
             <table class="table table-hover table-striped table-responsive">
 
@@ -19,23 +19,21 @@
                         <th scope="col ">
 
                         </th>
-                        <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{property.propName}}</th>
+                        <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{relation.toLowerCase() + '.' + property.propName | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
                         <th scope="row  no-gutters">
-                            <div class="btn-group" role="group">
-                                <button type="button " class="btn btn-secondary " (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
-                                <button type="button " class="btn btn-secondary " (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
-                            </div>
+                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Edit' | translate}}" (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
+                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Delete' | translate}}" (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
                         </th>
                         <td scope="row  no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
-                            <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{property.propName}}:</div>
+                            <div *ngIf="checkSize()" class="textnowrap" [ngClass]="{tdlabel: checkSize()}">{{relation.toLowerCase() + '.' + property.propName | translate}}</div>
                             <div [ngSwitch]="packageCtrl.getInputType(property) " [ngClass]="{tdcontent: checkSize()}">
                                 <div class=" input-group " *ngSwitchCase=" 'date' ">{{row[property.propName] | datefrm}}</div>
                                 <div class="input-group " *ngSwitchCase=" 'checkbox' ">
-                                    <input class="form-control " type="checkbox " [checked]="row[property.propName] ">
+                                    <input class="form-control " type="checkbox " [checked]="row[property.propName] " disabled>
                                 </div>
                                 <div class="input-group " *ngSwitchDefault>{{property.path && row[property.path] ? row[property.path][property.propName] : row[property.propName]}}</div>
                             </div>
@@ -43,7 +41,7 @@
                     </tr>
                 </tbody>
             </table>
-            <label *ngIf="package.entity[relation+ '_relation'] && package.entity[relation+ '_relation'].length===0 ">(none)</label>
+            <label *ngIf="package.entity[relation+ '_relation'] && package.entity[relation+ '_relation'].length===0 ">{{'none' | translate}}</label>
         </div>
     </div>
 

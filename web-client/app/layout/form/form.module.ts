@@ -17,7 +17,9 @@ import { PivotRelationComponent } from './components/pivot-relation/pivot.compon
 import { TranslateModule } from '@ngx-translate/core';
 import { AngularMultiSelectModule } from 'angular4-multiselect-dropdown/dist/multiselect.component';
 import { TagInputModule } from 'ngx-chips';
-import { SharedModule } from '../../shared-modules/shared.module';
+import { SharedModule } from '../../shared/modules/shared.module';
+
+
 
 
 @NgModule({
@@ -32,7 +34,8 @@ import { SharedModule } from '../../shared-modules/shared.module';
     TagInputModule,
     ReactiveFormsModule,
     SharedModule,
-    InfiniteScrollModule
+    InfiniteScrollModule,
+    
   ],
   declarations: [
     FormComponent,
@@ -40,7 +43,8 @@ import { SharedModule } from '../../shared-modules/shared.module';
     EditorComponent,
     RelationComponent,
     WebDataRocksPivot,
-    PivotRelationComponent
+    PivotRelationComponent,
+    
   ],
   providers:[
     DataResolver,

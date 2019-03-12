@@ -1,9 +1,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-import { DateUserFormatPipe } from '../shared';
-
+import { DateUserFormatPipe } from '../pipes/date-userformat-pipe';
 
 
 @NgModule({

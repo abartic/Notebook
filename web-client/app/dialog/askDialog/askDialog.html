@@ -1,6 +1,6 @@
 <div class="modal-header">
-    <h4 class="modal-title">Alert</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <h4 class="modal-title">{{'Alert' | translate}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cancel')">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
@@ -8,6 +8,6 @@
     {{message}}
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Yes')">Yes</button>
-    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('No')">No</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Yes')">{{'Yes' | translate}}</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('No')">{{'No' | translate}}</button>
 </div>

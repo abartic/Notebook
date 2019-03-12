@@ -1,32 +1,38 @@
-<div #rootdiv class="hosttable" (window:resize)="onResize($event)">
-    <div *ngIf="rows.length === 0">
-        <label><i>no data available</i></label>
+<div class="card card-default">
+    <div class="card-header">
+        <i class="fa fa-fw fa-desktop"></i>{{ 'Inventory' | translate }}
     </div>
-    <table *ngIf="rows.length !== 0" class="table table-hover table-striped table-md ">
 
-        <thead class="thead-light">
-            <tr>
-                <th>code_art</th>
-                <th>code_store</th>
-                <th>qty</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div #rootdiv class="hosttable textnowrap" (window:resize)="onResize($event)">
+        <div *ngIf="rows.length === 0">
+            <label><i>{{ 'no data available' | translate}}</i></label>
+        </div>
+        <table *ngIf="rows.length !== 0" class="table table-hover table-striped table-md ">
 
-            <tr *ngFor="let row of rows;">
-                <td>
-                    <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">code_art:</div>
-                    <div [ngClass]="{tdcontent: checkSize()}">{{row['code_art']}}</div>
-                </td>
-                <td>
-                    <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">code_store:</div>
-                    <div [ngClass]="{tdcontent: checkSize()}">{{row['code_store']}}</div>
-                </td>
-                <td>
-                    <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">qty:</div>
-                    <div [ngClass]="{tdcontent: checkSize()}">{{row['qty_in']-row['qty_out']}}</div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <thead class="thead-light">
+                <tr>
+                    <th>{{'code_art' | translate}}</th>
+                    <th>{{'code_store' | translate}}</th>
+                    <th>{{'qty' | translate}}</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr *ngFor="let row of rows;">
+                    <td>
+                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'code_art' | translate}}</div>
+                        <div [ngClass]="{tdcontent: checkSize()}">{{row['code_art']}}</div>
+                    </td>
+                    <td>
+                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'code_store' | translate}}</div>
+                        <div [ngClass]="{tdcontent: checkSize()}">{{row['code_store']}}</div>
+                    </td>
+                    <td>
+                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'qty' | translate}}</div>
+                        <div [ngClass]="{tdcontent: checkSize()}">{{row['qty_in']-row['qty_out']}}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>

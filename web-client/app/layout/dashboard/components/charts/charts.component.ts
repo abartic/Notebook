@@ -2,6 +2,7 @@ import { BaseEntity } from './../../../../../../server/models/base-entity';
 import { map } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { HttpCallerService } from '../../../../services/httpcaller.service';
+import { TranslateService } from '@ngx-translate/core';
 
 
 
@@ -14,7 +15,7 @@ import { HttpCallerService } from '../../../../services/httpcaller.service';
 
 })
 export class ChartsComponent implements OnInit {
-    constructor(private httpCaller: HttpCallerService) {
+    constructor(private httpCaller: HttpCallerService, private translate: TranslateService) {
 
 
     }
@@ -84,9 +85,10 @@ export class ChartsComponent implements OnInit {
                 this.lineChartLabels = [];
                 this.rows.map(r => this.lineChartLabels.push(r['month'] + 1));
 
-                this.lineChartData = [
-                    { data: [], label: '6 Months Sales' }
-                ];
+                this.translate.get('6 Months Sales').subscribe(res => {
+                    this.lineChartData = [{ data: [], label: res }];
+                });
+
                 this.rows.map(r => this.lineChartData[0]['data'].push(r['value']));
             },
             err => {

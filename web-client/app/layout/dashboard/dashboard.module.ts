@@ -1,3 +1,4 @@
+import {  TranslateModule } from '@ngx-translate/core';
 
 import { ChartsModule as Ng2Charts } from 'ng2-charts';
 import { ChartsComponent } from './components/charts/charts.component';
@@ -11,12 +12,9 @@ import {
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
-import {
-    
-    NotificationComponent,
-    
-} from './components';
-import { StatModule } from '../../shared';
+import {NotificationComponent} from './components';
+
+
 
 @NgModule({
     imports: [
@@ -25,7 +23,7 @@ import { StatModule } from '../../shared';
         NgbCarouselModule.forRoot(),
         NgbAlertModule.forRoot(),
         DashboardRoutingModule,
-        StatModule,
+        TranslateModule
         
     ],
     declarations: [

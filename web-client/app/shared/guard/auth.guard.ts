@@ -13,7 +13,7 @@ export class AuthGuard implements CanActivate {
         let lastAuthTime: string = this.cookieService.get("lastAuthTime");
 
         if (lastAuthTime !== null) {
-            var currentTime = new Date(Date.now() - 60 * 60 * 24 * 1000); //less 1 day 
+            var currentTime = new Date(Date.now() - 1000 * 60 * 60 * 24 * 5); //less 1 day 
             var lastLogginTime = new Date(Number.parseInt(lastAuthTime));
             if (lastLogginTime > currentTime)
                 return true;
