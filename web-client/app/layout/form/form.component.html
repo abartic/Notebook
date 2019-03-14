@@ -1,11 +1,11 @@
-<div [@routerTransition]>
+<div [@routerTransition] (window:resize)="onResize($event)">
 
     <nav class="row no-gutters">
         <div class="col textnowrap">
             <h1 mb-1 mt-1>{{entityType | translate}}</h1>
         </div>
         <div>
-            <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search " (click)="packageCtrl.clearMsg(true)" *ngIf="package.show_filter === false" ngbTooltip="{{ 'Filter' | translate}}" container="body" placement="left"></button>
+            <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-search " (click)="packageCtrl.clearMsg(true);" *ngIf="package.show_filter === false" ngbTooltip="{{ 'Filter' | translate}}" container="body" placement="left"></button>
             <button type="button " class="btn btn-primary btn-circle btn-xl fa fa-pencil " (click)="packageCtrl.onNew()" *ngIf="package.show_filter !== false && package.canExecuteNew" ngbTooltip="{{ 'Compose' | translate}}" container="body" placement="left"></button>
         </div>
     </nav>

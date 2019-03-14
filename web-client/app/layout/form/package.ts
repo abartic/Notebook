@@ -4,9 +4,8 @@ import { ISelectObj } from '../../../../server/common/select-obj';
 
 
 export class Package<T extends BaseEntity> {
-    
 
-    public fetched_items_max : number = 25;
+    fetched_items_max: number = 25;
     public show_filter : boolean = true;
     public filter_last_index: number;
     public selected_entity: T;
@@ -25,8 +24,6 @@ export class Package<T extends BaseEntity> {
     public lookup_loading : boolean= false;
     lookup_fetch_completed: boolean;
     lookup_last_index: number;
-    
-    
 
     public constructor(type : new() => T) {
         

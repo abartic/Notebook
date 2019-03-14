@@ -51,7 +51,7 @@ export class NotificationComponent implements OnInit {
         this.screensize = style.getPropertyValue('--screensize');
     }
 
-    checkSize() {
+    isSmallSizeScreen() {
         return (this.screensize || '').trim() === 'sm';
     }
 }

@@ -8,6 +8,13 @@
     white-space: nowrap;
 }
 
+
+/* .ver-scrollable {
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+} */
+
 .btn-circle {
     width: 30px;
     height: 30px;

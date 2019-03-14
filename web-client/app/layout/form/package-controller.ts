@@ -786,7 +786,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private showReport(reportUrl: string) {
 
         const modalRef = this.modalService.open(ReportDialogWnd,
-            { size: 'lg' }
+            { windowClass: 'report-modal', size: 'lg' }
         );
         modalRef.componentInstance.reportUrl = reportUrl;
     }
@@ -1003,7 +1003,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
       
 
-        const modalRef = this.modalService.open(SelectEntityDialogWnd, { size: 'lg' });
+        const modalRef = this.modalService.open(SelectEntityDialogWnd, 
+            { windowClass: 'report-modal', size: 'lg' });
         modalRef.componentInstance.title = 'select: ' + lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupSource = lookupSource;
         modalRef.componentInstance.lookupSourceProperty = lookupSourceProperty.propName;
@@ -1246,5 +1247,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         window.open('https://calendar.google.com/calendar');
     }
 
-
+    public calculateMaxFilterItem(rowheight) {
+        let rootheight = window.innerHeight; 
+        if (rootheight > 0 && rowheight > 0)
+          this.package.fetched_items_max = Math.ceil((rootheight / rowheight) * 1.8);
+      }
 }

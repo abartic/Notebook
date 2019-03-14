@@ -2,6 +2,7 @@
 import { BaseEntity, IPropInfo, IEntityInfo, IShellInfo } from './../../../../server/models/base-entity';
 
 export interface IPackageController {
+  calculateMaxFilterItem(rowheight: number): any;
     
     package;
 

@@ -16,26 +16,37 @@
 
                 <thead>
                     <tr>
-                        <th scope="col ">
+                        <th>
 
                         </th>
-                        <th scope="col " *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{relation.toLowerCase() + '.' + property.propName | translate}}</th>
+                        <th *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{relation.toLowerCase() + '.' + property.propName | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of package.entity[relation+ '_relation'] ">
-                        <th scope="row  no-gutters">
+                    <!-- <tr #dtablerow>
+                        <th scope="no-gutters">
+
+                        </th>
+                        <td scope="no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
+                            <div class="textnowrap tdlabel">{{property.propName}}</div>
+                            <div class="tdcontent">
+                                <div>{{property.propName}}</div>
+                            </div>
+                        </td>
+                    </tr> -->
+                    <tr #tablerow *ngFor="let row of package.entity[relation+ '_relation'] ">
+                        <th scope="no-gutters">
                             <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Edit' | translate}}" (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
                             <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Delete' | translate}}" (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
                         </th>
-                        <td scope="row  no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
-                            <div *ngIf="checkSize()" class="textnowrap" [ngClass]="{tdlabel: checkSize()}">{{relation.toLowerCase() + '.' + property.propName | translate}}</div>
-                            <div [ngSwitch]="packageCtrl.getInputType(property) " [ngClass]="{tdcontent: checkSize()}">
-                                <div class=" input-group " *ngSwitchCase=" 'date' ">{{row[property.propName] | datefrm}}</div>
-                                <div class="input-group " *ngSwitchCase=" 'checkbox' ">
-                                    <input class="form-control " type="checkbox " [checked]="row[property.propName] " disabled>
+                        <td scope="no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
+                            <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{relation.toLowerCase() + '.' + property.propName | translate}}</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(property) " [ngClass]="{tdcontent: isSmallSizeScreen()}">
+                                <div *ngSwitchCase=" 'date' ">{{row[property.propName] | datefrm}}</div>
+                                <div *ngSwitchCase=" 'checkbox' ">
+                                    <input type="checkbox " [checked]="row[property.propName] " disabled>
                                 </div>
-                                <div class="input-group " *ngSwitchDefault>{{property.path && row[property.path] ? row[property.path][property.propName] : row[property.propName]}}</div>
+                                <div *ngSwitchDefault>{{property.path && row[property.path] ? row[property.path][property.propName] : row[property.propName]}}</div>
                             </div>
                         </td>
                     </tr>

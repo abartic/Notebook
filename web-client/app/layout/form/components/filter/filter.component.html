@@ -7,8 +7,10 @@
             <div>
                 <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
           <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
-          <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</option>
-          <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</option>
+          <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.entityName.toLowerCase() + '.' +
+            p.property.propName | translate}}</option>
+          <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName.toLowerCase()
+            + '.' + p.property.propName | translate}}</option>
         </select>
             </div>
         </div>
@@ -40,21 +42,32 @@
     <h5 class="m-0">{{'Results' | translate}}</h5>
     <hr class="mb-2 mt-1">
 
-    <div class="row no-gutters" *ngIf="packageCtrl.package.filter_rows.length !== 0">
+    <div class="row no-gutters">
         <div class="col hor-scrollable textnowrap">
-            <table class="table table-hover table-striped table-md " infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
-                <thead class="thead-light " #tableheader>
+            <table>
+                <tbody>
+                    <tr #dtablerow>
+                        <td *ngFor="let p of packageCtrl.filterProperties ">
+                            <div class="textnowrap tdlabel">{{p.property.propName }}</div>
+                            <div class="tdcontent">
+                                <div>{{p.property.propName}}</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-hover table-striped table-md " *ngIf="packageCtrl.package.filter_rows.length !== 0" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
+                <thead class="thead-light ">
                     <tr>
 
                         <th *ngFor="let p of packageCtrl.filterProperties ">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
-
+                    <tr #tablerow *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
                         <td *ngFor="let p of packageCtrl.filterProperties ">
-                            <div *ngIf="checkSize()" class="textnowrap" [ngClass]="{tdlabel: checkSize()}">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</div>
-                            <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: checkSize()}">
+                            <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: isSmallSizeScreen()}">
                                 <div class="input-group" *ngSwitchCase="'date'" readonly="true">{{row[p.property.propName] | datefrm}}</div>
                                 <div class="input-group" *ngSwitchCase="'checkbox'">
                                     <input class="form-control" type="checkbox" [checked]="row[p.property.propName]" disabled>

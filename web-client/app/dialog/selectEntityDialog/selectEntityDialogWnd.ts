@@ -1,7 +1,7 @@
 import { ModelInfos } from './../../../../server/models/modelProperties';
 import { IEntityInfo, IShellInfo } from './../../../../server/models/base-entity';
 
-import { Component, Input, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPackageController } from '../../layout/form/ipackage-controller';
 import { BaseEntity, IPropInfo } from '../../../../server/models/base-entity';
@@ -10,10 +10,11 @@ import { BaseEntity, IPropInfo } from '../../../../server/models/base-entity';
 
 @Component({
   selector: 'select-entity-dialog-wnd',
+  encapsulation: ViewEncapsulation.None,
   styleUrls: ['./selectEntityDialog.component.css'],
   templateUrl: './selectEntityDialog.html'
 })
-export class SelectEntityDialogWnd implements OnInit {
+export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
 
   @Input() title;
 
@@ -27,7 +28,8 @@ export class SelectEntityDialogWnd implements OnInit {
   @Input() packageCtrl: IPackageController;
 
   @ViewChild('rootdiv') rootdiv: ElementRef;
-  @ViewChild('tableheader') tableheader: ElementRef;
+  @ViewChild('dtablerow') dtablerow: ElementRef;
+  @ViewChild('tablerow') tablerow: ElementRef;
 
   public screensize: string;
   public selectedFilterCond: IPropInfo = null;
@@ -39,9 +41,7 @@ export class SelectEntityDialogWnd implements OnInit {
   }
 
   ngOnInit() {
-    const style = window.getComputedStyle(this.rootdiv.nativeElement);
-    this.screensize = style.getPropertyValue('--screensize');
-    this.checkFilter(false);
+
   }
 
   onChangedFilterCond() {
@@ -53,19 +53,32 @@ export class SelectEntityDialogWnd implements OnInit {
   onResize(event) {
     const style = window.getComputedStyle(this.rootdiv.nativeElement);
     this.screensize = style.getPropertyValue('--screensize');
+    //this.rootdiv.nativeElement.style.height = (window.innerHeight - 400).toString() + "px";
+    
+    this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
+    this.packageCtrl.calculateMaxFilterItem(this.rowheight);
 
-    this.calculateMaxFilterItem();
     this.checkFilter(true);
   }
 
-  calculateMaxFilterItem() {
-    if (this.rootdiv && this.tableheader && this.tableheader.nativeElement.offsetHeight > 0 && this.rootdiv.nativeElement.offsetHeight > 0) {
-      this.package.filter_items_max = Math.ceil((this.rootdiv.nativeElement.offsetHeight / this.tableheader.nativeElement.offsetHeight) * 1.5);
+
+  private rowheight = 0;
+  ngAfterViewInit(): void {
+    const style = window.getComputedStyle(this.rootdiv.nativeElement);
+    this.screensize = style.getPropertyValue('--screensize');
+    //this.rootdiv.nativeElement.style.height = (window.innerHeight - 400).toString() + "px";
+
+    if (this.dtablerow){
+      this.rowheight = this.dtablerow.nativeElement.offsetHeight;
+      this.dtablerow.nativeElement.style.display = "none";
     }
+
+    this.packageCtrl.calculateMaxFilterItem(this.rowheight);
+
+    this.checkFilter(false);
   }
 
-
-  checkSize() {
+  isSmallSizeScreen() {
     return (this.screensize || '').trim() === 'sm';
   }
 
@@ -75,7 +88,8 @@ export class SelectEntityDialogWnd implements OnInit {
 
 
   onApply() {
-    this.calculateMaxFilterItem();
+    this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
+    this.packageCtrl.calculateMaxFilterItem(this.rowheight);
     this.checkFilter(false);
   }
 

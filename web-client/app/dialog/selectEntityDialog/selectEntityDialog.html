@@ -3,20 +3,24 @@
     <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
     <span aria-hidden="true">&times;</span>
   </button>
+
+    <!-- <p>
+        <ngb-progressbar type="info" value="50" striped="true" animated="true" *ngIf="package.lookup_rows === undefined"></ngb-progressbar>
+    </p> -->
+
+
 </div>
 
-<div class="modal-body" #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
-
-    <p>
-        <ngb-progressbar type="info" value="50" striped="true" animated="true" *ngIf="package.lookup_rows === undefined"></ngb-progressbar>
-    </p>
+<div class="modal-body sidebar" #rootdiv class="hosttable container-fluid" (window:resize)="onResize($event)">
+    <!-- <div style="min-width: 100%;"> -->
 
     <div class="row no-gutters">
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
-                <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
-                <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{lookupEntityName + '.' + p.propName | translate}}</option>
-            </select>
+        <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
+        <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{lookupEntityName + '.' + p.propName |
+          translate}}</option>
+      </select>
         </div>
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <input type="text" class="form-control " placeholder="{{'Value' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
@@ -31,39 +35,52 @@
     <div class="row no-gutters">
         <div class="col textnowrap">
             <table class="table table-hover table-striped table-md">
-                <thead #tableheader class="thead-light">
+                <thead class="thead-light">
                     <tr>
-                        <th *ngFor="let property of getLookupProperties()">{{lookupEntityName + '.' + property.propName | translate}}</th>
+                        <th *ngFor="let property of getLookupProperties()">{{lookupEntityName + '.' + property.propName | translate}}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let row of packageCtrl.package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Cancel');">
+
+                    <tr #dtablerow>
                         <td *ngFor="let property of getLookupProperties()">
-                            <div *ngIf="checkSize()" class="textnowrap" [ngClass]="{tdlabel: checkSize()}">{{lookupEntityName + '.' + property.propName | translate}}</div>
-                            <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: checkSize()}">
-                                <div class="input-group" *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
-                                <div class="input-group" *ngSwitchDefault>{{row[property.propName]}}</div>
+                            <div class="tdlabel textnowrap">{{property.propName.toUpperCase()}}</div>
+                            <div class="tdcontent">
+                                <div>{{property.propName.toUpperCase()}}</div>
                             </div>
                         </td>
                     </tr>
+
+                    <tr #tablerow *ngFor="let row of packageCtrl.package.lookup_rows; index as i" (click)="packageCtrl.onSelectLookup(lookupSource, lookupSourceProperty, row, lookupTargetProperty); activeModal.close('Cancel');">
+                        <td *ngFor="let property of getLookupProperties()">
+                            <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{lookupEntityName + '.' + property.propName | translate}}</div>
+                            <div [ngSwitch]="packageCtrl.getInputType(property)" [ngClass]="{tdcontent: isSmallSizeScreen()}">
+                                <div *ngSwitchCase="'date'">{{row[property.propName] | datefrm}}</div>
+                                <div *ngSwitchDefault>{{row[property.propName]}}</div>
+                            </div>
+                        </td>
+                    </tr>
+
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="row justify-content-end">
+    <!-- <div class="row justify-content-end">
         <div class="col-11">
         </div>
         <div class="col">
             <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.lookup_rows.length !== 0 && !packageCtrl.package.lookup_fetch_completed" (click)="onScroll()"><i>{{'load more' | translate}}...</i></button>
         </div>
-    </div>
+    </div> -->
+    <!-- </div> -->
 
 </div>
 
-<div class="modal-footer">
+<!-- <div class="modal-footer">
 
     <button type="button" class="btn btn-outline-dark" (click)="activeModal.close('Close')">{{'Close' | translate}}</button>
-</div>
+</div> -->
 <div>
     <ngx-loading [show]="package.lookup_loading"></ngx-loading>
 </div>

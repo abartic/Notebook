@@ -20,16 +20,16 @@
 
                 <tr *ngFor="let row of rows;">
                     <td>
-                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'code_art' | translate}}</div>
-                        <div [ngClass]="{tdcontent: checkSize()}">{{row['code_art']}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'code_art' | translate}}</div>
+                        <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['code_art']}}</div>
                     </td>
                     <td>
-                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'code_store' | translate}}</div>
-                        <div [ngClass]="{tdcontent: checkSize()}">{{row['code_store']}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'code_store' | translate}}</div>
+                        <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['code_store']}}</div>
                     </td>
                     <td>
-                        <div *ngIf="checkSize()" [ngClass]="{tdlabel: checkSize()}">{{'qty' | translate}}</div>
-                        <div [ngClass]="{tdcontent: checkSize()}">{{row['qty_in']-row['qty_out']}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'qty' | translate}}</div>
+                        <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['qty_in']-row['qty_out']}}</div>
                     </td>
                 </tr>
             </tbody>

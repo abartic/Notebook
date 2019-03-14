@@ -1,5 +1,5 @@
 
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject, ViewEncapsulation } from '@angular/core';
 import {
     Router, RouterEvent, NavigationCancel, NavigationStart, NavigationError, NavigationEnd,
     ActivatedRoute
@@ -13,6 +13,7 @@ import { UserSession } from '../common/userSession';
 @Component({
     selector: 'app-layout',
     templateUrl: './layout.component.html',
+    encapsulation: ViewEncapsulation.None,
     styleUrls: ['./layout.component.scss']
 })
 export class LayoutComponent implements OnInit {
