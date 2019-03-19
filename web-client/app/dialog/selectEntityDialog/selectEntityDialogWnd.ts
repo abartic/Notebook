@@ -1,10 +1,11 @@
 import { ModelInfos } from './../../../../server/models/modelProperties';
-import { IEntityInfo, IShellInfo } from './../../../../server/models/base-entity';
+import { IEntityInfo } from './../../../../server/models/base-entity';
 
 import { Component, Input, OnInit, ViewChild, ElementRef, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPackageController } from '../../layout/form/ipackage-controller';
 import { BaseEntity, IPropInfo } from '../../../../server/models/base-entity';
+
 
 
 
@@ -15,6 +16,7 @@ import { BaseEntity, IPropInfo } from '../../../../server/models/base-entity';
   templateUrl: './selectEntityDialog.html'
 })
 export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
+
 
   @Input() title;
 
@@ -30,6 +32,8 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
   @ViewChild('rootdiv') rootdiv: ElementRef;
   @ViewChild('dtablerow') dtablerow: ElementRef;
   @ViewChild('tablerow') tablerow: ElementRef;
+  @ViewChild('htable') htable: ElementRef;
+  @ViewChild('dfilter') dfilter: ElementRef;
 
   public screensize: string;
   public selectedFilterCond: IPropInfo = null;
@@ -37,10 +41,12 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
 
 
   constructor(public activeModal: NgbActiveModal) {
-
   }
 
   ngOnInit() {
+    let style = window.getComputedStyle(this.rootdiv.nativeElement);
+    this.screensize = style.getPropertyValue('--screensize');
+    this.package.lookup_loading = true;
 
   }
 
@@ -53,44 +59,47 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
   onResize(event) {
     const style = window.getComputedStyle(this.rootdiv.nativeElement);
     this.screensize = style.getPropertyValue('--screensize');
-    //this.rootdiv.nativeElement.style.height = (window.innerHeight - 400).toString() + "px";
-    
+
+
     this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
-
-    this.checkFilter(true);
+    this.checkFilter(true, () => { this.updateTableHeight() });
   }
 
 
   private rowheight = 0;
   ngAfterViewInit(): void {
-    const style = window.getComputedStyle(this.rootdiv.nativeElement);
-    this.screensize = style.getPropertyValue('--screensize');
-    //this.rootdiv.nativeElement.style.height = (window.innerHeight - 400).toString() + "px";
 
-    if (this.dtablerow){
+    if (this.dtablerow) {
       this.rowheight = this.dtablerow.nativeElement.offsetHeight;
       this.dtablerow.nativeElement.style.display = "none";
     }
 
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
-
-    this.checkFilter(false);
+    this.checkFilter(false, () => { this.updateTableHeight() });
   }
 
-  isSmallSizeScreen() {
+  updateTableHeight() {
+    let style = window.getComputedStyle(this.htable.nativeElement);
+    let div = document.querySelector('.select-entity');
+    this.tableHeight = div['offsetHeight'] - this.dfilter.nativeElement.offsetHeight;
+  }
+
+  tableHeight = 0;
+
+  get isSmallSizeScreen() {
     return (this.screensize || '').trim() === 'sm';
   }
 
   onScroll() {
-    this.checkFilter(false);
+    this.checkFilter(false, null);
   }
 
 
   onApply() {
     this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
-    this.checkFilter(false);
+    this.checkFilter(false, () => { this.updateTableHeight() });
   }
 
   onFilterValueChanged(event) {
@@ -98,7 +107,7 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
   }
 
   resetFilter: boolean = true;
-  checkFilter(check: boolean) {
+  checkFilter(check: boolean, cb: () => void) {
     let filterItems = [];
     if (this.selectedFilterCond !== null && this.filterConditionValue) {
       filterItems.push(
@@ -109,7 +118,7 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
     }
 
     if (check === false || (check === true && this.packageCtrl.package.lookup_rows.length <= this.packageCtrl.package.filter_items_max)) {
-      this.packageCtrl.executeLookupFilter(this.lookupEntityName, filterItems, this.resetFilter);
+      this.packageCtrl.executeLookupFilter(this.lookupEntityName, filterItems, this.resetFilter, cb);
       this.resetFilter = false;
     }
   }
@@ -126,8 +135,10 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
           this.properties.push(property);
         }
       }
+
     }
     return this.properties;
   }
+
 
 }

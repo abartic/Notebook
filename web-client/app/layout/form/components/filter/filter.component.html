@@ -56,7 +56,7 @@
                     </tr>
                 </tbody>
             </table>
-            <table class="table table-hover table-striped table-md " *ngIf="packageCtrl.package.filter_rows.length !== 0" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" [infiniteScrollContainer]="selector" (scrolled)="onScroll()">
+            <table class="table table-hover table-striped table-md " *ngIf="packageCtrl.package.filter_rows.length !== 0" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
                 <thead class="thead-light ">
                     <tr>
 

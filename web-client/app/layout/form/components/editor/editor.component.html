@@ -14,7 +14,7 @@
                 <div class="form-group row no-gutters" *ngIf="packageCtrl.isVisible(property, undefined)">
 
                     <label class="col-sm-4 col-form-label" *ngIf="property.lookup_entity_name === undefined">{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</label>
-                    <label class="col-sm-4 col-form-label label-link" ngbTooltip="{{'Click to select' | translate}}..." *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)"><u>{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</u>
+                    <label class="col-sm-4 col-form-label label-link" ngbTooltip="{{'Click to select' | translate}}..." *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity, property)"><u>{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</u>
           </label>
 
                     <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">

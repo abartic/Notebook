@@ -9,7 +9,7 @@ import { routerTransition } from '../../../../router.animations';
   styleUrls: ['./relation.component.css'],
   animations: [routerTransition()]
 })
-export class RelationComponent implements OnInit, AfterViewInit {
+export class RelationComponent implements OnInit {
 
 
   @Input() package;
@@ -18,33 +18,19 @@ export class RelationComponent implements OnInit, AfterViewInit {
 
 
   @ViewChild('rootdiv') rootdiv: ElementRef;
-  // @ViewChild('dtablerow') dtablerow: ElementRef;
-  // @ViewChild('tablerow') tablerow: ElementRef;
 
   public screensize: string;
 
   ngOnInit() {
-  }
-
-  private rowheight = 0;
-  ngAfterViewInit(): void {
     const style = window.getComputedStyle(this.rootdiv.nativeElement);
     this.screensize = style.getPropertyValue('--screensize');
-
-    // if (this.dtablerow) {
-    //   this.rowheight = this.dtablerow.nativeElement.offsetHeight;
-    //   this.dtablerow.nativeElement.style.display = "none";
-    // }
-
-    // this.packageCtrl.calculateMaxFilterItem(this.rowheight);
   }
+  
 
   onResize(event) {
     let style = window.getComputedStyle(this.rootdiv.nativeElement);
     this.screensize = style.getPropertyValue('--screensize');
 
-    // this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
-    // this.packageCtrl.calculateMaxFilterItem(this.rowheight);
   }
 
   isSmallSizeScreen() {

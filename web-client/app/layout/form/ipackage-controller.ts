@@ -24,7 +24,7 @@ export interface IPackageController {
 
     executeFilter();
 
-    executeLookupFilter(lookup_entity_name: string, filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[], reset: boolean);
+    executeLookupFilter(lookup_entity_name: string, filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[], reset: boolean, cb: ()=>void);
 
     onSelectEntity(row);
 

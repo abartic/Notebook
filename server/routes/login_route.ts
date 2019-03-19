@@ -164,7 +164,8 @@ export class LoginRoute extends BaseRoute {
                         res.cookie('lastAuthTime', req.session['lastAuthTime']);
                     }
                     res.json({ 'refresh': true });
-                }).catch(() => {
+                }).catch((err) => {
+                    
                     res.json({ 'refresh': false });
                 });
 

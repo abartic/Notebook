@@ -262,13 +262,13 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
 
 
-    executeLookupFilter(lookup_entity_name: string, filterItems, reset: boolean) {
+    executeLookupFilter(lookup_entity_name: string, filterItems, reset: boolean, cb: ()=>void) {
         if (this.isLookupExecuting === true)
             return;
 
         if (reset === true) { 
             this.package.lookup_last_index = 0;
-            this.package.lookup_rows = [];
+            this.package.lookup_rows.length = 0;
         }
 
         this.isLookupExecuting = true;
@@ -289,6 +289,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         this.package.lookup_last_index = this.package.lookup_rows.length;
                     }
                 } finally {
+                    if (cb)
+                        cb();
                     this.package.lookup_loading = false;
                     this.isLookupExecuting = false;
                 }
@@ -1000,11 +1002,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo) {
-
-      
-
         const modalRef = this.modalService.open(SelectEntityDialogWnd, 
-            { windowClass: 'report-modal', size: 'lg' });
+            { windowClass: 'select-entity-modal', size: 'lg' });
         modalRef.componentInstance.title = 'select: ' + lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupSource = lookupSource;
         modalRef.componentInstance.lookupSourceProperty = lookupSourceProperty.propName;
@@ -1015,9 +1014,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
         return modalRef.result.then((result) => {
-
+            
         }, (reason) => {
-
+            
         });
     }
 

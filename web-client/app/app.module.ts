@@ -26,6 +26,7 @@ import { CommonModule } from '@angular/common';
 import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 import { SharedModule } from './shared/modules/shared.module';
+import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 
 
@@ -72,6 +73,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     LoadingModule,
     SharedModule,
     NgbModule,
+    InfiniteScrollModule
 
   ],
   providers: [
