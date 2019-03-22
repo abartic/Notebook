@@ -119,8 +119,11 @@ export class SheetsSelectOperations {
                                     var schema = data.table.cols;
                                     for (const row of data.table.rows) {
                                         let ent;
-                                        if (entityName)
+                                        if (entityName) {
                                             ent = ModelFactory.uniqueInstance.create(entityName.toLowerCase());
+                                            if (ent.prepareForJsonSerialization)
+                                                ent.prepareForJsonSerialization();
+                                        }
                                         else
                                             ent = {};
                                         var i = 0;
@@ -130,13 +133,13 @@ export class SheetsSelectOperations {
                                                     ent[col.label] = BaseEntity.toDateStructFormat(eval('new ' + row.c[i].v));
                                                 else
                                                     ent[col.label] = row.c[i].v;
-                                            } else if (row.c[i] === null && ent['fetchAll'] === true)
-                                            {
+                                            } else if (row.c[i] === null && ent['fetchAll'] === true) {
                                                 ent[col.label] = undefined;
                                             }
                                             i += 1;
                                         }
-                                        ent.prepareForJsonSerialization();
+
+
                                         entities.push(ent)
                                     }
                                     let result = {};
@@ -153,7 +156,7 @@ export class SheetsSelectOperations {
                 if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                     return Promise.reject({ error: { code: 401 } });
                 else
-                    return Promise.reject({error : err});
+                    return Promise.reject({ error: err });
             });
     }
 }
