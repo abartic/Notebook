@@ -59,7 +59,7 @@ export class PassportManager {
 
             let emails: Array<{ value: string; type?: string; }> = profile.emails;
             let emailAccounts = <Array<string>>emails.map(e => e.value);
-            if (!emailAccounts || emailAccounts.length === 0){
+            if (!emailAccounts || emailAccounts.length === 0) {
                 callBack('user profile missing or incomplete', null);
                 return;
             }
@@ -244,6 +244,11 @@ export class PassportManager {
         if (userId === undefined || accessToken === undefined)
             return reject('User session error');
 
+        console.log("domainID: " + domainId);
+        console.log("google_refresh_token: " + req.session['google_refresh_token']);
+        console.log("accessToken: " + accessToken);
+        console.log("accountsFileId: " + accountsFileId);
+        
         let domain = PassportManager.getDomainById(domainId);
         if (domain === null || domain.isActive === false) {
             console.log('domain suspended');
@@ -251,6 +256,7 @@ export class PassportManager {
         }
 
         let check = () => {
+            
             refresh.requestNewAccessToken('google',
                 req.session['google_refresh_token'],
                 function (err, accessToken, refreshToken) {
