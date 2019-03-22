@@ -114,23 +114,23 @@ export class LoginRoute extends BaseRoute {
                 let userId = req.session['userId'];
                 let domainId = req.session['domainId'];
                 let mainmenu = [
-                    { link: '/dashboard', caption: 'Dashboard', image: 'fa fa-fw fa-dashboard' },
-                    { link: '/form/article', caption: 'Articles', image: 'fa fa-fw fa-table' },
-                    { link: '/form/prospect', caption: 'Prospects', image: 'fa fa-fw fa-table' },
-                    { link: '/form/partner', caption: 'Partners', image: 'fa fa-fw fa-table' },
-                    { link: '/form/store', caption: 'Stores', image: 'fa fa-fw fa-table' },
-                    { link: '/form/invoice', caption: 'Invoices', image: 'fa fa-fw fa-table' },
-                    { link: '/form/receivable', caption: 'Receivables', image: 'fa fa-fw fa-table' },
-                    { link: '/form/purchase', caption: 'Purchases', image: 'fa fa-fw fa-table' },
-                    { link: '/form/payment', caption: 'Payments', image: 'fa fa-fw fa-table' },
-                    { link: '/form/articleinventory', caption: 'Stocks', image: 'fa fa-fw fa-table' },
-                    { link: '/form/accountinventory', caption: 'Accounts stats.', image: 'fa fa-fw fa-table' },
-                    { link: '/form/budget', caption: 'Budgets', image: 'fa fa-fw fa-table' },
-                    { link: '/form/expenses', caption: 'Expenses', image: 'fa fa-fw fa-table' },
+                    { link: '/dashboard', caption: 'MENU.DASHBOARD', image: 'fa fa-fw fa-dashboard' },
+                    { link: '/form/article', caption: 'MENU.ARTICLE', image: 'fa fa-barcode' },
+                    { link: '/form/prospect', caption: 'MENU.PROSPECTS', image: 'fa fa-user-plus' },
+                    { link: '/form/partner', caption: 'MENU.PARTNERS', image: 'fa fa-users' },
+                    { link: '/form/store', caption: 'MENU.STORES', image: 'fa fa-archive' },
+                    { link: '/form/invoice', caption: 'MENU.INVOICE', image: 'fa fa-arrows-alt' },
+                    { link: '/form/receivable', caption: 'MENU.RECEIVABLES', image: 'fa fa-usd' },
+                    { link: '/form/purchase', caption: 'MENU.PURCHASES', image: 'fa fa-cart-arrow-down' },
+                    { link: '/form/payment', caption: 'MENU.PAYMENTS', image: 'fa fa-credit-card' },
+                    { link: '/form/articleinventory', caption: 'MENU.STOCKS', image: 'fa fa-cubes' },
+                    { link: '/form/accountinventory', caption: 'MENU.ACCOUNT_STATS', image: 'fa fa-calculator' },
+                    { link: '/form/budget', caption: 'MENU.BUDGETS', image: 'fa fa-columns' },
+                    { link: '/form/expenses', caption: 'MENU.EXPENSES', image: 'fa fa-money' },
                 ];
                 let admin_mainmenu = [
-                    { link: '/form/company', caption: 'Settings', image: 'fa fa-fw fa-wrench' },
-                    { link: '/sheets-creation', caption: 'Admin Sheets', image: 'fa fa-fw fa-wrench' }
+                    { link: '/form/company', caption: 'MENU.SETTINGS', image: 'fa fa-fw fa-wrench' },
+                    { link: '/sheets-creation', caption: 'MENU.SHEETS_ADMIN', image: 'fa fa-table' }
                 ];
                 AppAcl.aclInstance.isAdmin((userId + domainId))
                     .then((isAdmin) => {

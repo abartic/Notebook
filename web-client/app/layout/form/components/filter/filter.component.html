@@ -1,12 +1,12 @@
 <div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
-    <h5 class="m-0">{{'Filter' | translate}}</h5>
+    <h5 class="m-0">{{'TIT.FILTER' | translate}}</h5>
     <hr class="mb-2 mt-1">
 
     <div class="row no-gutters">
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
             <div>
                 <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
-          <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
+          <option [ngValue]="null" selected>{{'LBL.SELECT_FIELD' | translate}}</option>
           <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.entityName.toLowerCase() + '.' +
             p.property.propName | translate}}</option>
           <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName.toLowerCase()
@@ -15,15 +15,15 @@
             </div>
         </div>
         <div class="col-auto order-md-3 m-1">
-            <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus" ngbTooltip="{{'Add Filter Condition' | translate}}"></button>
+            <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus" ngbTooltip="{{'BTN.ADD_FILTER_COND' | translate}}"></button>
         </div>
         <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
-            <input type="text" class="form-control " placeholder="{{'Value' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
+            <input type="text" class="form-control " placeholder="{{'LBL.VALUE_PLACEHOLDER' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
 
         </div>
 
         <div class="col-auto order-md-4 m-1">
-            <button type="button" (click)="onApply()" class="btn btn-secondary fa fa-search" ngbTooltip="{{'Apply_filter' | translate}}"></button>
+            <button type="button" (click)="onApply()" class="btn btn-secondary fa fa-search" ngbTooltip="{{'BTN.APPLY_FILTER' | translate}}"></button>
         </div>
 
     </div>
@@ -34,12 +34,12 @@
             <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems' [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
         </div>
         <div class="col-auto order-md-2 m-1">
-            <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser" *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="{{'Clear filters' | translate}}"></button>
+            <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser" *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="{{'BTN.CLEAR_FILTER' | translate}}"></button>
         </div>
     </div>
 
     <br>
-    <h5 class="m-0">{{'Results' | translate}}</h5>
+    <h5 class="m-0">{{'LBL.RESULTS' | translate}}</h5>
     <hr class="mb-2 mt-1">
 
     <div class="row no-gutters">
@@ -84,21 +84,21 @@
     <div class="row  no-gutters" *ngIf="packageCtrl.package.filter_rows.length === 0">
         <div class="col">
             <div class="jumbotron">
-                <h1 class="display-4">{{'No data loaded' | translate}}</h1>
-                <p class="lead">{{'Apply a filter or hit fetch data.' | translate}}</p>
+                <h1 class="display-4">{{'LBL.NO_DATA_LOADED' | translate}}</h1>
+                <p class="lead">{{'LBL.APPLY_TO_FETCH' | translate}}</p>
                 <hr class="my-4">
                 <!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
-                <button class="btn btn-primary btn-lg" role="button" (click)="onApply()">{{'Fetch data' | translate}}</button>
+                <button class="btn btn-primary btn-lg" role="button" (click)="onApply()">{{'BTN.FETCH_DATA' | translate}}</button>
             </div>
         </div>
 
     </div>
 
-    <div class="row no-gutters justify-content-end">
+    <!-- <div class="row no-gutters justify-content-end">
         <div class="col-11">
         </div>
         <div class="col">
             <button type="button" class="btn btn-link" *ngIf="packageCtrl.package.filter_rows.length !== 0 && !packageCtrl.package.filter_fetch_completed" (click)="onScroll()"><i>{{'load more' | translate}}...</i></button>
         </div>
-    </div>
+    </div> -->
 </div>

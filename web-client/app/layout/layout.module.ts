@@ -12,6 +12,7 @@ import { MessagesComponent } from '../shared/components/messages/messages.compon
 
 
 
+
 @NgModule({
     imports: [
         CommonModule,
@@ -21,6 +22,7 @@ import { MessagesComponent } from '../shared/components/messages/messages.compon
         NgbDropdownModule,
         TranslateModule,
     ],
+    
     declarations: [
         LayoutComponent,
         HeaderComponent,

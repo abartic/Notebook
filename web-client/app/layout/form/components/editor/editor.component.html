@@ -14,7 +14,7 @@
                 <div class="form-group row no-gutters" *ngIf="packageCtrl.isVisible(property, undefined)">
 
                     <label class="col-sm-4 col-form-label" *ngIf="property.lookup_entity_name === undefined">{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</label>
-                    <label class="col-sm-4 col-form-label label-link" ngbTooltip="{{'Click to select' | translate}}..." *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity, property)"><u>{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</u>
+                    <label class="col-sm-4 col-form-label label-link" ngbTooltip="{{'LBL.CLICK_TO_SELECT' | translate}}..." *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity, property)"><u>{{packageCtrl.entityType.toLowerCase() + '.' + property.propName | translate}}</u>
           </label>
 
                     <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
@@ -62,7 +62,7 @@
     <div *ngFor="let relation of (packageCtrl.entityInfo.relations)">
         <form-editor-relation [package]="package" *ngIf="!packageCtrl.shellInfo.pivotInfo" [packageCtrl]="packageCtrl" [relation]="relation"></form-editor-relation>
 
-        <form-editor-pivot-relation *ngIf="packageCtrl.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']" [needRefresh]="package.entity.requestShellInfoSliceRefresh">
+        <form-editor-pivot-relation *ngIf="packageCtrl.shellInfo.pivotInfo" [package]="package" [packageCtrl]="packageCtrl" [relation]="relation" [list]="package.entity[relation + '_relation']" [needRefresh]="package.entity.propChanged">
 
         </form-editor-pivot-relation>
     </div>

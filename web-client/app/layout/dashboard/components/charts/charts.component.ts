@@ -53,12 +53,10 @@ export class ChartsComponent implements OnInit {
     ];
 
     public lineChartData: Array<any> = [
-        { data: [], label: '6 Months Sales' },
+        
 
     ];
-    public lineChartLabels: Array<any> = [
-
-    ];
+    public lineChartLabels: Array<any> = [];
 
     public lineChartOptions: any = {
         responsive: true
@@ -84,8 +82,8 @@ export class ChartsComponent implements OnInit {
                 this.rows = result.rows as Array<any>;
                 this.lineChartLabels = [];
                 this.rows.map(r => this.lineChartLabels.push(r['month'] + 1));
-
-                this.translate.get('6 Months Sales').subscribe(res => {
+                
+                this.translate.get('LBL.6MONTHS_SALES').subscribe(res => {
                     this.lineChartData = [{ data: [], label: res }];
                 });
 

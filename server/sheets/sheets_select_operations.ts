@@ -136,6 +136,7 @@ export class SheetsSelectOperations {
                                             }
                                             i += 1;
                                         }
+                                        ent.prepareForJsonSerialization();
                                         entities.push(ent)
                                     }
                                     let result = {};

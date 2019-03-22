@@ -1,6 +1,6 @@
 <div class="hosttable">
     <div class="modal-header">
-        <h4 class="modal-title">{{'select' | translate}}:{{lookupEntityName | translate}}</h4>
+        <h4 class="modal-title">{{'TIT.SELECT' | translate}}:{{lookupEntityName | translate}}</h4>
         <button type="button" class="close" aria-label="Close" (click)="activeModal.close('Cancel')">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -9,17 +9,17 @@
         <div class="row no-gutters" #dfilter>
             <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
                 <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
-                <option [ngValue]="null" selected>{{'Select field' | translate}}</option>
+                <option [ngValue]="null" selected>{{'LBL.SELECT_FIELD' | translate}}</option>
                 <option *ngFor="let p of getLookupProperties()" [ngValue]="p">{{lookupEntityName + '.' + p.propName |
                   translate}}</option>
               </select>
             </div>
             <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
-                <input type="text" class="form-control " placeholder="{{'Value' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
+                <input type="text" class="form-control " placeholder="{{'LBL.VALUE_PLACEHOLDER' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
             </div>
 
             <div class="col-auto order-md-2 m-1">
-                <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'" ngbTooltip="{{'Apply_filter' | translate}}"></button>
+                <button type="button" (click)="onApply()" [class]="'btn btn-secondary fa fa-filter'" ngbTooltip="{{'BTN.APPLY_FILTER' | translate}}"></button>
             </div>
 
         </div>

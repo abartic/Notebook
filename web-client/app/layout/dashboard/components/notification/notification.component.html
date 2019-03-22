@@ -1,34 +1,34 @@
 <div class="card card-default">
     <div class="card-header">
-        <i class="fa fa-fw fa-desktop"></i>{{ 'Inventory' | translate }}
+        <i class="fa fa-fw fa-desktop"></i>{{ 'TIT.INVENTORY' | translate }}
     </div>
 
     <div #rootdiv class="hosttable textnowrap" (window:resize)="onResize($event)">
         <div *ngIf="rows.length === 0">
-            <label><i>{{ 'no data available' | translate}}</i></label>
+            <label><i>{{ 'LBL.NO_DATA_AVAIL' | translate}}</i></label>
         </div>
         <table *ngIf="rows.length !== 0" class="table table-hover table-striped table-md ">
 
             <thead class="thead-light">
                 <tr>
-                    <th>{{'code_art' | translate}}</th>
-                    <th>{{'code_store' | translate}}</th>
-                    <th>{{'qty' | translate}}</th>
+                    <th>{{'articleinventory.code_art' | translate}}</th>
+                    <th>{{'articleinventory.code_store' | translate}}</th>
+                    <th>{{'articleinventory.qty' | translate}}</th>
                 </tr>
             </thead>
             <tbody>
 
                 <tr *ngFor="let row of rows;">
                     <td>
-                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'code_art' | translate}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'articleinventory.code_art' | translate}}</div>
                         <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['code_art']}}</div>
                     </td>
                     <td>
-                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'code_store' | translate}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'articleinventory.code_store' | translate}}</div>
                         <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['code_store']}}</div>
                     </td>
                     <td>
-                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'qty' | translate}}</div>
+                        <div *ngIf="isSmallSizeScreen()" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{'articleinventory.qty' | translate}}</div>
                         <div [ngClass]="{tdcontent: isSmallSizeScreen()}">{{row['qty_in']-row['qty_out']}}</div>
                     </td>
                 </tr>

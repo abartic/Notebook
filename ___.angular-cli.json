@@ -8,7 +8,7 @@
         "outDir": "dist/middletier/app",
         "assets": [
             "assets",
-            "favicon.ico",
+            "appicon.ico",
             "views"
         ],
         "index": "views/index.html",

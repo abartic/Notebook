@@ -6,13 +6,8 @@ export class ExpensesShell
     public static adjustShellInfo(shellInfo: IShellInfo ) {
         shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Expenses }];
         shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
-        // shellInfo.filter.commands = [
-        //     { caption: 'Apply', handler: 'onApply', primary: true },
-        //     { caption: 'Clear', handler: 'onClear' },
-        //     { caption: 'New', handler: 'onNew' },
-        // ];
         shellInfo.commands = shellInfo.commands.concat([
-            { caption: 'Print', handler: 'onPrint', image: 'fa fa-print' },
+            { caption: 'BTN.PRINT', handler: 'onPrint', image: 'fa fa-print' },
         ]);
         shellInfo.pivotInfo = {
             slice: {
@@ -20,24 +15,24 @@ export class ExpensesShell
                 rows: [
                     {
                         dimensionName: "attr1",
-                        caption: "Chapter",
+                        caption: "LBL.CHAPTER",
                         uniqueName: "attr1",
                     },
                     {
                         dimensionName: "attr2",
-                        caption: "Sub-chapter",
+                        caption: "LBL.SUBCHAPTER",
                         uniqueName: "attr2",
                     },
                     {
                         dimensionName: "attr3",
-                        caption: "Title",
+                        caption: "LBL.TITLE",
                         uniqueName: "attr3",
                     }
                 ],
                 measures: [
                     {
                         uniqueName: "debit",
-                        caption: "Value",
+                        caption: "LBL.VALUE",
                         aggregation: "SUM"
                     }
 

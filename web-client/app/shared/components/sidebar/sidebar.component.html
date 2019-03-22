@@ -10,18 +10,18 @@
             </a>
             <div class="nested-menu">
                 <a class="list-group-item" (click)="addExpandClass('languages')">
-                    <span><i class="fa fa-language"></i>&nbsp; {{ 'Language' | translate }} <b class="caret"></b></span>
+                    <span><i class="fa fa-language"></i>&nbsp; {{ 'LBL.LANGUAGE' | translate }} <b class="caret"></b></span>
                 </a>
                 <li class="nested" [class.expand]="showMenu === 'languages'">
                     <ul class="submenu">
                         <li>
                             <a href="javascript:void(0)" (click)="changeLang('en')">
-                {{ 'English' | translate }}
+                {{ 'LBL.ENGLISH' | translate }}
               </a>
                         </li>
                         <li>
                             <a href="javascript:void(0)" (click)="changeLang('ro')">
-                {{ 'Romana' | translate }}
+                {{ 'LBL.ROMANIAN' | translate }}
               </a>
                         </li>
 
@@ -37,7 +37,7 @@
 
                         <li>
                             <a [routerLink]="['/login']" (click)="onLoggedout()">
-                                <span><i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }}</span>
+                                <span><i class="fa fa-fw fa-power-off"></i> {{ 'BTN.LOGOUT' | translate }}</span>
                             </a>
                         </li>
                     </ul>
@@ -47,6 +47,6 @@
     </div>
     <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
         <i class="fa fa-fw fa-angle-double-{{collapsed?'right':'left'}}"></i>&nbsp;
-        <span>{{ 'Collapse Sidebar' | translate }}</span>
+        <span>{{ 'BTN.COLLAPSE_MENU' | translate }}</span>
     </div>
 </nav>

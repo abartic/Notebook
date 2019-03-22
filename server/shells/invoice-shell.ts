@@ -7,7 +7,7 @@ export class InvoiceShell
         shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.StocksOutput }];
         //shellInfo.filter.commands[2].isDisabled = false;
         shellInfo.commands = shellInfo.commands.concat([
-            { caption: 'Print', handler: 'onPrint', image: 'fa fa-print' },
+            { caption: 'BTN.PRINT', handler: 'onPrint', image: 'fa fa-print' },
         ]);
        
         shellInfo.report = {

@@ -5,7 +5,9 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { UserSession } from "../common/userSession";
 import { CookieService } from "ngx-cookie-service";
 
-@Injectable()
+@Injectable({
+        providedIn: 'root'
+    })
 export class UserSessionService {
 
     private userSessionDataSource = null;
@@ -23,7 +25,7 @@ export class UserSessionService {
 
 
 
-    updatedData(data: UserSession) {
+    updateData(data: UserSession) {
         this.userSessionDataSource.next(data);
     }
 }

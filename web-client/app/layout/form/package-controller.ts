@@ -22,6 +22,7 @@ import { UserSessionService } from '../../services/userSessionService';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { IPackageController } from './ipackage-controller';
+import { TranslateService } from '@ngx-translate/core';
 
 
 export class PackageController<T extends BaseEntity> implements IPackageController {
@@ -34,7 +35,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         private modalService: NgbModal,
         private httpCaller: HttpCallerService,
         private userSessionService: UserSessionService,
-        private router: Router) {
+        private router: Router,
+        private translateService: TranslateService) {
 
         this.package = new Package<T>(type);
         this.userSessionService.userSession
@@ -77,6 +79,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 }
                 this.editor_commands.push(c);
             }
+            this.package.canExecuteFilter = this.shellInfo.filter.selectFirst !== true;
         }
         return this.editor_commands;
     }
@@ -158,7 +161,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     private onViewLoaded() {
-        if (this.shellInfo.filter.autoApply === true) {
+        if (this.shellInfo.filter.selectFirst === true) {
             this.onApplyFilter();
         }
     }
@@ -251,6 +254,10 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 } finally {
                     this.setWaiting(false);
                     this.isFilterExecuting = false;
+
+                    if (this.shellInfo.filter.selectFirst === true && this.package.filter_rows.length > 0) {
+                       this.onSelectEntity(this.package.filter_rows[0]);
+                    }
                 }
             },
             () => {
@@ -539,7 +546,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             },
             err => {
 
-                this.showAlert('Connection error! ' + this.getError(err));
+                this.showAlert(this.translateService.instant("MSG.CONNECTION_ERROR") + this.getError(err));
                 cerr();
             });
 
@@ -558,7 +565,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         this.clearMsg(false);
         if (this.package.entity.status === eEntityStatus.Deleted) {
-            this.showAlert('Entity deleted already!');
+            this.showAlert(this.translateService.instant("MSG.ENTITY_DELETED"));
             return;
         }
 
@@ -574,7 +581,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.validateEntity((validationResult) => {
 
             if (validationResult && validationResult.length > 0) {
-                this.showAlert('Invalid fields:' + validationResult);
+                this.showAlert(this.translateService.instant("MSG.INVALID_FIELDS") + validationResult);
                 return;
             }
 
@@ -717,12 +724,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
     onDelete() {
         if (this.package.entity.status === eEntityStatus.Deleted) {
-            this.showAlert('Entity deleted already!');
+            this.showAlert(this.translateService.instant("MSG.ENTITY_DELETED"));
             return;
         }
 
         if (this.package.entity.status === eEntityStatus.New) {
-            this.showAlert('New entity will be deleted!');
+            this.showAlert(this.translateService.instant("MSG.NEWENTITY_DELETED"));
             this.package.show_filter = true;
             return;
         }
@@ -739,7 +746,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     onUndo() {
         if (this.package.entity.status === eEntityStatus.Deleted
             || this.package.entity.status === eEntityStatus.New) {
-            this.showAlert('Entity new/deleted cannot undo!');
+            this.showAlert(this.translateService.instant("MSG.CANNOT_UNDO"));
             return;
         }
 
@@ -877,12 +884,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     public getRelationFilterProperties() {
         let properties = [];
         for (const relation of this.entityInfo.relations) {
-            const pp = this.getRelationProperties(relation, false, true);
+            const pp = this.getRelationProperties(this.entityInfo, relation, false, true);
             properties = properties.concat(pp);
         }
         return properties;
     }
-    public getRelationProperties(relation: string, addLookups: boolean, addEntityName?: boolean) {
+    public getRelationProperties(entityInfo : IEntityInfo, relation: string, addLookups: boolean, addEntityName?: boolean) {
         const relation_entityInfo = ModelInfos.uniqueInstance.get(relation.toLowerCase());
         const properties = [];
         if (!relation) {
@@ -895,7 +902,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         for (const property of relation_entityInfo.properties) {
             if (property.propName === 'uid' || property.propName === 'rowid'
-                || property.propName === relation_entityInfo.ukeyPropName || property.isHidden === true) {
+                || property.propName === entityInfo.ukeyPropName || property.isHidden === true) {
                 continue;
             }
 

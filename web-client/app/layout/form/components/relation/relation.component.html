@@ -3,7 +3,7 @@
     <div class=" row ">
 
         <div class="col m-1">
-            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-plus " ngbTooltip="{{'Add' | translate}}"></i></button>
+            <button class="btn btn-secondary " (click)="packageCtrl.onCreateEntityByRelation(relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-plus " ngbTooltip="{{'BTN.ADD_DETAIL' | translate}}"></i></button>
         </div>
         <div class="col-auto">
             <h5 class="m-0">{{relation | translate}}</h5>
@@ -19,27 +19,17 @@
                         <th>
 
                         </th>
-                        <th *ngFor=" let property of packageCtrl.getRelationProperties(relation,true,false) ">{{relation.toLowerCase() + '.' + property.propName | translate}}</th>
+                        <th *ngFor=" let property of packageCtrl.getRelationProperties(package.entity.entityInfo, relation,true,false) ">{{relation.toLowerCase() + '.' + property.propName | translate}}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- <tr #dtablerow>
-                        <th scope="no-gutters">
 
-                        </th>
-                        <td scope="no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
-                            <div class="textnowrap tdlabel">{{property.propName}}</div>
-                            <div class="tdcontent">
-                                <div>{{property.propName}}</div>
-                            </div>
-                        </td>
-                    </tr> -->
                     <tr #tablerow *ngFor="let row of package.entity[relation+ '_relation'] ">
                         <th scope="no-gutters">
-                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Edit' | translate}}" (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
-                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'Delete' | translate}}" (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
+                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'BTN.EDIT_DETAIL' | translate}}" (click)="packageCtrl.onEditEntityByRelation(row, relation) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-edit "></i></button>
+                            <button type="button " class="btn btn-secondary m-1" ngbTooltip="{{'BTN.DELETE_DETAIL' | translate}}" (click)="packageCtrl.onDeleteEntityByRelation(row, relation, false) " [disabled]="packageCtrl.isDisabled(package.entity, null) "><i class="fa fa-minus "></i></button>
                         </th>
-                        <td scope="no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(relation,true,false)">
+                        <td scope="no-gutters" *ngFor="let property of packageCtrl.getRelationProperties(package.entity.entityInfo,relation,true,false)">
                             <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{relation.toLowerCase() + '.' + property.propName | translate}}</div>
                             <div [ngSwitch]="packageCtrl.getInputType(property) " [ngClass]="{tdcontent: isSmallSizeScreen()}">
                                 <div *ngSwitchCase=" 'date' ">{{row[property.propName] | datefrm}}</div>
@@ -52,7 +42,7 @@
                     </tr>
                 </tbody>
             </table>
-            <label *ngIf="package.entity[relation+ '_relation'] && package.entity[relation+ '_relation'].length===0 ">{{'none' | translate}}</label>
+            <label *ngIf="package.entity[relation+ '_relation'] && package.entity[relation+ '_relation'].length===0 ">{{'LBL.NONE' | translate}}</label>
         </div>
     </div>
 

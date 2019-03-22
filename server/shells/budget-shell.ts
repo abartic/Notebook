@@ -1,9 +1,16 @@
+
 import { eTypeBudget } from '../common/enums';
+
 
 export class BudgetShell
 {
 
+    
+
     public static adjustShellInfo(shellInfo) {
+        
+        
+
         shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Budget }];
         shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
         shellInfo.pivotInfo = {
@@ -11,25 +18,25 @@ export class BudgetShell
                 columns: [
                     {
                         dimensionName: "year",
-                        caption: "year",
+                        caption: "LBL.YEAR", 
                         uniqueName: "year",
 
                     },
                     {
                         dimensionName: "month",
-                        caption: "month",
+                        caption: "LBL.MONTH",
                         uniqueName: "month",
 
                     },
                     {
                         dimensionName: "week",
-                        caption: "week",
+                        caption: "LBL.WEEK",
                         uniqueName: "week",
 
                     },
                     {
                         dimensionName: "day",
-                        caption: "day",
+                        caption: "LBL.DAY",
                         uniqueName: "day",
 
                     }
@@ -37,30 +44,30 @@ export class BudgetShell
                 rows: [
                     {
                         dimensionName: "attr1",
-                        caption: "Chapter",
+                        caption: "LBL.CHAPTER",
                         uniqueName: "attr1",
                     },
                     {
                         dimensionName: "attr2",
-                        caption: "Sub-chapter",
+                        caption: "LBL.SUBCHAPTER",
                         uniqueName: "attr2",
                     },
                     {
                         dimensionName: "attr3",
-                        caption: "Title",
+                        caption: "LBL.TITLE",
                         uniqueName: "attr3",
                     }
                 ],
                 measures: [
                     {
                         uniqueName: "debit",
-                        caption: "Projected",
+                        caption: "LBL.PROJECTED",
                         aggregation: "SUM"
                     }
 
                     , {
                         uniqueName: "credit",
-                        caption: "Executed",
+                        caption: "LBL.EXECUTED",
                         aggregation: "SUM"
                     }
                 ],

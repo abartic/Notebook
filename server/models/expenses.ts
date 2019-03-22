@@ -23,7 +23,7 @@ export class Expenses extends BaseEntity {
     }
     public set pivot_by(value: string) {
         this._pivot_by = value;
-        this.requestShellInfoSliceRefresh = true;
+        this.setPropChanged("pivot_by");
     }
 
     public type_doc: string;
@@ -48,41 +48,6 @@ export class Expenses extends BaseEntity {
         this.debit = 0;
         this.credit = 0;
         this.type_doc = eTypeBudget.Expenses;
-    }
-
-  
-
-    public getAdjustedShellInfoSlice() {
-
-        this.requestShellInfoSliceRefresh = false;
-
-        if (!this.pivot_by || this.pivot_by === '')
-            return [];
-
-        let fields = this.pivot_by.split(',').map(f => f.trim());
-        let shellInfo = ShellInfos.uniqueInstance.get(this.entityName);
-        let slice = JSON.parse(JSON.stringify(shellInfo.pivotInfo.slice));
-        let row_delete = [];
-        for (let row of slice.rows) {
-            let index = fields.findIndex(f => f === row.uniqueName);
-            if (index < 0)
-                row_delete.push(row);
-        }
-        row_delete.forEach(r => {
-            slice.rows = slice.rows.filter(e => e !== r);
-        });
-
-        let column_delete = [];
-        for (let column of slice.columns) {
-            let index = fields.findIndex(f => f === column.uniqueName);
-            if (index < 0)
-                column_delete.push(column);
-        }
-        column_delete.forEach(c => {
-            slice.columns = slice.columns.filter(e => e !== c);
-        });
-
-        return slice;
     }
 
     private _props = null;

@@ -15,11 +15,11 @@
 
             <li class="nav-item dropdown" ngbDropdown>
                 <a href="javascript:void(0)" class="nav-link" ngbDropdownToggle>
-                    <i class="fa fa-language"></i> {{ 'Language' | translate }} <b class="caret"></b>
+                    <i class="fa fa-language"></i> {{ 'LBL.LANGUAGE' | translate }} <b class="caret"></b>
                 </a>
                 <div class="dropdown-menu" ngbDropdownMenu>
-                    <a class="dropdown-item" href="javascript:void(0)" (click)="changeLang('en')">{{ 'English' | translate }}</a>
-                    <a class="dropdown-item" href="javascript:void(0)" (click)="changeLang('ro')">{{ 'Romanian' | translate }}</a>
+                    <a class="dropdown-item" href="javascript:void(0)" (click)="changeLang('en')">{{ 'LBL.ENGLISH' | translate }}</a>
+                    <a class="dropdown-item" href="javascript:void(0)" (click)="changeLang('ro')">{{ 'LBL.ROMANIAN' | translate }}</a>
                 </div>
             </li>
             <li class="nav-item dropdown" ngbDropdown>
@@ -27,7 +27,7 @@
                     <i class="fa fa-user"></i> {{userSession.Username}} <b class="caret"></b>
                 </a>
                 <div class="dropdown-menu" ngbDropdownMenu>
-                    <a class="dropdown-item" [routerLink]="['/login']" (click)="onLoggedout()"><i class="fa fa-fw fa-power-off"></i> {{ 'Log Out' | translate }} </a>
+                    <a class="dropdown-item" [routerLink]="['/login']" (click)="onLoggedout()"><i class="fa fa-fw fa-power-off"></i> {{ 'BTN.LOGOUT' | translate }} </a>
                 </div>
             </li>
         </ul>

@@ -1,12 +1,15 @@
-import { map } from 'rxjs/operators';
-
-import { eEntityAction, eEntityStatus, BaseEntity } from './../../../../../../server/models/base-entity';
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { UserSessionService } from './../../../../services/userSessionService';
+import { TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject } from 'rxjs';
+import { eEntityStatus, BaseEntity } from './../../../../../../server/models/base-entity';
+import { Component, OnInit, Input, ViewChild, AfterViewChecked } from '@angular/core';
 import { IPackageController } from '../../ipackage-controller';
 import { routerTransition } from '../../../../router.animations';
 import { WebDataRocksPivot } from '../../../../webdatarocks/webdatarocks.angular4';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertDialogWnd } from '../../../../dialog/alertDialog/alertDialogWnd';
+import { ShellInfos } from '../../../../../../server/models/modelProperties';
+import { UserSession } from '../../../../common/userSession';
 
 
 @Component({
@@ -18,11 +21,27 @@ import { AlertDialogWnd } from '../../../../dialog/alertDialog/alertDialogWnd';
 })
 export class PivotRelationComponent implements OnInit {
 
+  private _package;
+  @Input() set package(value) {
+    this._package = value;
+    if (this._package) {
+      let shellInfo = ShellInfos.uniqueInstance.get(this.package.entity.entityName);
+      for (let f of shellInfo.pivotInfo.slice.columns)
+        this.availableFields.push(f.uniqueName);
+      for (let f of shellInfo.pivotInfo.slice.rows)
+        this.availableFields.push(f.uniqueName);
+      for (let f of shellInfo.pivotInfo.slice.measures)
+        this.availableFields.push(f.uniqueName);
+    }
+  }
+  get package() {
+    return this._package;
+  }
 
-  @Input() package;
   @Input() packageCtrl: IPackageController;
   @Input() relation: string;
   @ViewChild('pivot1') child: WebDataRocksPivot;
+
 
   @Input()
   set list(value: BaseEntity[]) {
@@ -31,19 +50,30 @@ export class PivotRelationComponent implements OnInit {
   }
 
   @Input()
-  set needRefresh(value: boolean) {
-    if (value === true)
+  set needRefresh(propChanged: string) {
+    if (propChanged === "pivot_by") {
       this.updatePivotDataSource(true);
+
+    }
   }
 
-  constructor(private modalService: NgbModal) { }
+  userSession: UserSession;
+  constructor(private modalService: NgbModal, private translateService: TranslateService, private userSessionService: UserSessionService) {
+    this.userSessionService.userSession.subscribe(
+      us => { this.userSession = us },
+      error => { });
+  }
 
   ngOnInit() {
 
   }
 
+  onReportComplete(): void {
+    this.package.entity.clearPropChanged();
+  }
+
+  private availableFields = [];
   onPivotReady(pivot: WebDataRocks.Pivot): void {
-    console.log("[ready] WebDataRocksPivot", this.child);
 
   }
 
@@ -55,7 +85,50 @@ export class PivotRelationComponent implements OnInit {
   }
 
 
-  
+
+
+  getAdjustedShellInfoSlice() {
+    let pivot_by = this.package.entity['pivot_by'];
+
+    if (!pivot_by || pivot_by === '')
+      return [];
+
+    let fields = pivot_by.split(',').map(f => f.trim());
+    let shellInfo = ShellInfos.uniqueInstance.get(this.package.entity.entityName);
+    let slice = JSON.parse(JSON.stringify(shellInfo.pivotInfo.slice));
+    let row_delete = [];
+    for (let row of slice.rows) {
+      let index = fields.findIndex(f => f === row.uniqueName);
+      if (index < 0)
+        row_delete.push(row);
+    }
+    row_delete.forEach(r => {
+      slice.rows = slice.rows.filter(e => e !== r);
+
+    });
+    let column_delete = [];
+    for (let column of slice.columns) {
+      let index = fields.findIndex(f => f === column.uniqueName);
+      if (index < 0)
+        column_delete.push(column);
+    }
+    column_delete.forEach(c => {
+      slice.columns = slice.columns.filter(e => e !== c);
+
+    });
+
+    slice.rows.forEach(c => {
+      c.caption = this.translateService.instant(c.caption);
+    });
+    slice.columns.forEach(c => {
+      c.caption = this.translateService.instant(c.caption);
+    });
+    slice.measures.forEach(m => {
+      m.caption = this.translateService.instant(m.caption);
+    });
+
+    return slice;
+  }
 
   updatePivotDataSource(forceRedraw: boolean) {
 
@@ -63,15 +136,30 @@ export class PivotRelationComponent implements OnInit {
       return;
 
     let objs = this.package.entity[this.relation + '_relation'].map(e => {
-      return e.adjustDataForPivoting();
+      return e.adjustDataForPivoting(this.availableFields);
     });
-    if (this.child.webDataRocks.getColumns().length > 0 && forceRedraw === false) {
+    if (this.child.webDataRocks.getColumns() && this.child.webDataRocks.getColumns().length > 0 && forceRedraw === false) {
+
       this.child.webDataRocks.updateData({
         data: objs
       });
     }
     else {
-      let slice = this.package.entity.getAdjustedShellInfoSlice();
+
+      this.child.webDataRocks.setOptions({
+
+        editing: true,
+        drillThrough: false,
+        showAggregationLabels: false,
+        //configuratorActive: false,
+        //configuratorButton: false,
+        grid: {
+          showHeaders: true,
+
+        }
+      });
+
+      let slice = this.getAdjustedShellInfoSlice();
       if (objs.length === 0) {
 
         this.child.webDataRocks.clear();
@@ -81,22 +169,12 @@ export class PivotRelationComponent implements OnInit {
             data: objs
           },
           slice: slice,
+          localization: this.userSession.Language === "en" ? null : "../../../../app/webdatarocks/localization/" + this.userSession.Language + ".json"
 
         });
 
       }
-      this.child.webDataRocks.setOptions({
 
-        editing: true,
-        drillThrough: false,
-        showAggregationLabels: false,
-        configuratorActive: false,
-        configuratorButton: false,
-        grid: {
-          showHeaders: false,
-
-        }
-      });
     }
   }
 
@@ -111,7 +189,7 @@ export class PivotRelationComponent implements OnInit {
     let columns = $event.columns;
     let report: WebDataRocks.Report = <WebDataRocks.Report>this.child.webDataRocks.getReport();
     if (rows.length !== report.slice.rows.length || columns.length !== report.slice.columns.length - 1) {
-      this.showAlert("Can edit only not-aggregated cell!");
+      this.showAlert(this.translateService.instant("MSG.PIVOT_EDIT_AGGR_CELL"));
       return;
     }
 
@@ -139,10 +217,10 @@ export class PivotRelationComponent implements OnInit {
     }
 
     if (!f_detail) {
-      this.showAlert("Record missing! Add new record!");
+      this.showAlert(this.translateService.instant("MSG.PIVOT_RECORD_MISSING"));
       return;
     } else if (f_details > 1) {
-      this.showAlert("Multiples record for selected cell! Adjust dimensions in order to edit!");
+      this.showAlert(this.translateService.instant("MSG.PIVOT_MULTI_RECORDS"));
       return;
     }
 
@@ -157,8 +235,8 @@ export class PivotRelationComponent implements OnInit {
   }
 
   onCreateEntityByRelation() {
-    if (this.package.entity.getAdjustedShellInfoSlice() === []) {
-      this.showAlert("Set pivot_by property");
+    if (this.getAdjustedShellInfoSlice() === []) {
+      this.showAlert(this.translateService.instant("MSG.PIVOT_SET_PIVOT_BY"));
       return;
     }
 
@@ -180,7 +258,7 @@ export class PivotRelationComponent implements OnInit {
       }
 
       if ((this.package.entity_relation.status === eEntityStatus.New && finds > 0) || (finds > 1)) {
-        this.showAlert('Same type of values by periode should be unique! You have data colision!');
+        this.showAlert(this.translateService.instant("MSG.PIVOT_DATA_COLLISION"));
         return false;
       }
 

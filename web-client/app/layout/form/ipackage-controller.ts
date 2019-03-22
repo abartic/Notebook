@@ -44,7 +44,7 @@ export interface IPackageController {
 
     
 
-    getRelationProperties(relation: string, addLookups: boolean, addEntityName: boolean);
+    getRelationProperties(entityInfo : IEntityInfo, relation: string, addLookups: boolean, addEntityName: boolean);
 
     getRelationFilterProperties();
 

@@ -1,13 +1,9 @@
-import { ExpenseLine } from './expense-line';
-
-
 import { IEntityInfo, IPropInfo, IShellInfo } from './base-entity';
 import { ModelInfos, ShellInfos } from "./modelProperties";
 import "reflect-metadata"
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as uuidv1 from 'uuid/v1';
 import { eFieldDataType } from '../common/enums';
-
 
 
 function padNumber(value: number) {
@@ -70,11 +66,11 @@ export interface IShellInfo {
         },
         static_filter?: { key: string, value: string }[],
         //commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, isActive? : (pack)=>boolean }[];
-        autoApply?: boolean,
+        selectFirst?: boolean,
         hasDetails?: boolean
     };
     properties?: { name: string, datatype: string, isReadOnly: boolean }[];
-    commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string, isActive? : (pack)=>boolean }[];
+    commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string, isActive?: (pack) => boolean }[];
     report?: {
         preloads: { entity_name: string, ukey_prop_name: string, cb: (entity, lentity) => void }[]
     };
@@ -103,7 +99,7 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
         ctor.prototype['sheet_name'] = sheetName;
         ctor.prototype['entity_name'] = entityName;
         ctor.prototype['ukey_prop_name'] = ukeyPropName;
-        ModelInfos.uniqueInstance.addOrUpdate(entityName, { spreadsheetName, sheetName, entityName, ukeyPropName, fetched: false, entityLookups: ctor.prototype['lookups']  });
+        ModelInfos.uniqueInstance.addOrUpdate(entityName, { spreadsheetName, sheetName, entityName, ukeyPropName, fetched: false, entityLookups: ctor.prototype['lookups'] });
         let shellinfo = {
             filter: {
                 fields: {
@@ -114,10 +110,10 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
             },
             properties: [],
             commands: [
-                { caption: 'New', handler: 'onNew', image: 'fa fa-pencil' },
-                { caption: 'Save', handler: 'onSave', image: 'fa fa-floppy-o' },
-                { caption: 'Delete', handler: 'onDelete', image: 'fa fa-trash-o' },
-                { caption: 'Undo', handler: 'onUndo', image: 'fa fa-undo' }
+                { caption: 'BTN.NEW', handler: 'onNew', image: 'fa fa-pencil' },
+                { caption: 'BTN.SAVE', handler: 'onSave', image: 'fa fa-floppy-o' },
+                { caption: 'BTN.DELETE', handler: 'onDelete', image: 'fa fa-trash-o' },
+                { caption: 'BTN.UNDO', handler: 'onUndo', image: 'fa fa-undo' }
             ],
             report: {
                 preloads: []
@@ -132,7 +128,7 @@ export function SheetInfo(spreadsheetName: string, sheetName: string, entityName
 
 export function LookupProp(entityName: string, propNames: (string)[]) {
     return (prototype: any, propName: string) => {
-        
+
         // let info: IEntityInfo = ModelInfos.uniqueInstance.get(prototype.constructor.name);
         // if (!info) {
         //     info = {entityLookups: null, fetched: false};
@@ -430,8 +426,8 @@ export class BaseEntity {
     public static toFilter(
         shellInfo: IShellInfo,
         entityInfo: IEntityInfo,
-        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
-        keys, offset: number, limit: number, 
+        filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
+        keys, offset: number, limit: number,
         forFkey?: string): string {
 
         let query = 'select ';
@@ -477,7 +473,7 @@ export class BaseEntity {
 
     public static toCountFilter(shellInfo: IShellInfo,
         entityInfo: IEntityInfo,
-        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
+        filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
         keys?): string {
 
         let query = 'select count(A) where ';
@@ -491,7 +487,7 @@ export class BaseEntity {
 
     static addFilterWhereClause(shellInfo: IShellInfo,
         entityInfo: IEntityInfo,
-        filterItems: { filterCondition: {entityName: string, property: IPropInfo}; filterConditionValue: string; }[],
+        filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
         keys?) {
         let where = '', where_keys = '';
 
@@ -635,18 +631,31 @@ export class BaseEntity {
         return this === other;
     }
 
-    public requestShellInfoSliceRefresh: boolean = false;
-
-    public getAdjustedShellInfoSlice() {
-
+    private propNameChanged: string;
+    public get propChanged(): string {
+        return this.propNameChanged;
+    }
+    protected setPropChanged(value: string) {
+        this.propNameChanged = value;
+    }
+    public clearPropChanged() {
+        this.propNameChanged = undefined;
     }
 
-    public adjustDataForPivoting() {
-        delete this['_row_']['uid'];
-        delete this['_row_']['rowid'];
-        delete this['_row_']['status'];
-        delete this['_row_']['fetchAll'];
+    public adjustDataForPivoting(fields?: string[]) {
+        if (fields) {
+            for (let p of Object.keys(this)) {
+                if (fields.includes(p) === false)
+                    delete this['_row_'][p];
+            }
+        }
         return this['_row_'];
+    }
+
+    public prepareForJsonSerialization() {
+        delete this['status'];
+        delete this['fetchAll'];
+        delete this['propNameChanged'];
     }
 
     public onChildrenUpdate() { }

@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{title | translate}}</h4>
+    <h4 class="modal-title">{{'TIT.SELECT' | translate}}:{{relation | translate}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cancel')">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -8,9 +8,9 @@
 
     <div *ngFor="let property of (package.entity_relation.properties)">
         <div class="form-group row" *ngIf="packageCtrl.isVisible(property, package.entity)" [ngSwitch]="property.dataType">
-            <label class="col-sm-4 col-form-label" *ngIf="property.lookup_entity_name === undefined">{{ property.propCaption | translate }}</label>
+            <label class="col-sm-4 col-form-label" *ngIf="property.lookup_entity_name === undefined">{{ relation + '.' + property.propCaption | translate }}</label>
             <label class="col-sm-4 col-form-label label-link" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)" ngbTooltip="click to select...">
-                    <u>{{ property.propCaption | translate }}</u>
+                    <u>{{ relation + '.' + property.propCaption | translate }}</u>
           </label>
             <div class="col-sm-8" [ngSwitch]="packageCtrl.getInputType(property)">
 
@@ -33,9 +33,6 @@
                         (focusout)="packageCtrl.onEditorFocusChanged(package.entity_relation, property)" (blur)="packageCtrl.onEditorValueChanged(package.entity_relation, property) ">
                     <input class="form-control" [(ngModel)]="package.entity_relation[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity_relation[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
 
-                    <!-- <button type="button" class="input-group-addon" *ngIf="property.lookup_entity_name !== undefined" (click)=" packageCtrl.openLookupWnd(package.entity_relation, property)">
-            ...
-          </button> -->
                 </div>
             </div>
         </div>
@@ -46,9 +43,9 @@
     <div class="row justify-content-end ">
         <div class="btn-toolbar " role="toolbar ">
             <div class="btn-group mr-2 " role="group ">
-                <button (click)="onSave()" class="btn btn-primary ">{{'Save' | translate}}</button>
-                <button (click)="onDelete()" class="btn btn-secondary ">{{'Delete' | translate}}</button>
-                <button (click)="activeModal.close( 'Cancel') " class="btn btn-secondary ">{{'Cancel' | translate}}</button>
+                <button (click)="onSave()" class="btn btn-outline-primary ">{{'BTN.SAVE' | translate}}</button>
+                <button (click)="onDelete()" class="btn btn-outline-secondary ">{{'BTN.DELETE' | translate}}</button>
+                <button (click)="activeModal.close( 'Cancel') " class="btn btn-outline-secondary ">{{'BTN.CANCEL' | translate}}</button>
             </div>
         </div>
     </div>

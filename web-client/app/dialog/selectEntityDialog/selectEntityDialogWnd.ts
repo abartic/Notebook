@@ -82,7 +82,7 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
   updateTableHeight() {
     let style = window.getComputedStyle(this.htable.nativeElement);
     let div = document.querySelector('.select-entity');
-    this.tableHeight = div['offsetHeight'] - this.dfilter.nativeElement.offsetHeight;
+    this.tableHeight = div['offsetHeight'] - this.dfilter.nativeElement.offsetHeight - 50;
   }
 
   tableHeight = 0;

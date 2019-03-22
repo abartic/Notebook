@@ -118,7 +118,7 @@ export class Server {
         let cookieSessionConfing = <CookieSessionInterfaces.CookieSessionOptions>{
             name: 'session',
             keys: [Config.get<string>('cookieSecret')],
-            maxAge: 60 * 60 * 1000 // 1 hour,
+            maxAge: 5 * 24 * 60 * 60 * 1000 // 1 hour,
         };
         this.app.use(cookieSession(cookieSessionConfing));
 

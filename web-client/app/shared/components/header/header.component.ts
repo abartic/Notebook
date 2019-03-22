@@ -1,10 +1,10 @@
+
 import { HttpCallerService } from './../../../services/httpcaller.service';
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
 import { CheckLoginService } from '../../../services/check-login-service';
-
 import { UserSessionService } from '../../../services/userSessionService';
 import { UserSession } from '../../../common/userSession';
 
@@ -12,7 +12,8 @@ import { UserSession } from '../../../common/userSession';
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss']
+    styleUrls: ['./header.component.scss'],
+    
 })
 export class HeaderComponent implements OnInit {
 
@@ -82,6 +83,7 @@ export class HeaderComponent implements OnInit {
         this.translate.use(language);
         this.userSession.Language = language;
         this.cookieService.set("language",language);
+        this.userSessionService.updateData(this.userSession);
     }
 
     ngOnDestroy() {

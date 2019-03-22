@@ -16,6 +16,7 @@ export class Package<T extends BaseEntity> {
     public entity_relation: BaseEntity;
     public validations : KeyedCollection<ISelectObj>;
     public canExecuteNew: boolean;
+    public canExecuteFilter: boolean;
 
     public error_msg : string = '';
     public entity_status_msg : string = '';

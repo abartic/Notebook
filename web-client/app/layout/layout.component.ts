@@ -15,6 +15,7 @@ import { UserSession } from '../common/userSession';
     templateUrl: './layout.component.html',
     encapsulation: ViewEncapsulation.None,
     styleUrls: ['./layout.component.scss']
+    
 })
 export class LayoutComponent implements OnInit {
 

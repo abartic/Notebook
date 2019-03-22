@@ -1,3 +1,4 @@
+import { TranslateService } from '@ngx-translate/core';
 import { ModelInfos } from './../../../../server/models/modelProperties';
 
 import { Injectable, Inject } from '@angular/core';
@@ -21,7 +22,8 @@ export class DataResolver implements Resolve<IPackageController> {
     constructor(private router: Router,
         @Inject(NgbModal) private modalService,
         @Inject(HttpCallerService) private httpCaller,
-        @Inject(UserSessionService) private userSessionService: UserSessionService) { }
+        @Inject(UserSessionService) private userSessionService: UserSessionService,
+        @Inject(TranslateService) private translateService: TranslateService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IPackageController> {
 
@@ -34,7 +36,7 @@ export class DataResolver implements Resolve<IPackageController> {
             return Observable.of(null);
         }
         else {
-            let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller, this.userSessionService, this.router);
+            let packageCtrl = new PackageController(param, type, this.modalService, this.httpCaller, this.userSessionService, this.router, this.translateService);
 
             return new Observable<IPackageController>((observer) => {
                 packageCtrl.fetchEntityInfo(info).then(() => {

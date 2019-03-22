@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { HttpCallerService } from '../../../services/httpcaller.service';
 import { CookieService } from 'ngx-cookie-service';
 import { CheckLoginService } from '../../../services/check-login-service';
@@ -10,7 +10,7 @@ import { UserSession } from '../../../common/userSession';
 @Component({
     selector: 'app-sidebar',
     templateUrl: './sidebar.component.html',
-    styleUrls: ['./sidebar.component.scss']
+    styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent implements OnInit {
 
@@ -19,22 +19,32 @@ export class SidebarComponent implements OnInit {
     collapsed: boolean;
     showMenu: string;
     pushRightClass: string;
-    
+
     @Output() collapsedEvent = new EventEmitter<boolean>();
-    
+
     constructor(
-        private router : Router,
+        private router: Router,
         private cookieService: CookieService,
         private translate: TranslateService,
         @Inject(HttpCallerService) private httpCaller: HttpCallerService,
         @Inject(CheckLoginService) private checkLogin,
         @Inject(UserSessionService) private userSessionService: UserSessionService) {
+
+        this.router.events.subscribe(val => {
+            if (
+                val instanceof NavigationEnd &&
+                window.innerWidth <= 992 &&
+                this.isToggled()
+            ) {
+                this.toggleSidebar();
+            }
+        });
     }
-  
+
     eventCalled() {
         this.isActive = !this.isActive;
     }
-    
+
     addExpandClass(element: any) {
         if (element === this.showMenu) {
             this.showMenu = '0';
@@ -65,7 +75,7 @@ export class SidebarComponent implements OnInit {
                 this.mainmenu = m;
             },
             (error) => {
-                    this.router.navigate(['/login']);
+                this.router.navigate(['/login']);
             });
 
 
@@ -74,6 +84,11 @@ export class SidebarComponent implements OnInit {
     toggleCollapsed() {
         this.collapsed = !this.collapsed;
         this.collapsedEvent.emit(this.collapsed);
+    }
+
+    isToggled(): boolean {
+        const dom: Element = document.querySelector('body');
+        return dom.classList.contains(this.pushRightClass);
     }
 
     toggleSidebar() {
@@ -105,9 +120,12 @@ export class SidebarComponent implements OnInit {
 
     }
 
+
+
     changeLang(language: string) {
         this.translate.use(language);
         this.userSession.Language = language;
-        this.cookieService.set("language",language);
+        this.cookieService.set("language", language);
+        this.userSessionService.updateData(this.userSession);
     }
 }

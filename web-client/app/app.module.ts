@@ -81,7 +81,7 @@ export const createTranslateLoader = (http: HttpClient) => {
     CookieService,
     HttpCallerService,
     CheckLoginService,
-    UserSessionService,
+    //UserSessionService,
   ],
   bootstrap: [AppComponent],
   entryComponents: [
