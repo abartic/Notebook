@@ -2,13 +2,14 @@
 
 
 import { Observable } from 'rxjs/Observable';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 //import { Http, Response, RequestOptionsArgs, ResponseContentType } from '@angular/http';
 import { Router } from '@angular/router';
 //import { forkJoin } from 'rxjs/observable/forkJoin';
 import 'rxjs/add/observable/forkJoin';
 import { HttpClient } from '@angular/common/http';
 import { UserSession } from '../common/userSession';
+import { environment } from '../../environments/environment';
 
 
 interface HttpResponse {
@@ -23,17 +24,22 @@ interface HttpResponseError {
 }
 
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class HttpCallerService {
 
-  constructor(private router: Router, private http: HttpClient) {
-
-
+  
+  constructor( private injector: Injector, private http: HttpClient) {
   }
+
+  public get router(): Router { 
+    return this.injector.get(Router);
+ }
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    this.http.post<HttpResponse>(url, pack, { responseType: 'json' })
+    this.http.post<HttpResponse>(environment.baseUrlServices + url, pack, { responseType: 'json' })
       .subscribe(result => {
 
         if ((result.error === undefined || result.error === null) &&
@@ -67,7 +73,7 @@ export class HttpCallerService {
 
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
     // options.responseType = ResponseContentType.Blob;
-    this.http.post(url, pack, {
+    this.http.post(environment.baseUrlServices + url, pack, {
       headers: {
         'Accept-Language': language
       },
@@ -90,7 +96,7 @@ export class HttpCallerService {
 
     let calls: Array<Observable<HttpResponse>> = [];
     for (let pack of packs) {
-      calls.push(this.http.post<HttpResponse>(pack["0"], pack["1"]));
+      calls.push(this.http.post<HttpResponse>(environment.baseUrlServices+ pack["0"], pack["1"]));
     }
 
     Observable.forkJoin(calls)
@@ -132,8 +138,8 @@ export class HttpCallerService {
 
 
   public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
-
-    this.http.get<HttpResponse>(url)
+    
+    this.http.get<HttpResponse>(environment.baseUrlServices + url)
       .subscribe(result => {
 
         if ((result.error === undefined || result.error === null) &&

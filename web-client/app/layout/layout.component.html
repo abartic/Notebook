@@ -4,5 +4,5 @@
     <router-outlet></router-outlet>
 </section>
 <div>
-    <ngx-loading [show]="userSession.WaitingForAction"></ngx-loading>
+    <ngx-loading [show]="userSession.WaitingForAction" [config]="{ fullScreenBackdrop: true }"></ngx-loading>
 </div>

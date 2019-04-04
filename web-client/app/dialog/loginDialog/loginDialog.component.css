@@ -1,0 +1,15 @@
+.login-modal .modal-dialog {
+    min-width: 100%;
+    margin: 0;
+}
+
+.login-modal .modal-content {
+    background-color: #292b2c;
+    color: white;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.login-modal .close {
+    color: white;
+}

@@ -20,7 +20,8 @@ export class JobManager {
 
                 new CronJob(job.schedule, function () {
 
-                    let jwtClient = new google.auth.JWT(
+                    const {JWT} = require('google-auth-library');
+                    let jwtClient = new JWT(
                         jobDefinition.account,
                         null,
                         jobDefinition.private_key,

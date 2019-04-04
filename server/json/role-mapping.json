@@ -60,6 +60,10 @@
                 {
                     "resources": "/login/mainmenu",
                     "permissions": "get"
+                },
+                {
+                    "resources": "/logout/google",
+                    "permissions": "get"
                 }
             ]
         },
@@ -107,6 +111,10 @@
                 },
                 {
                     "resources": "/login/mainmenu",
+                    "permissions": "get"
+                },
+                {
+                    "resources": "/logout/google",
                     "permissions": "get"
                 }
 

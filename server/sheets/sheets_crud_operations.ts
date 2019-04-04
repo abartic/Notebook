@@ -5,8 +5,9 @@ import { eEntityAction, BaseEntity } from "../models/base-entity";
 import * as fs from 'fs';
 import * as path from 'path';
 import { eFieldDataType } from "../common/enums";
-let googleApi = require('googleapis');
-let sheets = googleApi.sheets('v4');
+
+var {google} = require('googleapis');
+var sheets = google.sheets('v4');
 
 export class SheetsCrudOperations {
     static update(accessToken: string, entitiesPackage: IEntitiesPackage) {

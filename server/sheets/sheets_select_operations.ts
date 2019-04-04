@@ -77,13 +77,12 @@ export class SheetsSelectOperations {
                 }
             }).then(() => {
 
-                var googleApi = require('googleapis');
-                var googleAuth = require('google-auth-library');
-                var auth = new googleAuth();
-                var oauth2Client = new auth.OAuth2();
+                var {OAuth2Client} = require('google-auth-library');
+                var oauth2Client = new OAuth2Client(); 
                 oauth2Client.credentials = {
                     access_token: accessToken
                 };
+                
 
                 var jsonpClient = require('jsonp-client');
                 var url = "https://docs.google.com/spreadsheets/d/" + p_spreadsheet.spreadsheetID +

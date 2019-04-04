@@ -1,10 +1,9 @@
 
-
-import { UserSessionService } from './services/userSessionService';
+import { LoginDialogWnd } from './dialog/loginDialog/loginDialogWnd';
 import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
 import { LoadingModule } from 'ngx-loading';
 import { HttpClientModule, HttpClient, HttpClientXsrfModule } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -14,29 +13,30 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 import { CookieService } from 'ngx-cookie-service';
-import { HttpCallerService } from './services/httpcaller.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AlertDialogWnd } from './dialog/alertDialog/alertDialogWnd';
 import { AskDialogWnd } from './dialog/askDialog/askDialogWnd';
 import { EditEntityDialogWnd } from './dialog/editEntityDialog/editEntityDialogWnd';
 import { SelectEntityDialogWnd } from './dialog/selectEntityDialog/selectEntityDialogWnd';
-import { CheckLoginService } from './services/check-login-service';
 import { CommonModule } from '@angular/common';
 import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 import { SharedModule } from './shared/modules/shared.module';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-
-
-
+//import { AppLoadModule, init_app } from './apploadmodule';
+import { AppLoadService } from './app-load.service';
+ 
+ 
 
 
 export const createTranslateLoader = (http: HttpClient) => {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 };
 
-
+export function get_settings(appLoadService: AppLoadService) {
+  return () =>  appLoadService.getSettings();
+}
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,10 +46,8 @@ export const createTranslateLoader = (http: HttpClient) => {
     SelectEntityDialogWnd,
     ReportDialogWnd,
     CalendarDialogWnd,
+    LoginDialogWnd,
     SafePipe,
-    
-
-    
   ],
   imports: [
     CommonModule,
@@ -70,18 +68,16 @@ export const createTranslateLoader = (http: HttpClient) => {
       }
     }),
     AppRoutingModule,
+    NgbModule,
+    InfiniteScrollModule,
+    
     LoadingModule,
     SharedModule,
-    NgbModule,
-    InfiniteScrollModule
-
   ],
   providers: [
     AuthGuard,
     CookieService,
-    HttpCallerService,
-    CheckLoginService,
-    //UserSessionService,
+    { provide: APP_INITIALIZER, useFactory: get_settings, deps: [AppLoadService], multi: true },
   ],
   bootstrap: [AppComponent],
   entryComponents: [
@@ -90,9 +86,8 @@ export const createTranslateLoader = (http: HttpClient) => {
     EditEntityDialogWnd,
     SelectEntityDialogWnd,
     ReportDialogWnd,
+    LoginDialogWnd,
     CalendarDialogWnd
-
-
   ],
   exports: [
 

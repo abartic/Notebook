@@ -1,3 +1,4 @@
+
 import { TranslateService } from '@ngx-translate/core';
 import { ModelInfos } from './../../../../server/models/modelProperties';
 
@@ -13,6 +14,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PackageController } from './package-controller';
 import { UserSessionService } from '../../services/userSessionService';
 import { IPackageController } from './ipackage-controller';
+import { environment } from '../../../environments/environment';
 
 
 

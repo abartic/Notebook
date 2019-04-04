@@ -19,7 +19,7 @@
 
 
     "LBL.LANGUAGE": "Language",
-    "BTN.LOGOUT": "Lohout",
+    "BTN.LOGOUT": "Logout",
 
     "TIT.FILTER": "Filter",
     "BTN.COMPOSE": "Compose",
@@ -79,6 +79,7 @@
     "BTN.DISENROLL": "Disenroll user",
     "BTN.DELETE_METADATA": "Delete metadata",
 
+    "TIT.SHEETS_ADMIN": "Sheets administration",
 
     "accountinventory": "account partner",
     "accountinventory.code_part": "Cod Part.",

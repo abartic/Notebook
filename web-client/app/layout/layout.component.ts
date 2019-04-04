@@ -9,6 +9,7 @@ import { AlertDialogWnd } from '../dialog/alertDialog/alertDialogWnd';
 import { Observable } from 'rxjs';
 import { UserSessionService } from '../services/userSessionService';
 import { UserSession } from '../common/userSession';
+import { environment } from '../../environments/environment';
 
 @Component({
     selector: 'app-layout',
@@ -35,6 +36,7 @@ export class LayoutComponent implements OnInit {
             }
             else if (event instanceof NavigationEnd) {
                 this.userSession.WaitingForAction = false;
+                window.scrollTo(0, 0);
             }
             else if (event instanceof NavigationCancel || event instanceof NavigationError) {
                 this.userSession.WaitingForAction = false;

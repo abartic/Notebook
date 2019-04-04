@@ -4,8 +4,10 @@ import { SheetsSelectOperations } from "./sheets_select_operations";
 import { NgbDateStruct } from "@ng-bootstrap/ng-bootstrap";
 
 
-let googleApi = require('googleapis');
-let sheets = googleApi.sheets('v4');
+var {google} = require('googleapis');
+var sheets = google.sheets('v4');
+// let googleApi = require('googleapis');
+// let sheets = googleApi.sheets('v4');
 
 
 
@@ -24,14 +26,11 @@ export class SheetsCommonOperations {
     }
 
     static createAuth(access_token) {
-
-        var googleAuth = require('google-auth-library');
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2();
+        var {OAuth2Client} = require('google-auth-library');
+        var oauth2Client = new OAuth2Client(); 
         oauth2Client.credentials = {
             access_token: access_token
         };
-
         return oauth2Client;
     }
 

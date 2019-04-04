@@ -1,35 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+
+import { Component, OnInit, NgZone } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { UserSessionService } from './services/userSessionService';
+import { UserSession } from './common/userSession';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
-  
+
 })
 export class AppComponent implements OnInit {
 
+  userSession: UserSession;
 
+  constructor(private translate: TranslateService,
+    private userSessionService: UserSessionService,
+    private router: Router, 
+    private ngZone: NgZone) {
 
-  constructor(private router: Router,
-    private cookieService: CookieService,
-    private translate: TranslateService,
-    private userSessionService: UserSessionService) {
+    this.translate.addLangs(['en', 'ro']);
+    this.translate.setDefaultLang('en');
 
-    translate.addLangs(['en', 'ro']);
-    translate.setDefaultLang('en');
-    const browserLang = translate.getBrowserLang();
-
-    let language = this.cookieService.get("language") || (browserLang.match(/en|ro/) ? browserLang : 'en');
-    translate.use(language);
 
   }
 
   ngOnInit() {
-    
+    let that = this;
+    this.userSessionService.userSession.subscribe(us => {
+      that.userSession = us;
+      
+      if (that.userSession.Username.length === 0 || that.userSession.id_token.length === 0)
+      {
+        this.ngZone.run(() => this.router.navigate(['/login'])).then();
+      }
+      else
+      {
+        that.translate.use(that.userSession.Language);
+      }
+
+
+    });
   }
 
 

@@ -3,8 +3,8 @@ import * as Config from "config";
 import { eFileOperationType } from '../sheets/sheets_common_operations';
 
 
-var googleApi = require('googleapis');
-var sheets = googleApi.sheets('v4');
+var {google} = require('googleapis');
+var sheets = google.sheets('v4');
 
 
 export class DriveOperations {
@@ -21,14 +21,13 @@ export class DriveOperations {
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
-        var googleApi = require('googleapis');
-        var googleAuth = require('google-auth-library');
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2();
+        const {googleApi} = require('googleapis');
+        var {OAuth2Client} = require('google-auth-library');
+        const drive = googleApi.drive('v3');
+        var oauth2Client = new OAuth2Client(); 
         oauth2Client.credentials = {
             access_token: accessToken
         };
-        const drive = googleApi.drive({ version: 'v3' });
 
         return new Promise<string>((cb, err_cb) => {
             let fileName = fileoperationtype.toString();
@@ -117,14 +116,14 @@ export class DriveOperations {
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
-        var googleApi = require('googleapis');
-        var googleAuth = require('google-auth-library');
-        var auth = new googleAuth();
-        var oauth2Client = new auth.OAuth2();
+        const {google: googleApi} = require('googleapis');
+        const drive = googleApi.drive('v3');
+        var {OAuth2Client} = require('google-auth-library');
+        var oauth2Client = new OAuth2Client(); 
         oauth2Client.credentials = {
             access_token: token
         };
-        const drive = googleApi.drive({ version: 'v3' });
+         
         let fileName = filetype.toString();
         return new Promise<T>((cb, err_cb) => {
             if (fileId) {
@@ -134,12 +133,12 @@ export class DriveOperations {
                         alt: 'media',
                         auth: oauth2Client
                     }
-                    , function (err, data) {
+                    , function (err, response) {
                         if (err) {
                             err_cb(err);
                         }
-                        else if (data) {
-                            cb(<T>data);
+                        else if (response) {
+                            cb(<T>response.data);
                         }
                     });
             }
@@ -150,21 +149,21 @@ export class DriveOperations {
                         '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '_' + domainId + '" }',
                         auth: oauth2Client
                     }
-                    , function (err, data) {
+                    , function (err, response) {
                         if (err) {
                             err_cb(err);
                         }
-                        else if (data && data.files.length > 0) {
-                            var file = data.files[0];
+                        else if (response.data && response.data.files.length > 0) {
+                            var file = response.data.files[0];
                             drive.files.get(
                                 {
                                     fileId: file.id,
                                     alt: 'media',
                                     auth: oauth2Client
                                 }
-                                , function (err, data) {
-                                    if (data) {
-                                        let obj = <T>data;
+                                , function (err, response) {
+                                    if (response && response.data) {
+                                        let obj = <T>response.data;
                                         obj['fileId'] = file.id;
                                         cb(obj);
                                     }

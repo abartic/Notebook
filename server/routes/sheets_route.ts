@@ -20,8 +20,8 @@ import { eFileOperationType } from '../sheets/sheets_common_operations';
 import { LogsManager } from '../logs/logs-manager';
 
 
-var googleApi = require('googleapis');
-var sheets = googleApi.sheets('v4');
+var {google} = require('googleapis');
+var sheets = google.sheets('v4');
 const jsreport = require('jsreport-core')({
     templatingEngines: { strategy: 'in-process', allowedModules: '*' },
     tempDirectory: path.join(__dirname, '../jsReportsTempFolder'),

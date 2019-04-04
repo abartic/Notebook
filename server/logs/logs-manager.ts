@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { eEntityAction } from '../models/base-entity';
 import { SheetsMgr } from '../common/sheets-mgr';
-let google = require('googleapis');
+var {googleApi} = require('googleapis');
 import * as uuidv1 from 'uuid/v1';
 
 export class LogsManager {
@@ -31,7 +31,8 @@ export class LogsManager {
         if (logDef.isActive === false)
             return
 
-        let jwtClient = new google.auth.JWT(
+        const {JWT} = require('google-auth-library');
+        let jwtClient = new JWT(
             this.logDef.account,
             null,
             this.logDef.private_key,

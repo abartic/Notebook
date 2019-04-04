@@ -9,8 +9,8 @@ import { KeyedCollection } from "../utils/dictionary";
 import { IPropInfo } from "../models/base-entity";
 import { eFieldDataType } from "../common/enums";
 import * as Config from "config";
-let googleApi = require('googleapis');
-let sheets = googleApi.sheets('v4');
+var {google: googleApi} = require('googleapis');
+var sheets = googleApi.sheets('v4');
 
 export class SheetsManagementOperations {
     static deleteMetadata(accessToken: string, domainId: string, spreadsheetNames) {
@@ -398,7 +398,8 @@ export class SheetsManagementOperations {
                 let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
                 let spreadsheetCount = spreadsheets.length;
                 let spreadsheetIndex = 1;
-                const drive = googleApi.drive({ version: 'v3' });
+                
+                const drive = googleApi.drive('v3');
                 let calls = [];
 
                 for (let spreadsheet of spreadsheets) {
@@ -527,7 +528,7 @@ export class SheetsManagementOperations {
 
                 let account = accountsSet.accounts[accountIdex];
                 let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
-                const drive = googleApi.drive({ version: 'v3' });
+                const drive = googleApi.drive('v3');
                 let calls = [];
                 for (let permission of account.permissions) {
                     calls.push(new Promise((cb, err_cb) => {

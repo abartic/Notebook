@@ -55,6 +55,7 @@ export class Server {
         // tslint:disable-next-line:comment-format
         //create expressjs application
         this.app = express();
+        
 
         // configure application
         this.config();
@@ -118,7 +119,7 @@ export class Server {
         let cookieSessionConfing = <CookieSessionInterfaces.CookieSessionOptions>{
             name: 'session',
             keys: [Config.get<string>('cookieSecret')],
-            maxAge: 5 * 24 * 60 * 60 * 1000 // 1 hour,
+            maxAge: 180 * 24 * 60 * 60 * 1000 // 6 months = tokenn_refresh idle time,
         };
         this.app.use(cookieSession(cookieSessionConfing));
 

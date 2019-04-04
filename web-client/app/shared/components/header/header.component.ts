@@ -7,13 +7,14 @@ import { CookieService } from 'ngx-cookie-service';
 import { CheckLoginService } from '../../../services/check-login-service';
 import { UserSessionService } from '../../../services/userSessionService';
 import { UserSession } from '../../../common/userSession';
+import { GoogleLoginService } from '../../../services/google-login-service';
 
 
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss'],
-    
+
 })
 export class HeaderComponent implements OnInit {
 
@@ -26,7 +27,8 @@ export class HeaderComponent implements OnInit {
         private cookieService: CookieService,
         @Inject(CheckLoginService) private checkLogin,
         @Inject(HttpCallerService) private httpCaller: HttpCallerService,
-        @Inject(UserSessionService) private userSessionService: UserSessionService) {
+        @Inject(UserSessionService) private userSessionService: UserSessionService,
+        private googleLoginService: GoogleLoginService) {
         this.navigationSubscription = this.router.events.subscribe((val) => {
             if (val instanceof NavigationEnd && window.innerWidth <= 992 && this.isToggled()) {
                 this.toggleSidebar();
@@ -61,20 +63,36 @@ export class HeaderComponent implements OnInit {
 
 
     onLoggedout() {
-
-        this.httpCaller.callGet(
-            '/logout/google',
-            (r) => {
-                if (r.response === 'ok') {
-                    this.cookieService.delete("google_access_token")
-                    this.cookieService.delete("google_refresh_token")
-                    this.cookieService.delete("lastAuthTime")
-                }
-                console.log('logout ' + r.response + '!');
-            },
-            () => {
+        let that = this;
+        this.googleLoginService.signOut()
+            .then(r => {
+                console.log('logout ok!');
+                this.userSession.Username = '';
+                this.userSession.DomainId = '';
+                this.userSession.DomainName = '';
+                this.userSession.id_token = '';
+                this.userSessionService.updateData(this.userSession)
+                that.router.navigate(['/login'])
+            })
+            .catch(err => {
+                console.log(err);
                 console.log('logout failed!');
             });
+
+        // this.httpCaller.callGet(
+        //     '/logout/google',
+        //     (r) => {
+        //         if (r.response === 'ok') {
+        //             this.cookieService.delete("google_access_token")
+        //             this.cookieService.delete("google_refresh_token")
+        //             this.cookieService.delete("lastAuthTime")
+        //         }
+        //         console.log('logout ' + r.response + '!');
+        //     },
+        //     (err) => {
+        //         console.log(err);
+        //         console.log('logout failed!');
+        //     });
 
 
     }
@@ -82,7 +100,7 @@ export class HeaderComponent implements OnInit {
     changeLang(language: string) {
         this.translate.use(language);
         this.userSession.Language = language;
-        this.cookieService.set("language",language);
+        this.cookieService.set("language", language);
         this.userSessionService.updateData(this.userSession);
     }
 
@@ -95,9 +113,3 @@ export class HeaderComponent implements OnInit {
         }
     }
 }
-
-
-// export class UserSession {
-//     public Username : string;
-//     public Language : string;
-// }

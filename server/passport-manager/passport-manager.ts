@@ -1,7 +1,8 @@
 
+
 import * as passport from "passport";
 import { Strategy } from "passport-facebook";
-import { OAuth2Strategy } from "passport-google-oauth";
+import { OAuth2Strategy,  } from "passport-google-oauth";
 import * as Config from "config";
 import CookieSession = require('cookie-session');
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
@@ -15,6 +16,7 @@ import { AppAcl } from "../acl/app-acl";
 import { eFileOperationType } from "../sheets/sheets_common_operations";
 import { DriveOperations } from "../drive/drive_operations";
 import Acl = require("acl");
+import { Security } from '../common/security';
 // import { Db } from "../models/db";
 // import * as  Sequelize from "sequelize";
 // import { Accounts } from "../models/accounts_dev";
@@ -205,18 +207,12 @@ export class PassportManager {
         );
     }
 
+
     public initGoogleAuth() {
         let options = {
-            scope: [
-                'email profile',
-                'https://www.googleapis.com/auth/drive',
-                'https://www.googleapis.com/auth/drive.file',
-                'https://www.googleapis.com/auth/spreadsheets',
-                'https://www.googleapis.com/auth/drive.metadata.readonly',
-                'https://spreadsheets.google.com/feeds'
-            ]
-
+            scope: Security.GoogleLoginScopes
         };
+
         //overwirte
         options['accessType'] = 'offline';
         options['prompt'] = 'consent';

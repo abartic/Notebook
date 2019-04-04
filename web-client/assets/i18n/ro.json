@@ -78,7 +78,7 @@
     "BTN.ENROLL": "Inreg. utilizator",
     "BTN.DISENROLL": "Dez-inreg. utilizator",
     "BTN.DELETE_METADATA": "Sterge metadata",
-
+    "TIT.SHEETS_ADMIN": "Administrare sheets",
 
     "accountinventory": "cont partener",
     "accountinventory.code_part": "Cod Part.",

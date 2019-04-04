@@ -6,6 +6,7 @@ import { CheckLoginService } from '../../../services/check-login-service';
 import { UserSessionService } from '../../../services/userSessionService';
 import { TranslateService } from '@ngx-translate/core';
 import { UserSession } from '../../../common/userSession';
+import { GoogleLoginService } from '../../../services/google-login-service';
 
 @Component({
     selector: 'app-sidebar',
@@ -28,7 +29,8 @@ export class SidebarComponent implements OnInit {
         private translate: TranslateService,
         @Inject(HttpCallerService) private httpCaller: HttpCallerService,
         @Inject(CheckLoginService) private checkLogin,
-        @Inject(UserSessionService) private userSessionService: UserSessionService) {
+        @Inject(UserSessionService) private userSessionService: UserSessionService,
+        private googleLoginService: GoogleLoginService) {
 
         this.router.events.subscribe(val => {
             if (
@@ -102,20 +104,36 @@ export class SidebarComponent implements OnInit {
     }
 
     onLoggedout() {
-
-        this.httpCaller.callGet(
-            '/logout/google',
-            (r) => {
-                if (r.response === 'ok') {
-                    this.cookieService.delete("google_access_token")
-                    this.cookieService.delete("google_refresh_token")
-                    this.cookieService.delete("lastAuthTime")
-                }
-                console.log('logout ' + r.response + '!');
-            },
-            () => {
+        let that = this;
+        this.googleLoginService.signOut()
+            .then(r => {
+                console.log('logout ok!');
+                this.userSession.Username = '';
+                this.userSession.DomainId = '';
+                this.userSession.DomainName = '';
+                this.userSession.id_token = '';
+                this.userSessionService.updateData(this.userSession)
+                that.router.navigate(['/login'])
+            })
+            .catch(err => {
+                console.log(err);
                 console.log('logout failed!');
             });
+
+        // this.httpCaller.callGet(
+        //     '/logout/google',
+        //     (r) => {
+        //         if (r.response === 'ok') {
+        //             this.cookieService.delete("google_access_token")
+        //             this.cookieService.delete("google_refresh_token")
+        //             this.cookieService.delete("lastAuthTime")
+        //         }
+        //         console.log('logout ' + r.response + '!');
+        //     },
+        //     (err) => {
+        //         console.log(err);
+        //         console.log('logout failed!');
+        //     });
 
 
     }

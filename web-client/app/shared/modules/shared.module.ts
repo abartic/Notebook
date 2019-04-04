@@ -4,12 +4,13 @@ import { CommonModule } from '@angular/common';
 import { DateUserFormatPipe } from '../pipes/date-userformat-pipe';
 
 
+
 @NgModule({
     imports: [
         CommonModule,
-
     ],
     declarations: [DateUserFormatPipe],
-    exports: [DateUserFormatPipe]
+    exports: [DateUserFormatPipe],
+
 })
 export class SharedModule { }

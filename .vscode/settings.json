@@ -1,5 +1,6 @@
 {
     "typescript.tsdk": "node_modules\\typescript\\lib",
     "typescript.suggestionActions.enabled": false,
-    "javascript.suggestionActions.enabled": false
+    "javascript.suggestionActions.enabled": false,
+
 }
