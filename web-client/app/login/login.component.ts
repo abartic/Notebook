@@ -20,7 +20,7 @@ import { CookieService } from 'ngx-cookie-service';
 export class LoginComponent implements OnInit {
 
 
-    private domain: string;
+    domain: string;
     userSession: UserSession;
     constructor(private router: Router, 
         private cookieService: CookieService,
