@@ -128,6 +128,24 @@ export class LoginRoute extends BaseRoute {
     public static create(router: Router, passportManager: PassportManager, csrfProtection: RequestHandler) {
 
 
+
+
+        router.post('/login/google/checktoken',
+            csrfProtection,
+            (req: Request, res: Response, next: NextFunction) => {
+                let { accessToken } = req.body;
+                request({
+                    method: 'GET',
+                    uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken,
+
+                }).then(fbRes => {
+                    res.json({ 'response': 'valid' });
+                })
+                .catch(err => {
+                    res.json({ 'response': 'expired' });
+                });
+            });
+
         router.post('/login/success2',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
@@ -151,7 +169,7 @@ export class LoginRoute extends BaseRoute {
                             res.cookie('domainId', req.session['domainId']);
                             res.cookie('domainName', req.session['domainName']);
                             res.cookie('accountsFileId', req.session['accountsFileId']);
-                            res.send({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId']});
+                            res.send({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId'] });
                         }
                     });
 
@@ -323,7 +341,7 @@ export class LoginRoute extends BaseRoute {
                 let promise = new Promise((resolve, reject) => {
                     passportManager.refreshGoogleAuth(req, resolve, reject);
                 });
-               
+
                 promise.then((result) => {
                     if (old_access_token !== req.session['google_access_token']) {
                         res.cookie('google_access_token', req.session['google_access_token']);

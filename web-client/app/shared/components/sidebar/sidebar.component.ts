@@ -2,11 +2,10 @@ import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { HttpCallerService } from '../../../services/httpcaller.service';
 import { CookieService } from 'ngx-cookie-service';
-import { CheckLoginService } from '../../../services/check-login-service';
 import { UserSessionService } from '../../../services/userSessionService';
 import { TranslateService } from '@ngx-translate/core';
 import { UserSession } from '../../../common/userSession';
-import { GoogleLoginService } from '../../../services/google-login-service';
+import { GOOGLE_LOGIN_SERV } from '../../../services/google-login-factory';
 
 @Component({
     selector: 'app-sidebar',
@@ -28,9 +27,8 @@ export class SidebarComponent implements OnInit {
         private cookieService: CookieService,
         private translate: TranslateService,
         @Inject(HttpCallerService) private httpCaller: HttpCallerService,
-        @Inject(CheckLoginService) private checkLogin,
         @Inject(UserSessionService) private userSessionService: UserSessionService,
-        private googleLoginService: GoogleLoginService) {
+        @Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin) {
 
         this.router.events.subscribe(val => {
             if (

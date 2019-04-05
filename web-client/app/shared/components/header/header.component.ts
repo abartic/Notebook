@@ -1,13 +1,12 @@
 
-import { HttpCallerService } from './../../../services/httpcaller.service';
+
 import { Component, OnInit, Inject, Input } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
-import { CheckLoginService } from '../../../services/check-login-service';
 import { UserSessionService } from '../../../services/userSessionService';
 import { UserSession } from '../../../common/userSession';
-import { GoogleLoginService } from '../../../services/google-login-service';
+import { GOOGLE_LOGIN_SERV } from '../../../services/google-login-factory';
 
 
 @Component({
@@ -25,17 +24,13 @@ export class HeaderComponent implements OnInit {
     constructor(private translate: TranslateService,
         public router: Router,
         private cookieService: CookieService,
-        @Inject(CheckLoginService) private checkLogin,
-        @Inject(HttpCallerService) private httpCaller: HttpCallerService,
         @Inject(UserSessionService) private userSessionService: UserSessionService,
-        private googleLoginService: GoogleLoginService) {
+        @Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin) {
         this.navigationSubscription = this.router.events.subscribe((val) => {
             if (val instanceof NavigationEnd && window.innerWidth <= 992 && this.isToggled()) {
                 this.toggleSidebar();
             }
         });
-
-        //console.log(atob(this.cookieService.get("session")));
     }
 
     ngOnInit() {

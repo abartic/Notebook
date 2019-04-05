@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { UserSessionService } from './services/userSessionService';
 import { UserSession } from './common/userSession';
 import { Router } from '@angular/router';
+import { CheckLoginService } from './services/check-login-service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent implements OnInit {
 
   constructor(private translate: TranslateService,
     private userSessionService: UserSessionService,
+    private checkLoginService: CheckLoginService, 
     private router: Router, 
     private ngZone: NgZone) {
 

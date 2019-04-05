@@ -1,6 +1,5 @@
 declare const gapi: any;
 
-
 import { HttpCallerService } from './httpcaller.service';
 import { Injectable } from "@angular/core";
 import { environment } from '../../environments/environment';
@@ -8,18 +7,15 @@ import { Security } from '../../../server/common/security';
 
 
 
-@Injectable({
-    providedIn: 'root',
-})
-export class GoogleLoginService {
+@Injectable({ providedIn: 'root' })
+export class GoogleLoginService implements IGoogleLogin {
 
-    private auth2: Promise<gapi.auth2.GoogleAuth> = null;
+
+
+    private auth2 = null //: Promise<gapi.auth2.GoogleAuth> = null;
 
     constructor(private httpCaller: HttpCallerService) {
-
         let that = this;
-
-
 
         this.auth2 = new Promise((cb) => {
             gapi.load('auth2', () => {
@@ -46,8 +42,8 @@ export class GoogleLoginService {
                     scope: Security.GoogleLoginScopes.join(' '),
 
                 }).then(user => {
-                    let authprofile = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse(true);
-                    let userprofile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+                    let authprofile = a2.currentUser.get().getAuthResponse(true);
+                    let userprofile = a2.currentUser.get().getBasicProfile();
                     that.httpCaller.callPost('/login/success2', { domainName: domainName, accessToken: authprofile.access_token, idToken: authprofile.id_token },
                         (r) => {
                             if (cb) {
@@ -59,7 +55,7 @@ export class GoogleLoginService {
                                 })
                             }
                             else {
-                                cb(null);
+                                return errcb(null);
                             }
                         },
                         (err) => {
@@ -75,52 +71,63 @@ export class GoogleLoginService {
 
     }
 
-    public isSignedIn() {
+    public isSignedIn(domainName) {
         let that = this;
         return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
-            this.auth2.then(a2 => {
-                if (a2 === null)
-                    cb(null);
+            this.auth2
+                .then(a2 => {
+                    if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
+                        return cb(null);
 
-                if (gapi.auth2.getAuthInstance() && gapi.auth2.getAuthInstance().currentUser) {
-                    if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-                        let authprofile = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse(true);
-                        let userprofile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-
-                        if (authprofile.access_token && authprofile.access_token.length > 0) {
-                            cb({
-                                email: userprofile.getEmail(),
-                                id_token: authprofile.id_token,
-                            });
-                        }
-                        else{
-                            cb(null);
-                        }
-                    }
-                    else
-                        cb(null)
-                }
-                else {
-                    cb(null);
-                }
-            });
+                    let authprofile = a2.currentUser.get().getAuthResponse(true);
+                    let userprofile = a2.currentUser.get().getBasicProfile();
+                    that.httpCaller.callPost('/login/success2', { domainName: domainName, accessToken: authprofile.access_token, idToken: authprofile.id_token },
+                        (r) => {
+                            if (r && r.refresh === true && cb) {
+                                return cb({
+                                    email: userprofile.getEmail(),
+                                    id_token: authprofile.id_token,
+                                });
+                            }
+                            else {
+                                return cb(null);
+                            }
+                        },
+                        (err) => {
+                            console.log(err);
+                            return cb(null);
+                        })
+                })
+                .catch(err => { errcb(err) });
         });
     }
 
     public signOut() {
         return new Promise((cb, errcb) => {
             return this.auth2.then(a2 => {
-                if (a2 === null)
+                if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
                     return cb(false);
-                if (gapi.auth2.getAuthInstance())
-                    gapi.auth2.getAuthInstance().signOut()
-                        .then(r => {
-                            return cb(true);
-                        })
-                        .catch(
-                            err => {
-                                errcb(err);
-                            });
+
+                a2.signOut()
+                    .then(r => {
+                        return cb(true);
+                    })
+                    .catch(
+                        err => {
+                            errcb(err);
+                        });
+
+            });
+        });
+    }
+
+    public getAuthProfile() {
+        return new Promise((cb, errcb) => {
+            return this.auth2.then(a2 => {
+                if (a2 === null || !a2.currentUser)
+                    return errcb(null);
+                else
+                    return cb(a2.currentUser.get().getAuthResponse(true));
             });
         });
     }
