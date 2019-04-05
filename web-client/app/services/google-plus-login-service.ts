@@ -15,42 +15,136 @@ import { Security } from '../../../server/common/security';
 })
 export class GooglePlusLoginService implements IGoogleLogin {
 
-
-
+    private auth2 = null;
     constructor(private httpCaller: HttpCallerService) {
         /*cordova google plus */
-        document.addEventListener('deviceready', function () {
-            alert(device.platform);
-        }, false);
+        let that = this;
+        this.auth2 = new Promise((cb) => {
+            document.addEventListener('deviceready', function () {
+                cb(device.platform);
 
+            }, false);
+        });
     }
 
     public signIn(domainName) {
-        window['plugins'].googleplus.login(
-            {
-                'scopes': Security.GoogleLoginScopes.join(' '),
-                'webClientId': environment.clientId//'client id of the web app/server side', // optional clientId of your Web application from Credentials settings of your project - On Android, this MUST be included to get an idToken. On iOS, it is not required.
-                //'offline': true // optional, but requires the webClientId - if set to true the plugin will also return a serverAuthCode, which can be used to grant offline access to a non-Google server
-            },
-            function (obj) {
-                alert(JSON.stringify(obj)); // do something useful instead of alerting
-            },
-            function (err) {
-                console.log(err);
-            }
-        );
+        let that = this;
+        return new Promise<{ email?: string, id_token?: string, domainName?: string, domainId?: string }>((cb, errcb) => {
+            this.auth2.then(a2 => {
+                if (a2 === null)
+                    return cb(null);
+                window['plugins'].googleplus.login(
+                    {
+                        'scopes': Security.GoogleLoginScopes.join(' '),
+                        'webClientId': environment.clientId//'client id of the web app/server side', // optional clientId of your Web application from Credentials settings of your project - On Android, this MUST be included to get an idToken. On iOS, it is not required.
+                        //'offline': true // optional, but requires the webClientId - if set to true the plugin will also return a serverAuthCode, which can be used to grant offline access to a non-Google server
+                    },
+                    function (authprofile) {
+                        alert(JSON.stringify(authprofile));
 
+                        that.httpCaller.callPost('/login/success2',
+                            { domainName: domainName, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
+                            (r) => {
+                                if (cb) {
+                                    cb({
+                                        email: authprofile.email,
+                                        id_token: authprofile.id_token,
+                                        domainName: r.domainName,
+                                        domainId: r.domainId,
+                                    })
+                                }
+                                else {
+                                    return errcb(null);
+                                }
+                            },
+                            (err) => {
+                                if (errcb)
+                                    errcb(err);
+                            });
+                    },
+                    function (err) {
+                        console.log(err);
+                    }
+                );
+            });
+        });
     }
 
     public isSignedIn(domainName) {
+        let that = this;
+        return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
+            this.auth2.then(a2 => {
+                if (a2 === null)
+                    return cb(null);
+                window['plugins'].googleplus.login(
+                    {
+                        'scopes': Security.GoogleLoginScopes.join(' '),
+                        'webClientId': environment.clientId,
+                        'offline': true
+                    },
+                    function (authprofile) {
 
+                        that.httpCaller.callPost('/login/success2',
+                            { domainName: domainName, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
+                            (r) => {
+                                if (cb) {
+                                    return cb({
+                                        email: authprofile.email,
+                                        id_token: authprofile.idToken,
+                                    });
+                                }
+                                else {
+                                    return errcb(null);
+                                }
+                            },
+                            (err) => {
+                                console.log(err);
+                                return errcb(err);
+                            });
+                    },
+                    function (err) {
+                        console.log(err);
+                        return errcb(err);
+                    }
+                );
+            });
+        });
     }
 
     public signOut() {
-
+        return new Promise((cb) => {
+            this.auth2.then(a2 => {
+                if (a2 === null)
+                    return cb(null);
+                window['plugins'].googleplus.logout(
+                    function (msg) {
+                        return cb(true);
+                    }
+                );
+            });
+        });
     }
 
     getAuthProfile() {
-        throw new Error("Method not implemented.");
+        let that = this;
+        return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
+            this.auth2.then(a2 => {
+                if (a2 === null)
+                    return cb(null);
+                window['plugins'].googleplus.login(
+                    {
+                        'scopes': Security.GoogleLoginScopes.join(' '),
+                        'webClientId': environment.clientId,
+                        'offline': true
+                    },
+                    function (authprofile) {
+                        cb(authprofile);
+                    },
+                    function (err) {
+                        errcb(null);
+                    }
+                );
+            });
+        });
     }
 }

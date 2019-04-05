@@ -169,6 +169,7 @@ export class LoginRoute extends BaseRoute {
                             res.cookie('domainId', req.session['domainId']);
                             res.cookie('domainName', req.session['domainName']);
                             res.cookie('accountsFileId', req.session['accountsFileId']);
+                            console.log(JSON.stringify({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId'] }));
                             res.send({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId'] });
                         }
                     });
