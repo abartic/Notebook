@@ -61,6 +61,7 @@ export class LoginRoute extends BaseRoute {
             req.session['google_access_token'] = accessToken;
             req.session['userId'] = userId;
             req.session['lastAuthTime'] = Date.now().toString();
+            req.session['domainName'] = domainName;
             req.session['domainId'] = domainId;
             callback(true);
         };
