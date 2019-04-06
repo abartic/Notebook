@@ -6,6 +6,9 @@ import { UserSession } from './common/userSession';
 import { Router } from '@angular/router';
 import { CheckLoginService } from './services/check-login-service';
 
+
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -18,8 +21,8 @@ export class AppComponent implements OnInit {
 
   constructor(private translate: TranslateService,
     private userSessionService: UserSessionService,
-    private checkLoginService: CheckLoginService, 
-    private router: Router, 
+    private checkLoginService: CheckLoginService,
+    private router: Router,
     private ngZone: NgZone) {
 
     this.translate.addLangs(['en', 'ro']);
@@ -29,16 +32,16 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+  
+
     let that = this;
     this.userSessionService.userSession.subscribe(us => {
       that.userSession = us;
-      
-      if (that.userSession.Username.length === 0 || that.userSession.id_token.length === 0)
-      {
+
+      if (that.userSession.Username.length === 0 || that.userSession.id_token.length === 0) {
         this.ngZone.run(() => this.router.navigate(['/login'])).then();
       }
-      else
-      {
+      else {
         that.translate.use(that.userSession.Language);
       }
 

@@ -10,8 +10,3 @@ export const GOOGLE_LOGIN_SERV = new InjectionToken<IGoogleLogin>('google serv t
         factory: () => {return environment.mobile === true ? inject(GooglePlusLoginService) : inject(GoogleLoginService)}
     });
 
-export function googleLoginFactory(gapiService: GoogleLoginService, googlePlusService: GooglePlusLoginService) {
-    return (): IGoogleLogin => {
-        return environment.mobile === true ? googlePlusService : gapiService;
-    };
-}; 

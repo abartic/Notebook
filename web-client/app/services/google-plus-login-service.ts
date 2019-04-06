@@ -1,7 +1,7 @@
 
 
 /*cordova*/
-declare var device;
+//declare var device;
 
 import { HttpCallerService } from './httpcaller.service';
 import { Injectable } from "@angular/core";
@@ -17,12 +17,19 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
     private auth2 = null;
     constructor(private httpCaller: HttpCallerService) {
+
         /*cordova google plus */
+        console.log('cordova!');
+        console.log(document)
         let that = this;
         this.auth2 = new Promise((cb) => {
             document.addEventListener('deviceready', function () {
-                cb(device.platform);
+                console.log('Device is ready!');
 
+                that.httpCaller.callGetAsText('/',
+                    () => {
+                        cb(true);
+                    });
             }, false);
         });
     }
@@ -71,11 +78,19 @@ export class GooglePlusLoginService implements IGoogleLogin {
     }
 
     public isSignedIn(domainName) {
+
+
+        console.log("isSignedIn?")
         let that = this;
         return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
             this.auth2.then(a2 => {
+                console.log(a2)
+
                 if (a2 === null)
                     return cb(null);
+
+                console.log(window)
+                console.log(window['plugins'].googleplus)
                 window['plugins'].googleplus.login(
                     {
                         'scopes': Security.GoogleLoginScopes.join(' '),
@@ -83,10 +98,11 @@ export class GooglePlusLoginService implements IGoogleLogin {
                         'offline': true
                     },
                     function (authprofile) {
-
+                        console.log(authprofile)
                         that.httpCaller.callPost('/login/success2',
                             { domainName: domainName, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
                             (r) => {
+                                console.log(r)
                                 if (cb) {
                                     return cb({
                                         email: authprofile.email,
@@ -126,6 +142,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
     }
 
     getAuthProfile() {
+
         let that = this;
         return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
             this.auth2.then(a2 => {

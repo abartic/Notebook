@@ -29,13 +29,13 @@ interface HttpResponseError {
 })
 export class HttpCallerService {
 
-  
-  constructor( private injector: Injector, private http: HttpClient) {
+
+  constructor(private injector: Injector, private http: HttpClient) {
   }
 
-  public get router(): Router { 
+  public get router(): Router {
     return this.injector.get(Router);
- }
+  }
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
@@ -96,7 +96,7 @@ export class HttpCallerService {
 
     let calls: Array<Observable<HttpResponse>> = [];
     for (let pack of packs) {
-      calls.push(this.http.post<HttpResponse>(environment.baseUrlServices+ pack["0"], pack["1"]));
+      calls.push(this.http.post<HttpResponse>(environment.baseUrlServices + pack["0"], pack["1"]));
     }
 
     Observable.forkJoin(calls)
@@ -136,9 +136,16 @@ export class HttpCallerService {
   }
 
 
+  public callGetAsText(url: string, cb) {
+
+    this.http.get(environment.baseUrlServices + url, { responseType: 'text' })
+      .subscribe(result => {
+        cb(result);
+      });
+  }
 
   public callGet(url: string, cb: ((result: any) => void), errcb: ((result: any) => void)) {
-    
+
     this.http.get<HttpResponse>(environment.baseUrlServices + url)
       .subscribe(result => {
 
