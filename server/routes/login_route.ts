@@ -1,6 +1,3 @@
-import { ExpenseLine } from './../models/expense-line';
-
-
 
 import { AppAcl } from './../acl/app-acl';
 import { NextFunction, Request, Response, Router, RequestHandler } from 'express';
@@ -8,9 +5,7 @@ import { BaseRoute } from './route';
 import { PassportManager } from '../passport-manager/passport-manager';
 import * as request from 'request-promise';
 import acl = require('acl');
-import CookieSession = require('cookie-session');
 import { LogsManager } from '../logs/logs-manager';
-import { environment } from '../environments/environment';
 import * as Config from "config";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -47,7 +42,7 @@ export class LoginRoute extends BaseRoute {
     }
 
 
-    private static authHandler(req, accessToken, domainName, userId, callback) {
+    private static authHandler(req, accessToken, domainName, userId, language, callback) {
 
         let domain = LoginRoute.getDomainByName(domainName);
         if (domain === null || domain.isActive === false) {
@@ -63,6 +58,7 @@ export class LoginRoute extends BaseRoute {
             req.session['lastAuthTime'] = Date.now().toString();
             req.session['domainName'] = domainName;
             req.session['domainId'] = domainId;
+            req.session['language'] = language;
             callback(true);
         };
 
@@ -142,15 +138,28 @@ export class LoginRoute extends BaseRoute {
                 }).then(fbRes => {
                     res.json({ 'response': 'valid' });
                 })
-                .catch(err => {
-                    res.json({ 'response': 'expired' });
+                    .catch(err => {
+                        res.json({ 'response': 'expired' });
+                    });
+            });
+
+        router.get('/login/google/getprofile',
+            csrfProtection,
+            (req: Request, res: Response, next: NextFunction) => {
+                res.send({
+                    error: null, refresh: true,
+                    DomainName: req.session['domainName'],
+                    DomainId: req.session['domainId'],
+                    Username: req.session['userId'],
+                    LastAuthTime: req.session['lastAuthTime'],
+                    Language: req.session['language'],
                 });
             });
 
-        router.post('/login/success2',
+        router.post('/login/google/success2',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
-                let { domainName, accessToken, idToken } = req.body;
+                let { domainName, language, accessToken, idToken } = req.body;
                 var { OAuth2Client } = require('google-auth-library');
                 const client = new OAuth2Client(Config.get<string>("googleConfig.clientID"));
                 async function verify() {
@@ -161,17 +170,17 @@ export class LoginRoute extends BaseRoute {
                     const payload = ticket.getPayload();
 
 
-                    LoginRoute.authHandler(req, accessToken, domainName, payload.email, function (result) {
+                    LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result) {
                         if (result === true) {
-                            res.cookie('google_access_token', req.session['google_access_token']);
-                            res.cookie('google_refresh_token', req.session['google_refresh_token']);
-                            res.cookie('lastAuthTime', req.session['lastAuthTime']);
-                            res.cookie('userId', req.session['userId']);
-                            res.cookie('domainId', req.session['domainId']);
-                            res.cookie('domainName', req.session['domainName']);
-                            res.cookie('accountsFileId', req.session['accountsFileId']);
-                            console.log(JSON.stringify({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId'] }));
-                            res.send({ error: null, refresh: true, domainName: req.session['domainName'], domainId: req.session['domainId'] });
+
+                            res.send({
+                                error: null, refresh: true,
+                                DomainName: req.session['domainName'],
+                                DomainId: req.session['domainId'],
+                                Username: req.session['userId'],
+                                LastAuthTime: req.session['lastAuthTime'],
+                                Language: req.session['language'],
+                            });
                         }
                     });
 
@@ -209,22 +218,13 @@ export class LoginRoute extends BaseRoute {
             (req: Request, res: Response, next: NextFunction) => {
                 req.query["callback"] = req.session['callback'];
                 let isUserVerified = req.session['userId'] !== null;
-
-
-
-                // res.jsonp({ 
-                //     isAuthorized: isUserVerified,
-                //     google_access_token : req.session['google_access_token'],
-                //     fbk_access_token : req.session['fbk_access_token'],
-                //  });
-                res.cookie('google_access_token', req.session['google_access_token']);
-                res.cookie('google_refresh_token', req.session['google_refresh_token']);
-                res.cookie('lastAuthTime', req.session['lastAuthTime']);
-                res.cookie('userId', req.session['userId']);
-                res.cookie('domainId', req.session['domainId']);
-                res.cookie('domainName', req.session['domainName']);
-                res.cookie('accountsFileId', req.session['accountsFileId']);
-                //res.cookie('enrollmentDate', req.session['enrollmentDate']);
+                // res.cookie('google_access_token', req.session['google_access_token']);
+                // res.cookie('google_refresh_token', req.session['google_refresh_token']);
+                // res.cookie('lastAuthTime', req.session['lastAuthTime']);
+                // res.cookie('userId', req.session['userId']);
+                // res.cookie('domainId', req.session['domainId']);
+                // res.cookie('domainName', req.session['domainName']);
+                // res.cookie('accountsFileId', req.session['accountsFileId']);
 
                 res.redirect("/");
             });
@@ -235,14 +235,13 @@ export class LoginRoute extends BaseRoute {
                 req.query["callback"] = req.session['callback'];
                 let isUserVerified = req.session['userId'] !== null;
 
-                res.cookie('google_access_token', '');
-                res.cookie('google_refresh_token', '');
-                res.cookie('lastAuthTime', '');
-                res.cookie('domainId', '');
-                res.cookie('domainName', '');
-                res.cookie('accountsFileId', '');
-                //res.cookie('enrollmentDate', '');
-                res.cookie('userId', req.session['userId']);
+                // res.cookie('google_access_token', '');
+                // res.cookie('google_refresh_token', '');
+                // res.cookie('lastAuthTime', '');
+                // res.cookie('domainId', '');
+                // res.cookie('domainName', '');
+                // res.cookie('accountsFileId', '');
+                // res.cookie('userId', req.session['userId']);
                 res.redirect("/");
             });
 
@@ -346,9 +345,9 @@ export class LoginRoute extends BaseRoute {
 
                 promise.then((result) => {
                     if (old_access_token !== req.session['google_access_token']) {
-                        res.cookie('google_access_token', req.session['google_access_token']);
-                        res.cookie('google_refresh_token', req.session['google_refresh_token']);
-                        res.cookie('lastAuthTime', req.session['lastAuthTime']);
+                        // res.cookie('google_access_token', req.session['google_access_token']);
+                        // res.cookie('google_refresh_token', req.session['google_refresh_token']);
+                        // res.cookie('lastAuthTime', req.session['lastAuthTime']);
                     }
                     res.json({ 'refresh': true });
                 }).catch((err) => {

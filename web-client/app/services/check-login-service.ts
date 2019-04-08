@@ -18,7 +18,6 @@ export class CheckLoginService {
     current_access_token;
 
     constructor(private httpCaller: HttpCallerService,
-        //private router: Router, 
         private userSessionService: UserSessionService,
         @Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin) {
 
@@ -28,27 +27,7 @@ export class CheckLoginService {
                 this.userSession = us;
                 this.timer = timer(5 * 60 * 1000, 60 * 1000);
                 this.timer.subscribe(t => {
-                    that.googleLoginService.getAuthProfile().then(authprofile => {
-                        if (!authprofile)
-                            return;
-
-
-                        if (that.current_access_token !== authprofile.access_token) {
-                            that.current_access_token = authprofile.access_token;
-                            that.httpCaller.callPost('/login/success2',
-                                {
-                                    domainName: that.userSession.DomainName,
-                                    accessToken: authprofile.access_token,
-                                    idToken: authprofile.id_token
-                                },
-                                (r) => {
-
-                                    console.log(r);
-                                },
-                                (err) => {
-                                    console.log(err);
-                                });
-                        }
+                    that.googleLoginService.getUserProfile().then(authprofile => {
 
                         // this.httpCaller.callGet(
                         //     '/login/google/refresh',
@@ -62,7 +41,6 @@ export class CheckLoginService {
                         //         this.router.navigate(['/login']);
                         //     });
                     });
-
 
                 });
             },

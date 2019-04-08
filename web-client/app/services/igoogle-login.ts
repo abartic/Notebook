@@ -2,11 +2,9 @@
 
 interface IGoogleLogin
 {
-    getAuthProfile(): any;
-    
-    signIn(domainName);
+    signIn(domainName, language); // : Promise<UserSession>;
 
-    isSignedIn(domainName);
+    getUserProfile(); // : Promise<UserSession>;
 
     signOut();
 }

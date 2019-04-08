@@ -162,7 +162,7 @@ export class Server {
         let router: express.Router;
         router = express.Router();
 
-        var csrfProtection = csrf({ cookie: true, ignoreMethods: ['GET', 'POST', 'HEAD', 'OPTIONS'] })
+        var csrfProtection = csrf({ cookie: true, ignoreMethods: ['GET',  'HEAD', 'OPTIONS'] })
 
         // IndexRoute
         IndexRoute.create(router, csrfProtection);

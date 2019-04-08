@@ -1,30 +1,57 @@
 <div class="login-page" [@routerTransition]>
-    <div class="row justify-content-md-center">
-        <div class="col-md-4">
-            <img src="assets/images/logo.png" width="150px" class="user-avatar" />
-            <h1>Notebook</h1>
-            <form role="form" autocomplete="on">
-                <div class="form-content">
-                    <div class="form-group">
-                        <input type="text" [(ngModel)]="domain" name="txtDomain" class="form-control input-underline input-lg" placeholder="domain" autocomplete="on">
-                    </div>
-
-                
-                </div>
-                
-                <a (click)="signInWithGoogle()" style="cursor: pointer;">
-                    <img src="assets/images/google_login.png" width="250px" height="45px" />
-                </a> &nbsp;
-                <br>
-                <br>
-
-                <label *ngIf="userSession.Username.length !== 0">Curren user logged: {{userSession.DomainName}}/{{userSession.Username}}</label>
-                <br>
-                <a *ngIf="userSession.Username.length !== 0" (click)="continueWithUser()" style="cursor: pointer;"><u>Continue with current user.</u></a>
-
-                
-
-            </form>
-        </div>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <img src="assets/images/logo.png" width="150px" class="user-avatar" />
     </div>
+  </div>
+
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <h1>Notebook</h1>
+    </div>
+  </div>
+
+  <br>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <input type="text" [(ngModel)]="domain" name="txtDomain" class="form-control input-underline input-lg"
+        placeholder="domain" autocomplete="on">
+    </div>
+  </div>
+<br>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <div ngbDropdown>
+        <button class="btn btn-block btn-dark btn-sm" id="dropdownBasic1" ngbDropdownToggle>
+          <i class="fa fa-language"></i> {{ 'LBL.LANGUAGE' | translate }} : {{language}} <b class="caret"></b>
+        </button>
+        
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu">
+          <button class="dropdown-item" (click)="setLang('en')">{{'LBL.ENGLISH' | translate}}</button>
+          <button class="dropdown-item" (click)="setLang('ro')">{{'LBL.ROMANIAN' | translate}}</button>
+        </div>
+      </div>
+    </div>
+    
+
+  </div>
+
+  <br>
+  <div class="row justify-content-md-center">
+    <div class="col-md-4">
+      <a (click)="signInWithGoogle()" style="cursor: pointer;">
+        <img src="assets/images/google_login.png" width="250px" height="45px" />
+      </a> &nbsp;
+      <br>
+      <br>
+
+      <label *ngIf="userSession.Username">Curren user logged:
+        {{userSession.DomainName}}/{{userSession.Username}}</label>
+      <br>
+      <a *ngIf="userSession.Username" (click)="continueWithUser()" style="cursor: pointer;"><u>Continue
+          with current user.</u></a>
+
+    </div>
+  </div>
+
 </div>

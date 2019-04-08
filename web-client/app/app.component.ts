@@ -38,7 +38,7 @@ export class AppComponent implements OnInit {
     this.userSessionService.userSession.subscribe(us => {
       that.userSession = us;
 
-      if (that.userSession.Username.length === 0 || that.userSession.id_token.length === 0) {
+      if (!that.userSession.Username) {
         this.ngZone.run(() => this.router.navigate(['/login'])).then();
       }
       else {

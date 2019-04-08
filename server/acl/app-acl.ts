@@ -46,8 +46,6 @@ export class AppAcl {
 
     public getAclRequest() {
         return (req: Request, res: Response, next: NextFunction) => {
-            // let accessToken = req.session['google_access_token'];
-            //let enrollmentDate = parseInt(req.session['enrollmentDate']);
             let userId = req.session['userId'];
             let domainId = req.session['domainId'];
             let accountsFileId = req.session['accountsFileId'];

@@ -4,6 +4,7 @@ import { HttpCallerService } from './httpcaller.service';
 import { Injectable } from "@angular/core";
 import { environment } from '../../environments/environment';
 import { Security } from '../../../server/common/security';
+import { UserSession } from '../common/userSession';
 
 
 
@@ -29,9 +30,9 @@ export class GoogleLoginService implements IGoogleLogin {
         })
     }
 
-    public signIn(domainName) {
+    public signIn(domainName, language) {
         let that = this;
-        return new Promise<{ email?: string, id_token?: string, domainName?: string, domainId?: string }>((cb, errcb) => {
+        return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
                 if (a2 === null)
                     return cb(null);
@@ -44,15 +45,16 @@ export class GoogleLoginService implements IGoogleLogin {
                 }).then(user => {
                     let authprofile = a2.currentUser.get().getAuthResponse(true);
                     let userprofile = a2.currentUser.get().getBasicProfile();
-                    that.httpCaller.callPost('/login/success2', { domainName: domainName, accessToken: authprofile.access_token, idToken: authprofile.id_token },
+                    that.httpCaller.callPost('/login/google/success2', { domainName: domainName, language: language, accessToken: authprofile.access_token, idToken: authprofile.id_token },
                         (r) => {
-                            if (cb) {
-                                cb({
-                                    email: userprofile.getEmail(),
-                                    id_token: authprofile.id_token,
-                                    domainName: r.domainName,
-                                    domainId: r.domainId,
-                                })
+                            if (r && r.refresh === true && cb) {
+                                let us = new UserSession();
+                                us.Username = r.Username;
+                                us.DomainName = r.DomainName;
+                                us.DomainId = r.DomainId;
+                                us.Language = r.Language;
+                                us.LastAuthTime = r.LastAuthTime;
+                                cb(us);
                             }
                             else {
                                 return errcb(null);
@@ -71,32 +73,41 @@ export class GoogleLoginService implements IGoogleLogin {
 
     }
 
-    public isSignedIn(domainName) {
+    public getUserProfile() {
         let that = this;
-        return new Promise<{ email?: string, id_token?: string }>((cb, errcb) => {
+        return new Promise<UserSession>((cb, errcb) => {
             this.auth2
                 .then(a2 => {
                     if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
                         return cb(null);
 
-                    let authprofile = a2.currentUser.get().getAuthResponse(true);
-                    let userprofile = a2.currentUser.get().getBasicProfile();
-                    that.httpCaller.callPost('/login/success2', { domainName: domainName, accessToken: authprofile.access_token, idToken: authprofile.id_token },
-                        (r) => {
-                            if (r && r.refresh === true && cb) {
-                                return cb({
-                                    email: userprofile.getEmail(),
-                                    id_token: authprofile.id_token,
-                                });
-                            }
-                            else {
-                                return cb(null);
-                            }
-                        },
-                        (err) => {
-                            console.log(err);
+                    that.httpCaller.callGet('/login/google/getprofile',
+                        (p) => {
+                            let authprofile = a2.currentUser.get().getAuthResponse(true);
+                            let userprofile = a2.currentUser.get().getBasicProfile();
+                            that.httpCaller.callPost('/login/google/success2', { domainName: p.DomainName, language: p.Language, accessToken: authprofile.access_token, idToken: authprofile.id_token },
+                                (r) => {
+                                    if (r && r.refresh === true && cb) {
+                                        let us = new UserSession();
+                                        us.Username = r.Username;
+                                        us.DomainName = r.DomainName;
+                                        us.DomainId = r.DomainId;
+                                        us.Language = r.Language;
+                                        us.LastAuthTime = r.LastAuthTime;
+                                        cb(us);
+                                    }
+                                    else {
+                                        return cb(null);
+                                    }
+                                },
+                                (err) => {
+                                    console.log(err);
+                                    return cb(null);
+                                })
+                        }, (err) => {
                             return cb(null);
-                        })
+                        });
+
                 })
                 .catch(err => { errcb(err) });
         });
@@ -121,14 +132,14 @@ export class GoogleLoginService implements IGoogleLogin {
         });
     }
 
-    public getAuthProfile() {
-        return new Promise((cb, errcb) => {
-            return this.auth2.then(a2 => {
-                if (a2 === null || !a2.currentUser)
-                    return errcb(null);
-                else
-                    return cb(a2.currentUser.get().getAuthResponse(true));
-            });
-        });
-    }
+    // public getAuthProfile() {
+    //     return new Promise((cb, errcb) => {
+    //         return this.auth2.then(a2 => {
+    //             if (a2 === null || !a2.currentUser)
+    //                 return errcb(null);
+    //             else
+    //                 return cb(a2.currentUser.get().getAuthResponse(true));
+    //         });
+    //     });
+    // }
 }

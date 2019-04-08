@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { HttpCallerService } from '../../../services/httpcaller.service';
-import { CookieService } from 'ngx-cookie-service';
 import { UserSessionService } from '../../../services/userSessionService';
 import { TranslateService } from '@ngx-translate/core';
 import { UserSession } from '../../../common/userSession';
@@ -24,7 +23,6 @@ export class SidebarComponent implements OnInit {
 
     constructor(
         private router: Router,
-        private cookieService: CookieService,
         private translate: TranslateService,
         @Inject(HttpCallerService) private httpCaller: HttpCallerService,
         @Inject(UserSessionService) private userSessionService: UserSessionService,
@@ -106,10 +104,7 @@ export class SidebarComponent implements OnInit {
         this.googleLoginService.signOut()
             .then(r => {
                 console.log('logout ok!');
-                this.userSession.Username = '';
-                this.userSession.DomainId = '';
-                this.userSession.DomainName = '';
-                this.userSession.id_token = '';
+                this.userSession = new UserSession();
                 this.userSessionService.updateData(this.userSession)
                 that.router.navigate(['/login'])
             })
@@ -122,9 +117,7 @@ export class SidebarComponent implements OnInit {
         //     '/logout/google',
         //     (r) => {
         //         if (r.response === 'ok') {
-        //             this.cookieService.delete("google_access_token")
-        //             this.cookieService.delete("google_refresh_token")
-        //             this.cookieService.delete("lastAuthTime")
+        
         //         }
         //         console.log('logout ' + r.response + '!');
         //     },
@@ -141,7 +134,6 @@ export class SidebarComponent implements OnInit {
     changeLang(language: string) {
         this.translate.use(language);
         this.userSession.Language = language;
-        this.cookieService.set("language", language);
         this.userSessionService.updateData(this.userSession);
     }
 }

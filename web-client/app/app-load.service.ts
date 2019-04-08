@@ -14,7 +14,10 @@ import { GOOGLE_LOGIN_SERV } from './services/google-login-factory';
 export class AppLoadService {
     userSession: UserSession;
 
-    constructor(@Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin, private userSessionService: UserSessionService) {
+    constructor(
+        private userSessionService: UserSessionService, 
+        @Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin) 
+    {
         let that = this;
         this.userSessionService.userSession.subscribe(us => { 
             that.userSession = us; 
@@ -24,16 +27,14 @@ export class AppLoadService {
     
     getSettings(): Promise<any> {
         let that = this;
-        return this.googleLoginService.isSignedIn(that.userSession.DomainName)
+        return this.googleLoginService.getUserProfile()
             .then(profile => {
                 if (profile) {
-                    that.userSession.Username = profile.email;
-                    that.userSession.id_token = profile.id_token;
+                    that.userSession = profile;
                 }
                 else
                 {
-                    that.userSession.Username = '';
-                    that.userSession.id_token = '';
+                    that.userSession = new UserSession();
                 }
                 that.userSessionService.updateData(that.userSession);
                 Promise.resolve(profile);

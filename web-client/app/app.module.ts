@@ -12,7 +12,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
-import { CookieService } from 'ngx-cookie-service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AlertDialogWnd } from './dialog/alertDialog/alertDialogWnd';
@@ -24,7 +23,6 @@ import { SafePipe } from './shared/pipes/safeurl';
 import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
 import { SharedModule } from './shared/modules/shared.module';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
-//import { AppLoadModule, init_app } from './apploadmodule';
 import { AppLoadService } from './app-load.service';
  
  
@@ -76,7 +74,6 @@ export function get_settings(appLoadService: AppLoadService) {
   ],
   providers: [
     AuthGuard,
-    CookieService,
     { provide: APP_INITIALIZER, useFactory: get_settings, deps: [AppLoadService], multi: true },
   ],
   bootstrap: [AppComponent],

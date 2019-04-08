@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../../router.animations';
 import { IPackageController } from './ipackage-controller';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
+
 
 
 
@@ -16,7 +16,7 @@ export class FormComponent implements OnInit {
 
 
   private packageCtrl: IPackageController
-  constructor(private route: ActivatedRoute, private router: Router, private cookieService: CookieService, ) {
+  constructor(private route: ActivatedRoute, private router: Router) {
 
   }
 
