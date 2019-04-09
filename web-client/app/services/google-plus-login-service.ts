@@ -19,71 +19,78 @@ export class GooglePlusLoginService implements IGoogleLogin {
         console.log('cordova!');
         let that = this;
         this.auth2 = new Promise((cb) => {
+            document.addEventListener("backbutton", function () {
+                // Handle the back button
+            }, false);
+
+
             document.addEventListener('deviceready', function () {
                 console.log('Device is ready!');
                 that.httpCaller.callGetAsText('/',
                     () => {
-                        cb(true);
+                        console.log(window['cookieMaster']);
+                        window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
+                            console.log(data.cookieValue);
+                            environment['xsrf_token'] = data.cookieValue;
+                            cb(true);
+                        }, function (error) {
+                            if (error) {
+                                console.log('error: ' + error);
+                            }
+                            cb(null);
+                        });
                     });
             }, false);
         });
     }
 
-    public signIn(domainName) {
+    public signIn(domainName, language) {
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
                 if (a2 === null)
                     return cb(null);
 
+                window['plugins'].googleplus.login(
+                    {
+                        'scopes': Security.GoogleLoginScopes.join(' '),
+                        'webClientId': environment.clientId,
+                        'offline': false
+                    },
+                    function (authprofile) {
 
-                that.httpCaller.callGet('/login/google/getprofile',
-                    (p) => {
-                        window['plugins'].googleplus.login(
-                            {
-                                'scopes': Security.GoogleLoginScopes.join(' '),
-                                'webClientId': environment.clientId//'client id of the web app/server side', // optional clientId of your Web application from Credentials settings of your project - On Android, this MUST be included to get an idToken. On iOS, it is not required.
-                                //'offline': true // optional, but requires the webClientId - if set to true the plugin will also return a serverAuthCode, which can be used to grant offline access to a non-Google server
+                        that.httpCaller.callPost('/login/google/success2',
+                            { domainName: domainName, language: language, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
+                            (r) => {
+                                if (r && r.refresh === true && cb) {
+                                    let us = new UserSession();
+                                    us.Username = r.Username;
+                                    us.DomainName = r.DomainName;
+                                    us.DomainId = r.DomainId;
+                                    us.Language = r.Language;
+                                    us.LastAuthTime = r.LastAuthTime;
+                                    cb(us);
+                                }
+                                else {
+                                    return errcb(null);
+                                }
                             },
-                            function (authprofile) {
-                                alert(JSON.stringify(authprofile));
+                            (err) => {
+                                if (errcb)
+                                    errcb(err);
+                            });
+                    },
+                    function (err) {
+                        console.log(err);
+                        errcb(err);
+                    }
+                );
 
-                                that.httpCaller.callPost('/login/google/success2',
-                                    { domainName: domainName, language: p.language, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
-                                    (r) => {
-                                        if (r && r.refresh === true && cb) {
-                                            let us = new UserSession();
-                                            us.Username = r.Username;
-                                            us.DomainName = r.DomainName;
-                                            us.DomainId = r.DomainId;
-                                            us.Language = r.Language;
-                                            us.LastAuthTime = r.LastAuthTime;
-                                            cb(us);
-                                        }
-                                        else {
-                                            return errcb(null);
-                                        }
-                                    },
-                                    (err) => {
-                                        if (errcb)
-                                            errcb(err);
-                                    });
-                            },
-                            function (err) {
-                                console.log(err);
-                            }
-                        );
-                    }, (err) => {
-                        return errcb(null);
-                    });
             });
         });
     }
 
     public getUserProfile() {
-
-
-
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
@@ -94,18 +101,13 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
                 that.httpCaller.callGet('/login/google/getprofile',
                     (p) => {
-                        console.log(window)
-                        console.log(window['plugins'].googleplus)
-                        window['plugins'].googleplus.login(
-                            {
-                                'scopes': Security.GoogleLoginScopes.join(' '),
-                                'webClientId': environment.clientId,
-                                'offline': true
-                            },
-                            function (authprofile) {
-                                console.log(authprofile)
+                        if (p.errror === 'no_profile') {
+                            return cb(null);
+                        }
+                        else {
+                            let setlogin = function (accessToken, idToken) {
                                 that.httpCaller.callPost('/login/google/success2',
-                                    { domainName: p.DomainName, language: p.Language, accessToken: authprofile.accessToken, idToken: authprofile.idToken },
+                                    { domainName: p.DomainName, language: p.Language, accessToken: accessToken, idToken: idToken },
                                     (r) => {
                                         console.log(r)
                                         if (r && r.refresh === true && cb) {
@@ -115,25 +117,50 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                             us.DomainId = r.DomainId;
                                             us.Language = r.Language;
                                             us.LastAuthTime = r.LastAuthTime;
-                                            cb(us);
+                                            return cb(us);
                                         }
                                         else {
-                                            return errcb(null);
+                                            return cb(null);
                                         }
                                     },
                                     (err) => {
                                         console.log(err);
-                                        return errcb(err);
+                                        return cb(err);
                                     });
-                            },
-                            function (err) {
-                                console.log(err);
-                                return errcb(err);
                             }
-                        );
 
+                            window['plugins'].googleplus.trySilentLogin(
+                                {
+                                    'scopes': Security.GoogleLoginScopes.join(' '),
+                                    'webClientId': environment.clientId,
+                                    'offline': false
+                                },
+                                function (authprofile) {
+                                    console.log(authprofile);
+                                    setlogin(authprofile.accessToken, authprofile.idToken);
+                                },
+                                function (err) {
+                                    console.log(err);
+                                    window['plugins'].googleplus.login(
+                                        {
+                                            'scopes': Security.GoogleLoginScopes.join(' '),
+                                            'webClientId': environment.clientId,
+                                            'offline': false
+                                        },
+                                        function (authprofile) {
+                                            console.log(authprofile);
+                                            setlogin(authprofile.accessToken, authprofile.idToken);
+                                        },
+                                        function (err) {
+                                            console.log(err);
+                                            return  cb(null);
+                                        }
+                                    );
+                                }
+                            );
+                        }
                     }, err => {
-                        return errcb(null);
+                        return  cb(null);
                     });
             });
         });

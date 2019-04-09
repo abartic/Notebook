@@ -83,6 +83,13 @@ export class GoogleLoginService implements IGoogleLogin {
 
                     that.httpCaller.callGet('/login/google/getprofile',
                         (p) => {
+
+                            if (p.errror==='no_profile')
+                            {
+                                return cb(null)
+                            }
+                            else
+                            {
                             let authprofile = a2.currentUser.get().getAuthResponse(true);
                             let userprofile = a2.currentUser.get().getBasicProfile();
                             that.httpCaller.callPost('/login/google/success2', { domainName: p.DomainName, language: p.Language, accessToken: authprofile.access_token, idToken: authprofile.id_token },
@@ -104,12 +111,13 @@ export class GoogleLoginService implements IGoogleLogin {
                                     console.log(err);
                                     return cb(null);
                                 })
+                            }
                         }, (err) => {
                             return cb(null);
                         });
 
                 })
-                .catch(err => { errcb(err) });
+                .catch(err => { cb(null) });
         });
     }
 

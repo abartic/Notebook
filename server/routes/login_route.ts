@@ -146,14 +146,24 @@ export class LoginRoute extends BaseRoute {
         router.get('/login/google/getprofile',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
-                res.send({
-                    error: null, refresh: true,
-                    DomainName: req.session['domainName'],
-                    DomainId: req.session['domainId'],
-                    Username: req.session['userId'],
-                    LastAuthTime: req.session['lastAuthTime'],
-                    Language: req.session['language'],
-                });
+                if (req.session['domainName'] && req.session['userId']) {
+                    res.send({
+                        error: null, refresh: true,
+                        DomainName: req.session['domainName'],
+                        DomainId: req.session['domainId'],
+                        Username: req.session['userId'],
+                        LastAuthTime: req.session['lastAuthTime'],
+                        Language: req.session['language'],
+
+                    });
+                }
+                else
+                {
+                    res.send({
+                        error: 'no_profile', 
+                        refresh: false,
+                    });
+                }
             });
 
         router.post('/login/google/success2',

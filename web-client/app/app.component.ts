@@ -43,6 +43,8 @@ export class AppComponent implements OnInit {
       }
       else {
         that.translate.use(that.userSession.Language);
+        console.log('main component')
+        this.ngZone.run(() => this.router.navigate(['/'])).then();
       }
 
 

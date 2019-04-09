@@ -7,7 +7,7 @@ import { Injectable, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 //import { forkJoin } from 'rxjs/observable/forkJoin';
 import 'rxjs/add/observable/forkJoin';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UserSession } from '../common/userSession';
 import { environment } from '../../environments/environment';
 
@@ -39,7 +39,12 @@ export class HttpCallerService {
 
   public callPost(url: string, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
-    this.http.post<HttpResponse>(environment.baseUrlServices + url, pack, { responseType: 'json' })
+    let headers = undefined;
+    if (environment.mobile && environment['xsrf_token']) {
+      headers = new HttpHeaders();
+      headers = headers.append('x-xsrf-token', environment['xsrf_token'])
+    }
+    this.http.post<HttpResponse>(environment.baseUrlServices + url, pack, { responseType: 'json', headers: headers })
       .subscribe(result => {
 
         if ((result.error === undefined || result.error === null) &&
@@ -70,13 +75,17 @@ export class HttpCallerService {
     let language = 'en';
     if (userSession && userSession.Language !== 'en')
       language = userSession.Language;
+    let headers: HttpHeaders = new HttpHeaders({
+      'Accept-Language': language
+    });
+    if (environment.mobile && environment['xsrf_token']) {
+      headers = headers.append('x-xsrf-token', environment['xsrf_token'])
+    }
 
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
     // options.responseType = ResponseContentType.Blob;
     this.http.post(environment.baseUrlServices + url, pack, {
-      headers: {
-        'Accept-Language': language
-      },
+      headers: headers,
       responseType: 'blob'
     })
       .subscribe(result => {
@@ -95,8 +104,14 @@ export class HttpCallerService {
   public callPosts(packs: Array<[string, Object]>, cb: ((result: any) => void), errcb: ((result: any) => void)) {
 
     let calls: Array<Observable<HttpResponse>> = [];
+    let headers = undefined;
+    if (environment.mobile && environment['xsrf_token']) {
+      headers = new HttpHeaders();
+      headers = headers.append('x-xsrf-token', environment['xsrf_token'])
+    }
+
     for (let pack of packs) {
-      calls.push(this.http.post<HttpResponse>(environment.baseUrlServices + pack["0"], pack["1"]));
+      calls.push(this.http.post<HttpResponse>(environment.baseUrlServices + pack["0"], pack["1"], { headers: headers }));
     }
 
     Observable.forkJoin(calls)

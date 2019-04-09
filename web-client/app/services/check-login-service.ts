@@ -25,7 +25,7 @@ export class CheckLoginService {
         this.userSessionService.userSession.subscribe(
             us => {
                 this.userSession = us;
-                this.timer = timer(5 * 60 * 1000, 60 * 1000);
+                this.timer = timer(10 * 60 * 1000, 10 * 60 * 1000);
                 this.timer.subscribe(t => {
                     that.googleLoginService.getUserProfile().then(authprofile => {
 
