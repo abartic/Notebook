@@ -75,11 +75,11 @@ export class HttpCallerService {
     let language = 'en';
     if (userSession && userSession.Language !== 'en')
       language = userSession.Language;
-    let headers: HttpHeaders = new HttpHeaders({
+    let headers = {
       'Accept-Language': language
-    });
+    };
     if (environment.mobile && environment['xsrf_token']) {
-      headers = headers.append('x-xsrf-token', environment['xsrf_token'])
+      headers['x-xsrf-token'] = environment['xsrf_token'];
     }
 
     // let options: RequestOptionsArgs = <RequestOptionsArgs>{};
