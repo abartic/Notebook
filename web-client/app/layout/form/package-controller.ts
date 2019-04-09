@@ -46,7 +46,16 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
                 });
 
-        let c = this.editorCommands;
+        if (this.editor_commands.length === 0) {
+            for (const c of this.shellInfo.commands) {
+                if (c.handler === 'onNew') {
+                    this.package.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
+                }
+                this.editor_commands.push(c);
+            }
+            this.package.canExecuteFilter = this.shellInfo.filter.selectFirst !== true;
+            
+        }
     }
     public get filterProperties() {
         let finfo = ModelInfos.uniqueInstance.get(this.entityType);
@@ -72,15 +81,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     private editor_commands = [];
     public get editorCommands() {
 
-        if (this.editor_commands.length === 0) {
-            for (const c of this.shellInfo.commands) {
-                if (c.handler === 'onNew') {
-                    this.package.canExecuteNew = c.isDisabled !== true && (!c.isActive || (c.isActive && c.isActive(this) === true));
-                }
-                this.editor_commands.push(c);
-            }
-            this.package.canExecuteFilter = this.shellInfo.filter.selectFirst !== true;
-        }
+        
         return this.editor_commands;
     }
 
@@ -1207,18 +1208,20 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                                 // call callback
                                 entity = r.rows[0];
                             }
+                            console.log(entity);
                             ppack.cb(this.package.entity, entity);
                             if (index >= packs.length) {
                                 observer.complete();
                             }
+                           
                         },
                         err => {
                             observer.error();
-
+                            console.log(err);
                         });
                 }).catch((err) => {
                     observer.error();
-
+                    console.log(err);
 
                 });
 
@@ -1228,12 +1231,14 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
         preloadObs.subscribe(() => { },
             () => {
+                console.log('report error');
                 this.package.error_msg = 'report error...';
                 this.setWaiting(false);
             },
             () => {
+                console.log('report launch');
                 this.httpCaller.callPdf(
-                    '/sheetdata/report  ',
+                    '/sheetdata/report',
                     this.userSession,
                     pack,
                     reportUrl => {
