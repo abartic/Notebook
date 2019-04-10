@@ -73,7 +73,7 @@ export class HttpCallerService {
   public callPdf(url: string, userSession: UserSession, pack: Object, cb: ((result: any) => void), errcb: ((result: any) => void), ignoreError?: boolean) {
 
     let language = 'en';
-    if (userSession && userSession.Language !== 'en')
+    if (userSession && userSession.Language.length !== 0)
       language = userSession.Language;
     let headers = {
       'Accept-Language': language
@@ -91,8 +91,13 @@ export class HttpCallerService {
       .subscribe(result => {
         //var file = new Blob([result.blob()], { type: 'application/pdf' });
         var file = new Blob([result], { type: 'application/pdf' });
-        var fileURL = URL.createObjectURL(file);
-        cb(fileURL);
+        if (environment.mobile === true) {
+          cb(file);
+        }
+        else {
+          var fileURL = URL.createObjectURL(file);
+          cb(fileURL);
+        }
       }, error => {
 
         errcb(error);

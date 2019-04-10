@@ -135,8 +135,11 @@ export class LoginRoute extends BaseRoute {
                     method: 'GET',
                     uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken,
 
-                }).then(fbRes => {
-                    res.json({ 'response': 'valid' });
+                }).then(res => {
+                    if (res.error)
+                        res.json({ 'response': 'expired' });
+                    else
+                        res.json({ 'response': 'valid' });
                 })
                     .catch(err => {
                         res.json({ 'response': 'expired' });
@@ -147,7 +150,7 @@ export class LoginRoute extends BaseRoute {
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
                 if (req.session['domainName'] && req.session['userId']) {
-                    res.send({
+                    let userprof = {
                         error: null, refresh: true,
                         DomainName: req.session['domainName'],
                         DomainId: req.session['domainId'],
@@ -155,12 +158,13 @@ export class LoginRoute extends BaseRoute {
                         LastAuthTime: req.session['lastAuthTime'],
                         Language: req.session['language'],
 
-                    });
+                    };
+                    console.log(userprof);
+                    res.send(userprof);
                 }
-                else
-                {
+                else {
                     res.send({
-                        error: 'no_profile', 
+                        error: 'no_profile',
                         refresh: false,
                     });
                 }
@@ -179,7 +183,15 @@ export class LoginRoute extends BaseRoute {
                     });
                     const payload = ticket.getPayload();
 
+                    let token_validity = await request({
+                        method: 'GET',
+                        uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken,
 
+                    });
+                   
+                    if (token_validity.error)
+                        return res.send({ error: null, refresh: false });
+                        
                     LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result) {
                         if (result === true) {
 
