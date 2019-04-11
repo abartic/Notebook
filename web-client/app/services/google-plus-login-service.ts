@@ -142,21 +142,6 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                 function (err) {
                                     console.log(err);
                                     return  cb(null);
-                                    // window['plugins'].googleplus.login(
-                                    //     {
-                                    //         'scopes': Security.GoogleLoginScopes.join(' '),
-                                    //         'webClientId': environment.clientId,
-                                    //         'offline': false
-                                    //     },
-                                    //     function (authprofile) {
-                                    //         console.log(authprofile);
-                                    //         setlogin(authprofile.accessToken, authprofile.idToken);
-                                    //     },
-                                    //     function (err) {
-                                    //         console.log(err);
-                                    //         return  cb(null);
-                                    //     }
-                                    // );
                                 }
                             );
                         }

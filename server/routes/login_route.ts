@@ -12,11 +12,20 @@ import * as path from 'path';
 import { SheetsMgr } from '../common/sheets-mgr';
 import { DriveOperations } from '../drive/drive_operations';
 import { eFileOperationType } from '../sheets/sheets_common_operations';
+import { Security } from '../common/security';
+
+
 
 export class LoginRoute extends BaseRoute {
 
     constructor() {
         super();
+    }
+
+    private static arrayContains(array, otherArray) {
+        return !array.some(function(item) {
+            return otherArray.indexOf(item) === -1;
+         });
     }
 
     private static getDomainById(domainId) {
@@ -183,15 +192,20 @@ export class LoginRoute extends BaseRoute {
                     });
                     const payload = ticket.getPayload();
 
-                    let token_validity = await request({
+                    let token_validity_str = await request({
                         method: 'GET',
                         uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken,
 
                     });
                    
-                    if (token_validity.error)
+                    let token_validity = JSON.parse(token_validity_str);
+                    if (token_validity.error || !token_validity.scope)
                         return res.send({ error: null, refresh: false });
                         
+                    let scopes = token_validity.scope.split(' ');
+                    if (LoginRoute.arrayContains(Security.GoogleLoginScopes, scopes) === false)
+                        return res.send({ error: null, refresh: false });
+
                     LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result) {
                         if (result === true) {
 

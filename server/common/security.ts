@@ -2,11 +2,12 @@ export class Security
 {
 
     public static GoogleLoginScopes =  [
-        'email profile',
+        'openid',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/drive.file',
-        'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive.metadata.readonly',
-        'https://spreadsheets.google.com/feeds'
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive.file'
     ];
 }
