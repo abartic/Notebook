@@ -23,6 +23,10 @@ export class GooglePlusLoginService implements IGoogleLogin {
                 // Handle the back button
             }, false);
 
+            document.addEventListener("resume", function () {
+                console.log('app activated...');
+                that.getUserProfile();
+            }, false);
 
             document.addEventListener('deviceready', function () {
                 console.log('Device is ready!');
@@ -101,7 +105,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
                 that.httpCaller.callGet('/login/google/getprofile',
                     (p) => {
-                        if (p.errror === 'no_profile') {
+                        if (p.error === 'no_profile') {
                             return cb(null);
                         }
                         else {
@@ -141,12 +145,12 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                 },
                                 function (err) {
                                     console.log(err);
-                                    return  cb(null);
+                                    return cb(null);
                                 }
                             );
                         }
                     }, err => {
-                        return  cb(null);
+                        return cb(null);
                     });
             });
         });

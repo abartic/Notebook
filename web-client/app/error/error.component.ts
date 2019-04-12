@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { routerTransition } from '../router.animations';
 import { NgModule, Injectable, AfterContentInit } from '@angular/core';
 
@@ -14,7 +14,7 @@ import { NgModule, Injectable, AfterContentInit } from '@angular/core';
 export class ErrorComponent implements OnInit {
 
 
-    constructor(private route: ActivatedRoute) {
+    constructor(private route: ActivatedRoute, private router: Router) {
     }
 
     error_msg: string;
@@ -30,4 +30,8 @@ export class ErrorComponent implements OnInit {
             this.error_msg = 'Communication/generic issue';
     }
 
+    navigateTo(path)
+    {
+        this.router.navigate([path]);
+    }
 }

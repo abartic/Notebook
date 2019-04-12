@@ -26,6 +26,10 @@ export class ReportDialogWnd implements OnInit {
     });
   }
 
+  get isFrameVisible()
+  {
+    return environment.mobile === false;
+  }
 
   ngOnInit() {
 
@@ -48,6 +52,7 @@ export class ReportDialogWnd implements OnInit {
                   },
                   success: function () {
                     console.log('file opened successfully');
+                    that.activeModal.dismiss('Cancel')
                   }
                 }
               );

@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
 
 
     ngOnInit(): void {
-       
+       this.domain = this.userSession.DomainName;
     }
 
     language = 'en';

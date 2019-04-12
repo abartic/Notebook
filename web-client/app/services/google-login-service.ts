@@ -84,7 +84,7 @@ export class GoogleLoginService implements IGoogleLogin {
                     that.httpCaller.callGet('/login/google/getprofile',
                         (p) => {
 
-                            if (p.errror==='no_profile')
+                            if (p.error==='no_profile')
                             {
                                 return cb(null)
                             }

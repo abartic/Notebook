@@ -5,6 +5,7 @@ import { UserSessionService } from './services/userSessionService';
 import { UserSession } from './common/userSession';
 import { Router } from '@angular/router';
 import { CheckLoginService } from './services/check-login-service';
+import { environment } from '../environments/environment';
 
 
 
@@ -32,7 +33,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-  
+
 
     let that = this;
     this.userSessionService.userSession.subscribe(us => {
@@ -43,8 +44,9 @@ export class AppComponent implements OnInit {
       }
       else {
         that.translate.use(that.userSession.Language);
-        console.log('main component')
-        this.ngZone.run(() => this.router.navigate(['/'])).then();
+        if (environment.mobile === true) {
+          this.ngZone.run(() => this.router.navigate(['/'])).then();
+        }
       }
 
 
