@@ -156,6 +156,7 @@ export class LoginRoute extends BaseRoute {
             });
 
         router.get('/login/google/init',
+            csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
 
                 //set csrf cookie
