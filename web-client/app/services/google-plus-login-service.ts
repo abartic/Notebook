@@ -25,25 +25,26 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
             document.addEventListener("resume", function () {
                 console.log('app activated...');
-                that.getUserProfile(true);
+                that.getUserProfile(false);
             }, false);
 
             document.addEventListener('deviceready', function () {
                 console.log('Device is ready!');
-                // that.httpCaller.callGetAsText('/',
-                //     () => {
-                //         console.log(window['cookieMaster']);
-                //         window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
-                //             console.log(data.cookieValue);
-                //             environment['xsrf_token'] = data.cookieValue;
-                //             cb(true);
-                //         }, function (error) {
-                //             if (error) {
-                //                 console.log('error: ' + error);
-                //             }
-                //             cb(null);
-                //         });
-                //     });
+
+                that.httpCaller.callGetAsText('/login/google/init',
+                    () => {
+                        console.log(window['cookieMaster']);
+                        window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
+                            console.log(data.cookieValue);
+                            environment['xsrf_token'] = data.cookieValue;
+                            cb(true);
+                        }, function (error) {
+                            if (error) {
+                                console.log('error: ' + error);
+                            }
+                            cb(null);
+                        });
+                    });
             }, false);
         });
     }
@@ -94,7 +95,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
         });
     }
 
-    public getUserProfile(refreshCsrf) {
+    public getUserProfile(initCsrf) {
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
@@ -103,8 +104,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
                 if (a2 === null)
                     return cb(null);
 
-                let csrfToken = refreshCsrf ? 'csrf-refresh' : 'none';
-                that.httpCaller.callGet('/login/google/getprofile/' + csrfToken,
+                that.httpCaller.callGet('/login/google/getprofile',
                     (p) => {
 
                         if (p.error === 'no_profile') {
@@ -161,7 +161,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
                             }, function (error) {
                                 cb(null);
                             });
-                           
+
                         }
                     }, err => {
                         return cb(null);

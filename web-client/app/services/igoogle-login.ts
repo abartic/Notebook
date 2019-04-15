@@ -4,7 +4,7 @@ interface IGoogleLogin
 {
     signIn(domainName, language);
 
-    getUserProfile(refreshCsrf); 
+    getUserProfile(initCsrf); 
 
     signOut();
 }

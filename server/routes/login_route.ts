@@ -23,9 +23,9 @@ export class LoginRoute extends BaseRoute {
     }
 
     private static arrayContains(array, otherArray) {
-        return !array.some(function(item) {
+        return !array.some(function (item) {
             return otherArray.indexOf(item) === -1;
-         });
+        });
     }
 
     private static getDomainById(domainId) {
@@ -155,17 +155,19 @@ export class LoginRoute extends BaseRoute {
                     });
             });
 
-            router.get('/login/google/getprofile/:csrfToken',
+        router.get('/login/google/init',
+            (req: Request, res: Response, next: NextFunction) => {
+
+                //set csrf cookie
+                let token = req.csrfToken();
+                res.cookie("xsrf-token", token);
+                res.send({});
+            });
+
+        router.get('/login/google/getprofile',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
-                
-                //set csrf cookie
-                if (req.params.csrfToken === 'csrf-refresh')
-                {
-                    let token = req.csrfToken();
-                    res.cookie("xsrf-token", token);
-                }
-                
+
                 if (req.session['domainName'] && req.session['userId']) {
                     let userprof = {
                         error: null, refresh: true,
@@ -205,11 +207,11 @@ export class LoginRoute extends BaseRoute {
                         uri: 'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=' + accessToken,
 
                     });
-                   
+
                     let token_validity = JSON.parse(token_validity_str);
                     if (token_validity.error || !token_validity.scope)
                         return res.send({ error: null, refresh: false });
-                        
+
                     let scopes = token_validity.scope.split(' ');
                     if (LoginRoute.arrayContains(Security.GoogleLoginScopes, scopes) === false)
                         return res.send({ error: null, refresh: false });

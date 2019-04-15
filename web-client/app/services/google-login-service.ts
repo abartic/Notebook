@@ -73,7 +73,7 @@ export class GoogleLoginService implements IGoogleLogin {
 
     }
 
-    public getUserProfile(refreshCsrf) {
+    public getUserProfile(initCsrf) {
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2
@@ -81,39 +81,42 @@ export class GoogleLoginService implements IGoogleLogin {
                     if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
                         return cb(null);
 
-                    let csrfToken = refreshCsrf ? 'csrf-refresh' : 'none';
-                    that.httpCaller.callGet('/login/google/getprofile/' + csrfToken,
-                        (p) => {
+                    that.httpCaller.callGet('/login/google/init', () => {
+                        that.httpCaller.callGet('/login/google/getprofile',
+                            (p) => {
 
-                            if (p.error === 'no_profile') {
-                                return cb(null)
-                            }
-                            else {
-                                let authprofile = a2.currentUser.get().getAuthResponse(true);
-                                let userprofile = a2.currentUser.get().getBasicProfile();
-                                that.httpCaller.callPost('/login/google/success2', { domainName: p.DomainName, language: p.Language, accessToken: authprofile.access_token, idToken: authprofile.id_token },
-                                    (r) => {
-                                        if (r && r.refresh === true && cb) {
-                                            let us = new UserSession();
-                                            us.Username = r.Username;
-                                            us.DomainName = r.DomainName;
-                                            us.DomainId = r.DomainId;
-                                            us.Language = r.Language;
-                                            us.LastAuthTime = r.LastAuthTime;
-                                            cb(us);
-                                        }
-                                        else {
+                                if (p.error === 'no_profile') {
+                                    return cb(null)
+                                }
+                                else {
+                                    let authprofile = a2.currentUser.get().getAuthResponse(true);
+                                    let userprofile = a2.currentUser.get().getBasicProfile();
+                                    that.httpCaller.callPost('/login/google/success2', { domainName: p.DomainName, language: p.Language, accessToken: authprofile.access_token, idToken: authprofile.id_token },
+                                        (r) => {
+                                            if (r && r.refresh === true && cb) {
+                                                let us = new UserSession();
+                                                us.Username = r.Username;
+                                                us.DomainName = r.DomainName;
+                                                us.DomainId = r.DomainId;
+                                                us.Language = r.Language;
+                                                us.LastAuthTime = r.LastAuthTime;
+                                                cb(us);
+                                            }
+                                            else {
+                                                return cb(null);
+                                            }
+                                        },
+                                        (err) => {
+                                            console.log(err);
                                             return cb(null);
-                                        }
-                                    },
-                                    (err) => {
-                                        console.log(err);
-                                        return cb(null);
-                                    })
-                            }
-                        }, (err) => {
-                            return cb(null);
-                        });
+                                        })
+                                }
+                            }, (err) => {
+                                return cb(null);
+                            });
+                    }, () => { 
+                        cb(null) 
+                    });
 
                 })
                 .catch(err => { cb(null) });
