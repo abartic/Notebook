@@ -20,7 +20,6 @@
                 "entityName": "Expenses",
                 "ukey": "code_doc",
                 "relations": ["expenseline"],
-                "caption_prefix": "expenses",
                 "hidden_fields": []
             }
         ]
@@ -40,13 +39,13 @@
         "hidden_fields": [],
         "entities": [{
                 "entityName": "BudgetLine",
-                "hidden_fields": [],
-                "caption_prefix": "budgetline"
+                "hidden_fields": []
+                
             },
             {
                 "entityName": "ExpenseLine",
-                "hidden_fields": ["year", "month", "week", "day", "credit"],
-                "caption_prefix": "expenseline"
+                "hidden_fields": ["year", "month", "week", "day", "credit"]
+                
             }
         ]
     }]

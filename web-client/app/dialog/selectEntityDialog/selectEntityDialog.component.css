@@ -60,6 +60,7 @@ table {
         border-bottom: 1px solid #eee;
         position: relative;
         white-space: nowrap;
+        padding: 1px;
     }
     table {
         display: block;
@@ -70,14 +71,19 @@ table {
         --screensize: sm;
     }
     .tdlabel {
-        width: 25%;
+        width: 30%;
         display: inline-block;
+        margin: 0;
+        font-size: 7;
+        font-style: italic;
+        vertical-align: top;
     }
     .tdcontent {
-        width: 75%;
+        width: 70%;
         display: inline-block;
-        margin-left: 25%;
-        margin-bottom: 1px;
-        margin-top: 1px;
+        margin-left: 0%;
+        vertical-align: top;
+        padding: 0;
+        font-size: 7;
     }
 }

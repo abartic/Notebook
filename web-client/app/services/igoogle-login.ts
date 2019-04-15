@@ -2,9 +2,9 @@
 
 interface IGoogleLogin
 {
-    signIn(domainName, language); // : Promise<UserSession>;
+    signIn(domainName, language);
 
-    getUserProfile(); // : Promise<UserSession>;
+    getUserProfile(refreshCsrf); 
 
     signOut();
 }

@@ -48,10 +48,9 @@ export class IndexRoute extends BaseRoute {
    */
   public index(req: Request, res: Response, next: NextFunction) {
     
-    //var csrf = csrfProtection(req,res,next);
-    let token = req.csrfToken();
-    res.cookie("xsrf-token", token);
-    console.log("xsrf-token: " + token);
+    // let token = req.csrfToken();
+    // res.cookie("xsrf-token", token);
+    // console.log("xsrf-token: " + token);
     res.render("../a_index.html");
   }
 }

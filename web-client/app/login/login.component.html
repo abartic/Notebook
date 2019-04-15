@@ -45,11 +45,10 @@
       <br>
       <br>
 
-      <label *ngIf="userSession.Username">Curren user logged:
+      <label *ngIf="userSession.Username">{{'LBL.USER_LOGGED' | translate}}:
         {{userSession.DomainName}}/{{userSession.Username}}</label>
       <br>
-      <a *ngIf="userSession.Username" (click)="continueWithUser()" style="cursor: pointer;"><u>Continue
-          with current user.</u></a>
+      <a *ngIf="userSession.Username" (click)="continueWithUser()" style="cursor: pointer;"><u>{{'LBL.CONT_USER_LOGGED' | translate}}</u></a>
 
     </div>
   </div>

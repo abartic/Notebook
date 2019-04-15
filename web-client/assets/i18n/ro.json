@@ -80,6 +80,9 @@
     "BTN.DELETE_METADATA": "Sterge metadata",
     "TIT.SHEETS_ADMIN": "Administrare sheets",
 
+    "LBL.USER_LOGGED": "Utilizator curent",
+    "LBL.CONT_USER_LOGGED": "Continua cu utilizator curent.",
+
     "accountinventory": "cont partener",
     "accountinventory.code_part": "Cod Part.",
     "accountinventory.debit_value": "Debit",

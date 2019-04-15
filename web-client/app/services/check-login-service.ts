@@ -27,7 +27,7 @@ export class CheckLoginService {
                 this.userSession = us;
                 this.timer = timer(10 * 60 * 1000, 10 * 60 * 1000);
                 this.timer.subscribe(t => {
-                    that.googleLoginService.getUserProfile().then(authprofile => {
+                    that.googleLoginService.getUserProfile(false).then(authprofile => {
 
                         // this.httpCaller.callGet(
                         //     '/login/google/refresh',

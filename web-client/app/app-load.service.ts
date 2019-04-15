@@ -27,7 +27,8 @@ export class AppLoadService {
     
     getSettings(): Promise<any> {
         let that = this;
-        return this.googleLoginService.getUserProfile()
+        
+        return this.googleLoginService.getUserProfile(true)
             .then(profile => {
                 if (profile) {
                     that.userSession = profile;

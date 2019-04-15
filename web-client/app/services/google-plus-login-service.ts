@@ -25,25 +25,25 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
             document.addEventListener("resume", function () {
                 console.log('app activated...');
-                that.getUserProfile();
+                that.getUserProfile(true);
             }, false);
 
             document.addEventListener('deviceready', function () {
                 console.log('Device is ready!');
-                that.httpCaller.callGetAsText('/',
-                    () => {
-                        console.log(window['cookieMaster']);
-                        window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
-                            console.log(data.cookieValue);
-                            environment['xsrf_token'] = data.cookieValue;
-                            cb(true);
-                        }, function (error) {
-                            if (error) {
-                                console.log('error: ' + error);
-                            }
-                            cb(null);
-                        });
-                    });
+                // that.httpCaller.callGetAsText('/',
+                //     () => {
+                //         console.log(window['cookieMaster']);
+                //         window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
+                //             console.log(data.cookieValue);
+                //             environment['xsrf_token'] = data.cookieValue;
+                //             cb(true);
+                //         }, function (error) {
+                //             if (error) {
+                //                 console.log('error: ' + error);
+                //             }
+                //             cb(null);
+                //         });
+                //     });
             }, false);
         });
     }
@@ -94,7 +94,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
         });
     }
 
-    public getUserProfile() {
+    public getUserProfile(refreshCsrf) {
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
@@ -103,12 +103,15 @@ export class GooglePlusLoginService implements IGoogleLogin {
                 if (a2 === null)
                     return cb(null);
 
-                that.httpCaller.callGet('/login/google/getprofile',
+                let csrfToken = refreshCsrf ? 'csrf-refresh' : 'none';
+                that.httpCaller.callGet('/login/google/getprofile/' + csrfToken,
                     (p) => {
+
                         if (p.error === 'no_profile') {
                             return cb(null);
                         }
                         else {
+
                             let setlogin = function (accessToken, idToken) {
                                 that.httpCaller.callPost('/login/google/success2',
                                     { domainName: p.DomainName, language: p.Language, accessToken: accessToken, idToken: idToken },
@@ -133,21 +136,32 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                     });
                             }
 
-                            window['plugins'].googleplus.trySilentLogin(
-                                {
-                                    'scopes': Security.GoogleLoginScopes.join(' '),
-                                    'webClientId': environment.clientId,
-                                    'offline': false
-                                },
-                                function (authprofile) {
-                                    console.log(authprofile);
-                                    setlogin(authprofile.accessToken, authprofile.idToken);
-                                },
-                                function (err) {
-                                    console.log(err);
-                                    return cb(null);
-                                }
-                            );
+                            window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
+
+                                //read csrf cookie to be added to http header
+                                console.log(data.cookieValue);
+                                environment['xsrf_token'] = data.cookieValue;
+
+                                window['plugins'].googleplus.trySilentLogin(
+                                    {
+                                        'scopes': Security.GoogleLoginScopes.join(' '),
+                                        'webClientId': environment.clientId,
+                                        'offline': false
+                                    },
+                                    function (authprofile) {
+                                        console.log(authprofile);
+                                        setlogin(authprofile.accessToken, authprofile.idToken);
+                                    },
+                                    function (err) {
+                                        console.log(err);
+                                        return cb(null);
+                                    }
+                                );
+
+                            }, function (error) {
+                                cb(null);
+                            });
+                           
                         }
                     }, err => {
                         return cb(null);

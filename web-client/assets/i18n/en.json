@@ -80,6 +80,8 @@
     "BTN.DELETE_METADATA": "Delete metadata",
 
     "TIT.SHEETS_ADMIN": "Sheets administration",
+    "LBL.USER_LOGGED": "Current user logged",
+    "LBL.CONT_USER_LOGGED": "Continue with current user.",
 
     "accountinventory": "account partner",
     "accountinventory.code_part": "Cod Part.",

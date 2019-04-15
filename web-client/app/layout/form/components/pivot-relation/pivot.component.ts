@@ -146,18 +146,7 @@ export class PivotRelationComponent implements OnInit {
     }
     else {
 
-      this.child.webDataRocks.setOptions({
 
-        editing: true,
-        drillThrough: false,
-        showAggregationLabels: false,
-        //configuratorActive: false,
-        //configuratorButton: false,
-        grid: {
-          showHeaders: true,
-
-        }
-      });
 
       let slice = this.getAdjustedShellInfoSlice();
       if (objs.length === 0) {
@@ -174,6 +163,17 @@ export class PivotRelationComponent implements OnInit {
         });
 
       }
+
+      this.child.webDataRocks.setOptions({
+
+        editing: true,
+        drillThrough: false,
+        showAggregationLabels: false,
+        grid: {
+          showHeaders: true,
+
+        }
+      });
 
     }
   }

@@ -155,9 +155,17 @@ export class LoginRoute extends BaseRoute {
                     });
             });
 
-        router.get('/login/google/getprofile',
+            router.get('/login/google/getprofile/:csrfToken',
             csrfProtection,
             (req: Request, res: Response, next: NextFunction) => {
+                
+                //set csrf cookie
+                if (req.params.csrfToken === 'csrf-refresh')
+                {
+                    let token = req.csrfToken();
+                    res.cookie("xsrf-token", token);
+                }
+                
                 if (req.session['domainName'] && req.session['userId']) {
                     let userprof = {
                         error: null, refresh: true,
