@@ -326,7 +326,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.readEntitiesByUkey(this.shellInfo,
             this.entityInfo,
             null,
-            null, entity.uid, null, null, -1,
+            null, entity.uid, null, null, null,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
                 this.package.validations = new KeyedCollection<ISelectObj>();
@@ -339,7 +339,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         let relation_entityInfo = ModelInfos.uniqueInstance.get(relation);
                         let relation_shellInfo = ShellInfos.uniqueInstance.get(relation);
                         this.readEntitiesByUkey(relation_shellInfo, relation_entityInfo, null, null,
-                            entity[this.package.entity.ukeyPropName], null, relation, -1,
+                            entity[this.package.entity.ukeyPropName], null, relation, null,
                             (entities_count, entities) => {
                                 this.package.entity[relation + '_relation'] = entities;
                                 for (const entity of entities) {
@@ -653,6 +653,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             },
             err => {
                 this.package.error_msg = this.getError(err);
+                this.setWaiting(false);
             });
     }
 
@@ -720,6 +721,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             },
             err => {
                 this.package.error_msg = this.getError(err);
+                this.setWaiting(false);
             });
     }
 

@@ -225,7 +225,7 @@ export class SheetsCommonOperations {
                 });
             })
             .then((r) => {
-                if (!(r['valueRanges']) || r['valueRanges'].length === 0) {
+                if (!r['data'] || !(r['data']['valueRanges']) || r['data']['valueRanges'].length === 0) {
                     console.log("ERROR_METADATA_CREATION");
                     throw "ERROR_METADATA_CREATION";
                 }
@@ -234,9 +234,9 @@ export class SheetsCommonOperations {
                 let index = 0;
                 for (let entityID of entityIDs) {
                     let markedRowID = null;
-                    if (r['valueRanges'][index].valueRange.values)
-                        markedRowID = r['valueRanges'][index].valueRange.values[0][1];
-                    let ID = r['valueRanges'][index].dataFilters[0].developerMetadataLookup.metadataValue;
+                    if (r['data']['valueRanges'][index].valueRange.values)
+                        markedRowID = r['data']['valueRanges'][index].valueRange.values[0][1];
+                    let ID = r['data']['valueRanges'][index].dataFilters[0].developerMetadataLookup.metadataValue;
                     if (markedRowID !== ID) {
                         console.log("ERROR_METADATA_CREATION");
                         entitiesPackage.entityPackages[index]['error'] = true;

@@ -10,16 +10,16 @@ export class JobManager {
 
     public static startJobs() {
         let data = fs.readFileSync(path.join(__dirname, '../json/jobs.json'), 'utf8');
-        console.log(data)
+        
         let jobDefinitions = JSON.parse(data);
         for (let jobDefinition of jobDefinitions) {
 
-            console.log(jobDefinition)
+        
             for (let job of jobDefinition.jobs) {
                 if (job.isActive === false)
                     continue;
 
-                console.log(job)
+        
                 new CronJob(job.schedule, function () {
 
                     const { JWT } = require('google-auth-library');
@@ -31,7 +31,7 @@ export class JobManager {
 
                     jwtClient.authorize(function (err, tokens) {
                         if (err) {
-                            console.log(err);
+        
                             return;
                         } else {
                             let props = job.notify_body_list_info.split(',');

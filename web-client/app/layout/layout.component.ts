@@ -16,11 +16,11 @@ import { environment } from '../../environments/environment';
     templateUrl: './layout.component.html',
     encapsulation: ViewEncapsulation.None,
     styleUrls: ['./layout.component.scss']
-    
+
 })
 export class LayoutComponent implements OnInit {
 
-    public screen_loading = false;
+
     navigationSubscription;
     userSession: UserSession = new UserSession();
 
@@ -30,24 +30,26 @@ export class LayoutComponent implements OnInit {
         private modalService: NgbModal,
         @Inject(UserSessionService) private userSessionService: UserSessionService) {
 
+        let that = this;
         this.navigationSubscription = router.events.subscribe(event => {
+            console.log(event);
             if (event instanceof NavigationStart) {
-                this.userSession.WaitingForAction = true;
+                that.userSession.WaitingForAction = true;
             }
             else if (event instanceof NavigationEnd) {
-                this.userSession.WaitingForAction = false;
+                that.userSession.WaitingForAction = false;
                 window.scrollTo(0, 0);
             }
             else if (event instanceof NavigationCancel || event instanceof NavigationError) {
-                this.userSession.WaitingForAction = false;
+                that.userSession.WaitingForAction = false;
             }
 
 
         }, error => {
-            this.userSession.WaitingForAction = false;
+            that.userSession.WaitingForAction = false;
 
         }, () => {
-            this.userSession.WaitingForAction = false;
+            that.userSession.WaitingForAction = false;
         });
 
     }
@@ -57,11 +59,11 @@ export class LayoutComponent implements OnInit {
             this.router.navigate(['/dashboard']);
         }
 
-
+        let that = this;
         this.userSessionService.userSession.subscribe(
             us => { this.userSession = us },
             error => {
-                this.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
+                that.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
             });
 
     }

@@ -185,7 +185,6 @@ export class Server {
             (err, req, res, next) => {
                 console.error(err);
                 LogsManager.uniqueInstance.write(req.session.userId, req.session.domainId, JSON.stringify(err));
-                console.log(req)
                 if (err.errorCode === 401) {
                     res.render('unauthorized', { error: err })
                 }
