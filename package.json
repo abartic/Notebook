@@ -101,7 +101,6 @@
         "request-promise": "^4.2.2",
         "rxjs": "^6.4.0",
         "rxjs-compat": "^6.4.0",
-        "sequelize": "^3.31.2",
         "sheetrock": "^1.1.4",
         "typescript": "3.2.4",
         "uuid": "^3.2.1",
