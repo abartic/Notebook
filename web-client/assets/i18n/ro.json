@@ -230,8 +230,8 @@
     "partner.fiscal_reg_number": "Cod fiscal",
     "partner.name_admin": "Nume admin.",
     "partner.name_rep": "Nume reprez.",
-    "partner.iban": "IBAN",
-    "partner.iban_bank": "Banca",
+    "partner.IBAN": "IBAN",
+    "partner.IBAN_bank": "Banca",
     "partner.invoice_report_type": "Raport factura",
     "partner.receivable_report_type": "Raport chitanta",
 

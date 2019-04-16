@@ -230,8 +230,8 @@
     "partner.fiscal_reg_number": "Fiscal number",
     "partner.name_admin": "Admin. name",
     "partner.name_rep": "Repres. name",
-    "partner.iban": "IBAN",
-    "partner.iban_bank": "Bank",
+    "partner.IBAN": "IBAN",
+    "partner.IBAN_bank": "Bank",
     "partner.invoice_report_type": "Invoice report",
     "partner.receivable_report_type": "Receivable report",
 

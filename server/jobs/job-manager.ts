@@ -10,17 +10,19 @@ export class JobManager {
 
     public static startJobs() {
         let data = fs.readFileSync(path.join(__dirname, '../json/jobs.json'), 'utf8');
+        console.log(data)
         let jobDefinitions = JSON.parse(data);
         for (let jobDefinition of jobDefinitions) {
 
-
+            console.log(jobDefinition)
             for (let job of jobDefinition.jobs) {
                 if (job.isActive === false)
                     continue;
 
+                console.log(job)
                 new CronJob(job.schedule, function () {
 
-                    const {JWT} = require('google-auth-library');
+                    const { JWT } = require('google-auth-library');
                     let jwtClient = new JWT(
                         jobDefinition.account,
                         null,
@@ -34,7 +36,7 @@ export class JobManager {
                         } else {
                             let props = job.notify_body_list_info.split(',');
 
-                            SheetsSelectOperations.selectEntity(tokens['access_token'], tokens['access_token'] + '-' + jobDefinition.domainId,
+                            SheetsSelectOperations.selectEntity(tokens['access_token'], job.domainId,
                                 job.spreadsheetName,
                                 job.sheetName,
                                 job.entityName, job.select, false, false)
@@ -76,7 +78,7 @@ export class JobManager {
             service: 'gmail',
             auth: {
                 user: 'alexandrubartic@gmail.com',
-                pass: 'xkcagwsjeuehcsuj'
+                pass: 'xoctsdgyfdhklevg'
             }
         });
 
