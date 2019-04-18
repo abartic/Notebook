@@ -33,9 +33,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
 
                 that.httpCaller.callGetAsText('/login/google/init',
                     () => {
-                        console.log(window['cookieMaster']);
                         window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
-                            console.log(data.cookieValue);
                             environment['xsrf_token'] = data.cookieValue;
                             cb(true);
                         }, function (error) {
@@ -99,8 +97,6 @@ export class GooglePlusLoginService implements IGoogleLogin {
         let that = this;
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2.then(a2 => {
-                console.log(a2)
-
                 if (a2 === null)
                     return cb(null);
 
@@ -116,7 +112,6 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                 that.httpCaller.callPost('/login/google/success2',
                                     { domainName: p.DomainName, language: p.Language, accessToken: accessToken, idToken: idToken },
                                     (r) => {
-                                        console.log(r)
                                         if (r && r.refresh === true && cb) {
                                             let us = new UserSession();
                                             us.Username = r.Username;
@@ -139,7 +134,6 @@ export class GooglePlusLoginService implements IGoogleLogin {
                             window['cookieMaster'].getCookieValue(environment.baseUrlServices, 'xsrf-token', function (data) {
 
                                 //read csrf cookie to be added to http header
-                                console.log(data.cookieValue);
                                 environment['xsrf_token'] = data.cookieValue;
 
                                 window['plugins'].googleplus.trySilentLogin(
@@ -149,7 +143,6 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                         'offline': false
                                     },
                                     function (authprofile) {
-                                        console.log(authprofile);
                                         setlogin(authprofile.accessToken, authprofile.idToken);
                                     },
                                     function (err) {

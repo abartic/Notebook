@@ -382,7 +382,7 @@
     "MSG.ENTITY_DELETED": "Entitate stearsa anterior!",
     "MSG.INVALID_FIELDS": "Propietati invalide:",
     "MSG.NEWENTITY_DELETED": "Noua entitate va fi stearsa!",
-    "MSG.CANNOT_UNDO": "O entitate noua/stearsa nu poate fi re-incarcata!"
+    "MSG.CANNOT_UNDO": "O entitate noua/stearsa nu poate fi re-incarcata!",
 
-
+    "MSG.DELETE_ITEM": "Stergi inregistrarea curenta?"
 }

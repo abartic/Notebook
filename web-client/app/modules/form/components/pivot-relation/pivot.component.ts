@@ -44,7 +44,6 @@ export class PivotRelationComponent implements OnInit {
 
   @Input()
   set list(value: BaseEntity[]) {
-    //console.log(value);
     this.updatePivotDataSource(true);
   }
 
@@ -77,7 +76,6 @@ export class PivotRelationComponent implements OnInit {
   }
 
   onCustomizePivotCell(cell: WebDataRocks.CellBuilder, data: WebDataRocks.Cell): void {
-    //console.log("[customizeCell] WebDataRocksPivot");
     if (data.isClassicTotalRow) cell.addClass("fm-total-classic-r");
     if (data.isGrandTotalRow) cell.addClass("fm-grand-total-r");
     if (data.isGrandTotalColumn) cell.addClass("fm-grand-total-c");

@@ -383,6 +383,8 @@
     "MSG.ENTITY_DELETED": "Entity deleted already!",
     "MSG.INVALID_FIELDS": "Invalid fields:",
     "MSG.NEWENTITY_DELETED": "New entity will be deleted!",
-    "MSG.CANNOT_UNDO": "Entity new/deleted cannot undo!"
+    "MSG.CANNOT_UNDO": "Entity new/deleted cannot undo!",
+
+    "MSG.DELETE_ITEM": "Delete item?"
 
 }

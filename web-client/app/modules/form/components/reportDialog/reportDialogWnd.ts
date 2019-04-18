@@ -42,8 +42,7 @@ export class ReportDialogWnd implements OnInit {
         }, function (fileEntry) {
           fileEntry.createWriter(function (fileWriter) {
             fileWriter.onwriteend = function (e) {
-              console.log(e);
-              console.log(e.target.localURL);
+              
               cordova.plugins.fileOpener2.open(e.target.localURL, 'application/pdf',
                 {
                   error: function (e) {

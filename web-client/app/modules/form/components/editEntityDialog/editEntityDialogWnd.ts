@@ -4,6 +4,7 @@ import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { IPackageController } from '../../models/ipackage-controller';
 import { AlertDialogWnd } from '../../../../core/dialogs/alertDialog/alertDialogWnd';
 import { AskDialogWnd } from '../../../../core/dialogs/askDialog/askDialogWnd';
+import { TranslateService } from '@ngx-translate/core';
 
 
 
@@ -20,7 +21,7 @@ export class EditEntityDialogWnd {
   @Input() packageCtrl: IPackageController;
   @Input() validationFunc: () => boolean;
   @Input() relation: string;
-  constructor(public activeModal: NgbActiveModal, private modalService: NgbModal) {
+  constructor(public activeModal: NgbActiveModal, private modalService: NgbModal, private translateService: TranslateService) {
 
   }
 
@@ -34,7 +35,7 @@ export class EditEntityDialogWnd {
 
   onDelete() {
 
-    this.askYesNo('Delete item').then(result => {
+    this.askYesNo(this.translateService.instant("MSG.DELETE_ITEM")).then(result => {
       if (result === 'Yes') {
         this.activeModal.close('Delete');
       }

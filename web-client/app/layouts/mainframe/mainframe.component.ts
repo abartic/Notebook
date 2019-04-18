@@ -27,7 +27,6 @@ export class MainframeComponent implements OnInit {
 
         let that = this;
         this.navigationSubscription = router.events.subscribe(event => {
-            console.log(event);
             if (event instanceof NavigationStart) {
                 that.userSession.WaitingForAction = true;
             }

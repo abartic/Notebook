@@ -112,21 +112,6 @@ export class SidebarComponent implements OnInit {
                 console.log(err);
                 console.log('logout failed!');
             });
-
-        // this.httpCaller.callGet(
-        //     '/logout/google',
-        //     (r) => {
-        //         if (r.response === 'ok') {
-        
-        //         }
-        //         console.log('logout ' + r.response + '!');
-        //     },
-        //     (err) => {
-        //         console.log(err);
-        //         console.log('logout failed!');
-        //     });
-
-
     }
 
 

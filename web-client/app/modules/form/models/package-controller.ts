@@ -999,7 +999,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (silent === true) {
             deleteaction();
         } else {
-            this.askYesNo('Delete item').then(result => {
+            this.askYesNo(this.translateService.instant("MSG.DELETE_ITEM")).then(result => {
                 if (result === 'Yes') {
                     deleteaction();
                 }
