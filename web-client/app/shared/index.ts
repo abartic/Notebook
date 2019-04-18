@@ -1,3 +1,6 @@
+
+export * from './shared.module';
 export * from './pipes/date-userformat-pipe';
-export * from './components';
-export * from './guard/auth.guard';
+export * from './pipes/safeurl';
+export * from './formatters/ngbDateFRParserFormatter';
+

@@ -1,9 +1,9 @@
 
 import { Injectable, Inject } from '@angular/core';
 
-import { UserSessionService } from './services/userSessionService';
-import { UserSession } from './common/userSession';
-import { GOOGLE_LOGIN_SERV } from './services/google-login-factory';
+import { UserSessionService } from './core/services/userSessionService';
+import { UserSession } from './core/models/userSession';
+import { GOOGLE_LOGIN_SERV } from './core/services/google-login-factory';
 
 
 

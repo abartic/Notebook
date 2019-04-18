@@ -1,10 +1,9 @@
 
 import { Component, OnInit, NgZone } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { UserSessionService } from './services/userSessionService';
-import { UserSession } from './common/userSession';
+import { UserSessionService } from './core/services/userSessionService';
+import { UserSession } from './core/models/userSession';
 import { Router } from '@angular/router';
-import { CheckLoginService } from './services/check-login-service';
 import { environment } from '../environments/environment';
 
 
@@ -22,7 +21,6 @@ export class AppComponent implements OnInit {
 
   constructor(private translate: TranslateService,
     private userSessionService: UserSessionService,
-    private checkLoginService: CheckLoginService,
     private router: Router,
     private ngZone: NgZone) {
 

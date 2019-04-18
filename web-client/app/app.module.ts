@@ -1,6 +1,4 @@
 
-import { LoginDialogWnd } from './dialog/loginDialog/loginDialogWnd';
-import { CalendarDialogWnd } from './dialog/calendarDialog/calendarDialogWnd';
 import { LoadingModule } from 'ngx-loading';
 import { HttpClientModule, HttpClient, HttpClientXsrfModule } from '@angular/common/http';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
@@ -11,19 +9,13 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthGuard } from './shared';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { AlertDialogWnd } from './dialog/alertDialog/alertDialogWnd';
-import { AskDialogWnd } from './dialog/askDialog/askDialogWnd';
-import { EditEntityDialogWnd } from './dialog/editEntityDialog/editEntityDialogWnd';
-import { SelectEntityDialogWnd } from './dialog/selectEntityDialog/selectEntityDialogWnd';
 import { CommonModule } from '@angular/common';
-import { SafePipe } from './shared/pipes/safeurl';
-import { ReportDialogWnd } from './dialog/reportDialog/reportDialogWnd';
-import { SharedModule } from './shared/modules/shared.module';
+import { SharedModule } from './shared/shared.module';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { AppLoadService } from './app-load.service';
+import { CoreModule } from './core/core.module';
  
  
 
@@ -38,14 +30,6 @@ export function get_settings(appLoadService: AppLoadService) {
 @NgModule({
   declarations: [
     AppComponent,
-    AlertDialogWnd,
-    AskDialogWnd,
-    EditEntityDialogWnd,
-    SelectEntityDialogWnd,
-    ReportDialogWnd,
-    CalendarDialogWnd,
-    LoginDialogWnd,
-    SafePipe,
   ],
   imports: [
     CommonModule,
@@ -58,6 +42,8 @@ export function get_settings(appLoadService: AppLoadService) {
       cookieName: 'xsrf-token',
       headerName: 'x-xsrf-token',
     }),
+    CoreModule,
+    SharedModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -65,26 +51,17 @@ export function get_settings(appLoadService: AppLoadService) {
         deps: [HttpClient]
       }
     }),
-    AppRoutingModule,
     NgbModule,
     InfiniteScrollModule,
-    
     LoadingModule,
-    SharedModule,
+    AppRoutingModule,
   ],
   providers: [
-    AuthGuard,
     { provide: APP_INITIALIZER, useFactory: get_settings, deps: [AppLoadService], multi: true },
   ],
   bootstrap: [AppComponent],
-  entryComponents: [
-    AlertDialogWnd,
-    AskDialogWnd,
-    EditEntityDialogWnd,
-    SelectEntityDialogWnd,
-    ReportDialogWnd,
-    LoginDialogWnd,
-    CalendarDialogWnd
+   entryComponents: [
+    
   ],
   exports: [
 
