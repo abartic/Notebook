@@ -211,15 +211,28 @@ export class LoginRoute extends BaseRoute {
 
                     let token_validity = JSON.parse(token_validity_str);
                     if (token_validity.error || !token_validity.scope)
+                    {
+                        console.log(token_validity_str);
                         return res.send({ error: null, refresh: false });
+                    }
 
                     let scopes = token_validity.scope.split(' ');
                     if (LoginRoute.arrayContains(Security.GoogleLoginScopes, scopes) === false)
+                    {
+                        console.log(scopes);
                         return res.send({ error: null, refresh: false });
+                    }
 
                     LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result) {
                         if (result === true) {
-
+                            console.log({
+                                error: null, refresh: true,
+                                DomainName: req.session['domainName'],
+                                DomainId: req.session['domainId'],
+                                Username: req.session['userId'],
+                                LastAuthTime: req.session['lastAuthTime'],
+                                Language: req.session['language'],
+                            });
                             res.send({
                                 error: null, refresh: true,
                                 DomainName: req.session['domainName'],
@@ -228,6 +241,10 @@ export class LoginRoute extends BaseRoute {
                                 LastAuthTime: req.session['lastAuthTime'],
                                 Language: req.session['language'],
                             });
+                        }
+                        else
+                        {
+                            console.log('not auth')
                         }
                     });
 
