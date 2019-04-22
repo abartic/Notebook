@@ -48,7 +48,7 @@
     <div class="col">
       <h5 class="m-0" style="vertical-align: bottom;">{{'LBL.RESULTS' | translate}}</h5>
     </div>
-    <div container="body" placement="left" *ngIf="hasResults !== false">
+    <div container="body" placement="left" *ngIf="package.hasFilterResults !== false">
       <div class="btn-group">
         <button type="button" class="btn btn-sm" [ngClass]="package.sortAscOrder ? 'fa fa-sort-amount-asc' : 'fa fa-sort-amount-desc'"
           (click)="toggleSortOrder()"></button>
@@ -109,7 +109,7 @@
     </div>
   </div>
 
-  <div class="row  no-gutters" *ngIf="hasResults === false">
+  <div class="row  no-gutters" *ngIf="package.hasFilterResults === false">
     <div class="col">
       <div class="jumbotron">
         <h1 class="display-4">{{'LBL.NO_DATA_LOADED' | translate}}</h1>

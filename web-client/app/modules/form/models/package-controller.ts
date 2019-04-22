@@ -54,6 +54,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             this.package.canExecuteFilter = this.shellInfo.filter.selectFirst !== true;
 
         }
+
+
     }
     public get filterProperties() {
         let finfo = ModelInfos.uniqueInstance.get(this.entityType);
@@ -70,6 +72,12 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 this.filter_properties.push({ property: p, entityName: finfo.entityName });
 
             }
+
+            if (shellInfo.filter.sortFields && shellInfo.filter.sortFields.length > 0) {
+                let prop = this.entityInfo.properties.find(p => p.propName === this.shellInfo.filter.sortFields[0]);
+                this.package.sortField = { property: prop, entityName: this.entityInfo.entityName };
+                this.package.hasFilterResults = false;
+            }
         }
 
 
@@ -84,7 +92,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (shellInfo.filter.sortFields && this.filter_sort_properties.length === 0) {
             for (const sp of shellInfo.filter.sortFields) {
                 let prop = einfo.properties.find(p => p.propName === sp)
-                this.filter_sort_properties.push({ property: prop, entityName: einfo.entityName });
+                if (prop)
+                    this.filter_sort_properties.push({ property: prop, entityName: einfo.entityName });
             }
         }
         return this.filter_sort_properties;
@@ -262,6 +271,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         entities.forEach(item => {
                             this.package.filter_rows.push(item);
                         });
+                        this.package.hasFilterResults = true;
                         this.package.filter_last_index = this.package.filter_rows.length;
                     }
                 } finally {
@@ -481,7 +491,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 .then(count => {
                     cb(count, null);
                     if (count > 0) {
-                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField.property.propName, this.package.sortAscOrder, cb, cerr);
+                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField, this.package.sortAscOrder, cb, cerr);
                     }
                     else {
                         this.package.filter_rows = [];
@@ -492,7 +502,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     cerr();
                 });
         } else {
-            this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField.property.propName, this.package.sortAscOrder, cb, cerr);
+            this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField, this.package.sortAscOrder, cb, cerr);
         }
     }
 
@@ -515,7 +525,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         ukey: [string, any],
         relation: string,
         fromIndex: number,
-        sortField: string, 
+        sortField,
         sortAsc: boolean,
         cb: (rows_count: number, rows: Array<any>) => void,
         cerr: () => void) {
@@ -531,7 +541,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
             let offset = fromIndex;
             const limit = this.package.fetched_items_max;
-            query = BaseEntity.toFilter(shellInfo, entityInfo, filterItems, keys, offset, limit, sortField, sortAsc );
+            query = BaseEntity.toFilter(shellInfo, entityInfo, filterItems, keys, offset, limit, sortField, sortAsc);
         }
 
 

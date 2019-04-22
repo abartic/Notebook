@@ -443,7 +443,7 @@ export class BaseEntity {
         entityInfo: IEntityInfo,
         filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
         keys, offset: number, limit: number,
-        sortField : string, sortAsc : boolean,
+        sortField, sortAsc : boolean,
         forFkey?: string): string {
 
         let query = 'select ';
@@ -481,7 +481,7 @@ export class BaseEntity {
         else {
             if (sortField)
             {
-                let sp = entityInfo.properties.find(p=>p.propName === sortField);
+                let sp = entityInfo.properties.find(p=>p.propName === sortField.property.propName);
                 query = query + ' order by ' + sp.cellName + ((sortAsc === false) ? ' desc ' : '');
             }
 

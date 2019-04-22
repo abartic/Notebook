@@ -13,7 +13,8 @@ export class Package<T extends BaseEntity> {
     public filter_fetch_completed: boolean;
     public sortField;
     public sortAscOrder: boolean = true;
-    
+    public hasFilterResults = false;    
+
     public entity : T;
     public entity_relation: BaseEntity;
     public validations : KeyedCollection<ISelectObj>;

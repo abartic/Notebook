@@ -26,17 +26,10 @@ export class FilterComponent implements OnInit, AfterViewInit {
   @ViewChild('tablerow') tablerow: ElementRef;
 
 
-
   public screensize: string;
   public selectedFilterCond: { entityName: string, property: IPropInfo, display: string } = null;
   public filterConditionValue: string;
-  _hasResults = false;
-  public get hasResults() {
-    if (this._hasResults === false && this.package.filter_rows.length > 0) {
-      this._hasResults = true;
-    }
-    return this._hasResults;
-  }
+  
 
   ngOnInit() {
 
@@ -54,10 +47,7 @@ export class FilterComponent implements OnInit, AfterViewInit {
     }
 
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
-    if (this.packageCtrl.shellInfo.filter.sortFields && this.packageCtrl.shellInfo.filter.sortFields.length > 0) {
-      let prop = this.packageCtrl.entityInfo.properties.find(p => p.propName === this.packageCtrl.shellInfo.filter.sortFields[0]);
-      this.package.sortField = { property: prop, entityName: this.packageCtrl.entityInfo.entityName };
-    }
+   
 
   }
 
