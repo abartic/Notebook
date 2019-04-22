@@ -8,7 +8,7 @@ import { FilterComponent } from './components/filter/filter.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EditorComponent } from './components/editor/editor.component';
 import { RelationComponent } from './components/relation/relation.component';
-import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataResolver } from './services/data-resolver';
 import { LoadingModule } from 'ngx-loading';
 import { NgbDateFRParserFormatter } from '../../shared/formatters/ngbDateFRParserFormatter';
@@ -39,7 +39,7 @@ import { ReportDialogWnd } from './components/reportDialog/reportDialogWnd';
     ReactiveFormsModule,
     SharedModule,
     InfiniteScrollModule,
-    
+    NgbDropdownModule
   ],
   declarations: [
     FormComponent,

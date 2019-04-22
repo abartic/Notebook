@@ -67,7 +67,8 @@ export interface IShellInfo {
         static_filter?: { key: string, value: string }[],
         //commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, isActive? : (pack)=>boolean }[];
         selectFirst?: boolean,
-        hasDetails?: boolean
+        hasDetails?: boolean,
+        sortFields?: string[],
     };
     properties?: { name: string, datatype: string, isReadOnly: boolean }[];
     commands?: { caption: string, handler: string, primary?: boolean, isDisabled?: boolean, image?: string, isActive?: (pack) => boolean }[];
@@ -400,6 +401,20 @@ export class BaseEntity {
         return query;
     }
 
+    public static getMaxFilter(entity: BaseEntity, property: IPropInfo): string {
+        let entityInfo = entity.entityInfo;
+        let cell;
+        for (let p of entityInfo.properties) {
+            if (p.propName === property.propName)
+                cell = p.cellName;
+            else
+                continue;
+        }
+
+        let query = "select max(" + cell + ")";
+        return query;
+    }
+
     public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value, allFields: boolean, excludeCurrentUid?: boolean): string {
         let entityInfo = entity.entityInfo;
         let cell_ukey, additionalWhere = '';
@@ -428,6 +443,7 @@ export class BaseEntity {
         entityInfo: IEntityInfo,
         filterItems: { filterCondition: { entityName: string, property: IPropInfo }; filterConditionValue: string; }[],
         keys, offset: number, limit: number,
+        sortField : string, sortAsc : boolean,
         forFkey?: string): string {
 
         let query = 'select ';
@@ -463,6 +479,12 @@ export class BaseEntity {
             query = query + ' group by ' + fkeycell;
         }
         else {
+            if (sortField)
+            {
+                let sp = entityInfo.properties.find(p=>p.propName === sortField);
+                query = query + ' order by ' + sp.cellName + ((sortAsc === false) ? ' desc ' : '');
+            }
+
             if (limit)
                 query = query + ' limit ' + limit;
             if (offset)

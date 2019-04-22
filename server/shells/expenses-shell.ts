@@ -5,6 +5,7 @@ export class ExpensesShell
 {
     public static adjustShellInfo(shellInfo: IShellInfo ) {
         shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Expenses }];
+        shellInfo.filter.sortFields = ["code_doc","author","title", "creation_date"];
         shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
         shellInfo.commands = shellInfo.commands.concat([
             { caption: 'BTN.PRINT', handler: 'onPrint', image: 'fa fa-print' },

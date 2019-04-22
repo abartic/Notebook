@@ -1,100 +1,129 @@
 <div [@routerTransition] #rootdiv class="hosttable" (window:resize)="onResize($event)">
-    <h5 class="m-0">{{'TIT.FILTER' | translate}}</h5>
-    <hr class="mb-2 mt-1">
+  <h5 class="m-0">{{'TIT.FILTER' | translate}}</h5>
+  <hr class="mb-2 mt-1">
 
-    <div class="row no-gutters">
-        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
-            <div>
-                <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
+  <div class="row no-gutters">
+    <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+      <div>
+        <select class="form-control" [(ngModel)]="selectedFilterCond" (onchange)="onChangedFilterCond()">
           <option [ngValue]="null" selected>{{'LBL.SELECT_FIELD' | translate}}</option>
           <option *ngFor="let p of packageCtrl.filterProperties" [ngValue]="p">{{p.entityName.toLowerCase() + '.' +
             p.property.propName | translate}}</option>
-          <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName.toLowerCase()
+          <option *ngFor="let p of packageCtrl.getRelationFilterProperties()" [ngValue]="p">{{p.entityName.toLowerCase() | translate}}.{{p.entityName.toLowerCase()
             + '.' + p.property.propName | translate}}</option>
         </select>
-            </div>
-        </div>
-        <div class="col-auto order-md-3 m-1">
-            <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus" ngbTooltip="{{'BTN.ADD_FILTER_COND' | translate}}"></button>
-        </div>
-        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
-            <input type="text" class="form-control " placeholder="{{'LBL.VALUE_PLACEHOLDER' | translate}}" [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
-
-        </div>
-
-        <div class="col-auto order-md-4 m-1">
-            <button type="button" (click)="onApply()" class="btn btn-secondary fa fa-search" ngbTooltip="{{'BTN.APPLY_FILTER' | translate}}"></button>
-        </div>
+      </div>
+    </div>
+    <div class="col-auto order-md-3 m-1">
+      <button type="button" (click)="onAddFilterCond()" class="btn btn-secondary fa fa-plus"
+        ngbTooltip="{{'BTN.ADD_FILTER_COND' | translate}}"></button>
+    </div>
+    <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-2 m-1">
+      <input type="text" class="form-control " placeholder="{{'LBL.VALUE_PLACEHOLDER' | translate}}"
+        [readonly]="!selectedFilterCond" [(ngModel)]="filterConditionValue" (keyup)="onFilterValueChanged($event)" />
 
     </div>
 
-    <div class="row no-gutters ">
-
-        <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
-            <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems' [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
-        </div>
-        <div class="col-auto order-md-2 m-1">
-            <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser" *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="{{'BTN.CLEAR_FILTER' | translate}}"></button>
-        </div>
+    <div class="col-auto order-md-4 m-1">
+      <button type="button" (click)="onApply()" class="btn btn-secondary fa fa-search"
+        ngbTooltip="{{'BTN.APPLY_FILTER' | translate}}"></button>
     </div>
 
-    <br>
-    <h5 class="m-0">{{'LBL.RESULTS' | translate}}</h5>
-    <hr class="mb-2 mt-1">
+  </div>
 
-    <div class="row no-gutters">
-        <div class="col hor-scrollable textnowrap">
-            <table>
-                <tbody>
-                    <tr #dtablerow>
-                        <td *ngFor="let p of packageCtrl.filterProperties ">
-                            <div class="textnowrap tdlabel">{{p.property.propName }}</div>
-                            <div class="tdcontent">
-                                <div>{{p.property.propName}}</div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="table table-hover table-striped table-md " *ngIf="packageCtrl.package.filter_rows.length !== 0" infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
-                <thead class="thead-light ">
-                    <tr>
+  <div class="row no-gutters ">
 
-                        <th *ngFor="let p of packageCtrl.filterProperties ">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr #tablerow *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
-                        <td *ngFor="let p of packageCtrl.filterProperties ">
-                            <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">{{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</div>
-                            <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: isSmallSizeScreen()}">
-                                <div class="input-group" *ngSwitchCase="'date'" readonly="true">{{row[p.property.propName] | datefrm}}</div>
-                                <div class="input-group" *ngSwitchCase="'checkbox'">
-                                    <input class="form-control" type="checkbox" [checked]="row[p.property.propName]" disabled>
-                                </div>
-                                <div class="input-group" *ngSwitchDefault readonly="true">{{row[p.property.propName]}}</div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="col-9 col-sm-8 col-md-4 col-lg-3 order-md-1 m-1">
+      <tag-input editable=false *ngIf="packageCtrl.filterItems.length !== 0" [(ngModel)]='packageCtrl.filterItems'
+        [identifyBy]="'property'" hideForm=true (onSelect)="onSelectedFilterCond($event)"></tag-input>
+    </div>
+    <div class="col-auto order-md-2 m-1">
+      <button type="button" (click)="onClear()" class="btn btn-secondary fa fa-eraser"
+        *ngIf="packageCtrl.filterItems.length > 0" ngbTooltip="{{'BTN.CLEAR_FILTER' | translate}}"></button>
+    </div>
+  </div>
+
+  <br>
+  <div class="row no-gutters align-items-center">
+    <div class="col">
+      <h5 class="m-0" style="vertical-align: bottom;">{{'LBL.RESULTS' | translate}}</h5>
+    </div>
+    <div container="body" placement="left" *ngIf="hasResults !== false">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm" [ngClass]="package.sortAscOrder ? 'fa fa-sort-amount-asc' : 'fa fa-sort-amount-desc'"
+          (click)="toggleSortOrder()"></button>
+        <div class="btn-group" ngbDropdown role="group">
+          <button class="btn  btn-sm btn-block" id="dropdownBasic1" ngbDropdownToggle>
+            {{(!package.sortField ? 'LBL.NONE' : (package.sortField.entityName.toLowerCase() + '.' + package.sortField.property.propName)) | translate}}<b class="caret"></b>
+          </button>
+          <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button *ngFor="let p of packageCtrl.filterSortProperties" class="dropdown-item" (click)="applySortOrder(p)">
+              {{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</button>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+  <hr class="mb-2 mt-1">
+
+  <div class="row no-gutters">
+    <div class="col hor-scrollable textnowrap">
+      <table>
+        <tbody>
+          <tr #dtablerow>
+            <td *ngFor="let p of packageCtrl.filterProperties ">
+              <div class="textnowrap tdlabel">{{p.property.propName }}</div>
+              <div class="tdcontent">
+                <div>{{p.property.propName}}</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-hover table-striped table-md " *ngIf="packageCtrl.package.filter_rows.length !== 0"
+        infiniteScroll [infiniteScrollDistance]="2" [infiniteScrollThrottle]="50" (scrolled)="onScroll()">
+        <thead class="thead-light ">
+          <tr>
+
+            <th *ngFor="let p of packageCtrl.filterProperties ">
+              {{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr #tablerow *ngFor="let row of package.filter_rows; index as i " (click)="onSelectEntity(row)">
+            <td *ngFor="let p of packageCtrl.filterProperties ">
+              <div *ngIf="isSmallSizeScreen()" class="textnowrap" [ngClass]="{tdlabel: isSmallSizeScreen()}">
+                {{p.entityName.toLowerCase() + '.' + p.property.propName | translate}}</div>
+              <div [ngSwitch]="packageCtrl.getInputType(p.property)" [ngClass]="{tdcontent: isSmallSizeScreen()}">
+                <div class="input-group" *ngSwitchCase="'date'" readonly="true">{{row[p.property.propName] | datefrm}}
+                </div>
+                <div class="input-group" *ngSwitchCase="'checkbox'">
+                  <input class="form-control" type="checkbox" [checked]="row[p.property.propName]" disabled>
+                </div>
+                <div class="input-group" *ngSwitchDefault readonly="true">{{row[p.property.propName]}}</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row  no-gutters" *ngIf="hasResults === false">
+    <div class="col">
+      <div class="jumbotron">
+        <h1 class="display-4">{{'LBL.NO_DATA_LOADED' | translate}}</h1>
+        <p class="lead">{{'LBL.APPLY_TO_FETCH' | translate}}</p>
+        <hr class="my-4">
+        <!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
+        <button class="btn btn-primary btn-lg" role="button"
+          (click)="onApply()">{{'BTN.FETCH_DATA' | translate}}</button>
+      </div>
     </div>
 
-    <div class="row  no-gutters" *ngIf="packageCtrl.package.filter_rows.length === 0">
-        <div class="col">
-            <div class="jumbotron">
-                <h1 class="display-4">{{'LBL.NO_DATA_LOADED' | translate}}</h1>
-                <p class="lead">{{'LBL.APPLY_TO_FETCH' | translate}}</p>
-                <hr class="my-4">
-                <!-- <p>It uses utility classes for typography and spacing to space content out within the larger container.</p> -->
-                <button class="btn btn-primary btn-lg" role="button" (click)="onApply()">{{'BTN.FETCH_DATA' | translate}}</button>
-            </div>
-        </div>
+  </div>
 
-    </div>
-
-    <!-- <div class="row no-gutters justify-content-end">
+  <!-- <div class="row no-gutters justify-content-end">
         <div class="col-11">
         </div>
         <div class="col">

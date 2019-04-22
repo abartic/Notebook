@@ -93,7 +93,7 @@ export class Invoice extends BaseEntity {
         });
     }
 
-    
+
 
 
 
@@ -112,12 +112,18 @@ export class Invoice extends BaseEntity {
         if (this._props === null) {
             this._props = this.entityInfo.properties;
 
-            let pp : Array<string> = ['debit_value', 'discount_value', 'tax_value'];
+            let pp: Array<string> = ['debit_value', 'discount_value', 'tax_value'];
             this._props
                 .filter((v, index, array) => {
                     return pp.includes(v.propName, 0)
                 })
                 .forEach(p => p.isReadOnly = true)
+
+            let index = this._props.findIndex(i => i.propName === 'code_doc');
+            if (index >= 0) {
+                let prop = this._props[index];
+                prop.customInputType = 'num-pick-max';
+            }
 
         }
         return this._props;

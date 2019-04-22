@@ -5,6 +5,7 @@ export class PaymentShell
 
     public static adjustShellInfo(shellInfo) {
         shellInfo.filter.static_filter = [{ key: 'type_movement', value: eTypeMovement.Payment }];
+        shellInfo.filter.sortFields = ["code_doc","code_part","creation_date", 'due_date', "type_doc", "code_store", "currency"];
         shellInfo.report = {
             preloads: [
                 {

@@ -1,8 +1,9 @@
 import { Address } from './address';
 import { Contact } from './contact';
 import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
+import { PartnerShell } from '../shells/partner-shell';
 
-@SheetInfo("partners", "partners", "Partner", null, "code_part") export
+@SheetInfo("partners", "partners", "Partner", PartnerShell.adjustShellInfo, "code_part") export
     class Partner extends BaseEntity {
 
        

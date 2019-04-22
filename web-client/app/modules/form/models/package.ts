@@ -11,7 +11,9 @@ export class Package<T extends BaseEntity> {
     public selected_entity: T;
     public filter_rows : T[] = [];
     public filter_fetch_completed: boolean;
-
+    public sortField;
+    public sortAscOrder: boolean = true;
+    
     public entity : T;
     public entity_relation: BaseEntity;
     public validations : KeyedCollection<ISelectObj>;

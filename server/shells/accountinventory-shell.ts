@@ -4,6 +4,7 @@ export class AccountInventoryShell
 
     public static adjustShellInfo(shellInfo : IShellInfo) {
         shellInfo.commands = [];
-        //shellInfo.filter.commands = [{ caption: 'Refresh', handler: 'onApply', primary : true },];
+        
+        shellInfo.filter.sortFields = ["code_part","debit_value","credit_value", "balance"];
     }
 }

@@ -4,6 +4,6 @@ export class ArticleInventoryShell
 
     public static adjustShellInfo(shellInfo : IShellInfo) {
         shellInfo.commands = [];
-        //shellInfo.filter.commands = [{ caption: 'Refresh', handler: 'onApply', primary : true },];
+        shellInfo.filter.sortFields = ["code_art","code_store","qty_in", "qty_out", "qty_net"];
     }
 }

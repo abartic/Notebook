@@ -12,6 +12,7 @@ export class BudgetShell
         
 
         shellInfo.filter.static_filter = [{ key: 'type_doc', value: eTypeBudget.Budget }];
+        shellInfo.filter.sortFields = ["code_doc","author","title", "creation_date"];
         shellInfo.properties = [{ name: 'pivot_by_ar', datatype: 'string', isReadOnly: false }];
         shellInfo.pivotInfo = {
             slice: {

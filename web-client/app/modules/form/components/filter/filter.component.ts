@@ -30,7 +30,13 @@ export class FilterComponent implements OnInit, AfterViewInit {
   public screensize: string;
   public selectedFilterCond: { entityName: string, property: IPropInfo, display: string } = null;
   public filterConditionValue: string;
-
+  _hasResults = false;
+  public get hasResults() {
+    if (this._hasResults === false && this.package.filter_rows.length > 0) {
+      this._hasResults = true;
+    }
+    return this._hasResults;
+  }
 
   ngOnInit() {
 
@@ -48,10 +54,22 @@ export class FilterComponent implements OnInit, AfterViewInit {
     }
 
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
-
+    if (this.packageCtrl.shellInfo.filter.sortFields && this.packageCtrl.shellInfo.filter.sortFields.length > 0) {
+      let prop = this.packageCtrl.entityInfo.properties.find(p => p.propName === this.packageCtrl.shellInfo.filter.sortFields[0]);
+      this.package.sortField = { property: prop, entityName: this.packageCtrl.entityInfo.entityName };
+    }
 
   }
 
+  toggleSortOrder() {
+    this.package.sortAscOrder = !this.package.sortAscOrder;
+    this.packageCtrl.onApplyFilter();
+  }
+  applySortOrder(p) {
+    this.package.sortField = p;
+    this.package.sortAscOrder = true;
+    this.packageCtrl.onApplyFilter();
+  }
 
   onChangedFilterCond() {
     if (this.selectedFilterCond === null)
@@ -84,6 +102,7 @@ export class FilterComponent implements OnInit, AfterViewInit {
     this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
     this.packageCtrl.onClear();
+
   }
 
   onAddFilterCond() {
@@ -101,6 +120,7 @@ export class FilterComponent implements OnInit, AfterViewInit {
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
 
     this.packageCtrl.onApplyFilter();
+
   }
 
   onSelectEntity(row) {

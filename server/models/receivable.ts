@@ -1,7 +1,7 @@
 
 
 
-import { BaseEntity, SheetInfo, LookupProp } from "./base-entity";
+import { BaseEntity, SheetInfo, LookupProp, IPropInfo } from "./base-entity";
 import { Partner } from './partner';
 import { eTypeMovement } from '../common/enums';
 import { ReceivableShell } from '../shells/receivable-shell';
@@ -62,5 +62,20 @@ export class Receivable extends BaseEntity {
 // tslint:disable-next-line: curly
         else
             return this.entityName.toLocaleLowerCase();
+    }
+
+    private _props: Array<IPropInfo> = null;
+    get properties(): Array<IPropInfo> {
+        if (this._props === null) {
+            this._props = this.entityInfo.properties;
+
+            let index = this._props.findIndex(i => i.propName === 'code_doc');
+            if (index >= 0) {
+                let prop = this._props[index];
+                prop.customInputType = 'num-pick-max';
+            }
+
+        }
+        return this._props;
     }
 }

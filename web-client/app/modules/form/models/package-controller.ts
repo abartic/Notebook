@@ -52,7 +52,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 this.editor_commands.push(c);
             }
             this.package.canExecuteFilter = this.shellInfo.filter.selectFirst !== true;
-            
+
         }
     }
     public get filterProperties() {
@@ -76,10 +76,24 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         return this.filter_properties;
     }
 
+    filter_sort_properties = [];
+    public get filterSortProperties() {
+        let einfo = ModelInfos.uniqueInstance.get(this.entityType);
+        let shellInfo = ShellInfos.uniqueInstance.get(this.entityType);
+
+        if (shellInfo.filter.sortFields && this.filter_sort_properties.length === 0) {
+            for (const sp of shellInfo.filter.sortFields) {
+                let prop = einfo.properties.find(p => p.propName === sp)
+                this.filter_sort_properties.push({ property: prop, entityName: einfo.entityName });
+            }
+        }
+        return this.filter_sort_properties;
+    }
+
     private editor_commands = [];
     public get editorCommands() {
 
-        
+
         return this.editor_commands;
     }
 
@@ -235,7 +249,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         if (this.isFilterExecuting === true)
             return;
 
-        
+
         this.isFilterExecuting = true;
         this.package.error_msg = '';
         this.setWaiting(true);
@@ -255,7 +269,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     this.isFilterExecuting = false;
 
                     if (this.shellInfo.filter.selectFirst === true && this.package.filter_rows.length > 0) {
-                       this.onSelectEntity(this.package.filter_rows[0]);
+                        this.onSelectEntity(this.package.filter_rows[0]);
                     }
                 }
             },
@@ -268,11 +282,11 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
 
 
-    executeLookupFilter(lookup_entity_name: string, filterItems, reset: boolean, cb: ()=>void) {
+    executeLookupFilter(lookup_entity_name: string, filterItems, reset: boolean, cb: () => void) {
         if (this.isLookupExecuting === true)
             return;
 
-        if (reset === true) { 
+        if (reset === true) {
             this.package.lookup_last_index = 0;
             this.package.lookup_rows.length = 0;
         }
@@ -324,7 +338,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.readEntitiesByUkey(this.shellInfo,
             this.entityInfo,
             null,
-            null, entity.uid, null, null, null,
+            null, entity.uid, null, null, null, null, null,
             (entities_count, entities) => {
                 this.package.entity = entities[0];
                 this.package.validations = new KeyedCollection<ISelectObj>();
@@ -337,7 +351,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                         let relation_entityInfo = ModelInfos.uniqueInstance.get(relation);
                         let relation_shellInfo = ShellInfos.uniqueInstance.get(relation);
                         this.readEntitiesByUkey(relation_shellInfo, relation_entityInfo, null, null,
-                            entity[this.package.entity.ukeyPropName], null, relation, null,
+                            entity[this.package.entity.ukeyPropName], null, relation, null, null, null,
                             (entities_count, entities) => {
                                 this.package.entity[relation + '_relation'] = entities;
                                 for (const entity of entities) {
@@ -360,7 +374,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 let lookup_entityInfo = ModelInfos.uniqueInstance.get(prop.lookup_entity_name);
                 let lookup_shellInfo = ShellInfos.uniqueInstance.get(prop.lookup_entity_name);
                 this.readEntitiesByUkey(lookup_shellInfo, lookup_entityInfo, null,
-                    null, null, [prop.lookup_properties[0], entity[prop.propName]], null, null,
+                    null, null, [prop.lookup_properties[0], entity[prop.propName]], null, null, null, null,
                     (lk_entities_count, lk_entities) => {
                         if (lk_entities && lk_entities.length > 0) {
                             entity[prop.lookup_entity_name + '_lookup_entity'] = lk_entities[0];
@@ -375,7 +389,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         const promise = new Promise((result, reject) => {
             const relation_entityInfo: IEntityInfo = ModelInfos.uniqueInstance.get(relation);
             const relation_shellInfo: IShellInfo = ShellInfos.uniqueInstance.get(relation);
-            const query = BaseEntity.toFilter(relation_shellInfo, relation_entityInfo, this.filterItems, null, null, null, this.entityInfo.ukeyPropName);
+            const query = BaseEntity.toFilter(relation_shellInfo, relation_entityInfo, this.filterItems, null, null, null, null, null, this.entityInfo.ukeyPropName);
             if (query === null) {
                 return result([]);
             }
@@ -467,7 +481,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 .then(count => {
                     cb(count, null);
                     if (count > 0) {
-                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
+                        this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField.property.propName, this.package.sortAscOrder, cb, cerr);
                     }
                     else {
                         this.package.filter_rows = [];
@@ -478,7 +492,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     cerr();
                 });
         } else {
-            this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, cb, cerr);
+            this.readEntitiesByUkey(shellInfo, entityInfo, this.filterItems, this.filter_relation_keys, null, null, null, this.package.filter_last_index, this.package.sortField.property.propName, this.package.sortAscOrder, cb, cerr);
         }
     }
 
@@ -488,7 +502,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         cb: (rows_count: number, rows: Array<any>) => void,
         cerr: () => void) {
 
-        this.readEntitiesByUkey(shellInfo, entityInfo, filterItems, null, null, null, null, this.package.lookup_last_index, cb, cerr);
+        this.readEntitiesByUkey(shellInfo, entityInfo, filterItems, null, null, null, null, this.package.lookup_last_index, null, null, cb, cerr);
 
     }
 
@@ -501,6 +515,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         ukey: [string, any],
         relation: string,
         fromIndex: number,
+        sortField: string, 
+        sortAsc: boolean,
         cb: (rows_count: number, rows: Array<any>) => void,
         cerr: () => void) {
 
@@ -515,7 +531,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
 
             let offset = fromIndex;
             const limit = this.package.fetched_items_max;
-            query = BaseEntity.toFilter(shellInfo, entityInfo, filterItems, keys, offset, limit);
+            query = BaseEntity.toFilter(shellInfo, entityInfo, filterItems, keys, offset, limit, sortField, sortAsc );
         }
 
 
@@ -890,7 +906,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         }
         return properties;
     }
-    public getRelationProperties(entityInfo : IEntityInfo, relation: string, addLookups: boolean, addEntityName?: boolean) {
+    public getRelationProperties(entityInfo: IEntityInfo, relation: string, addLookups: boolean, addEntityName?: boolean) {
         const relation_entityInfo = ModelInfos.uniqueInstance.get(relation.toLowerCase());
         const properties = [];
         if (!relation) {
@@ -1010,7 +1026,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     openLookupWnd(lookupSource: BaseEntity, lookupSourceProperty: IPropInfo) {
-        const modalRef = this.modalService.open(SelectEntityDialogWnd, 
+        const modalRef = this.modalService.open(SelectEntityDialogWnd,
             { windowClass: 'select-entity-modal', size: 'lg' });
         modalRef.componentInstance.title = 'select: ' + lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupSource = lookupSource;
@@ -1022,9 +1038,9 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
         return modalRef.result.then((result) => {
-            
+
         }, (reason) => {
-            
+
         });
     }
 
@@ -1213,7 +1229,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                             if (index >= packs.length) {
                                 observer.complete();
                             }
-                           
+
                         },
                         err => {
                             observer.error();
@@ -1259,8 +1275,30 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
     }
 
     public calculateMaxFilterItem(rowheight) {
-        let rootheight = window.innerHeight; 
+        let rootheight = window.innerHeight;
         if (rootheight > 0 && rowheight > 0)
-          this.package.fetched_items_max = Math.ceil((rootheight / rowheight) * 1.8);
-      }
+            this.package.fetched_items_max = Math.ceil((rootheight / rowheight) * 1.8);
+    }
+
+    public onPickMaxValue(property) {
+        let filter = BaseEntity.getMaxFilter(this.package.entity, property);
+        const entityInfo: IEntityInfo = this.entityInfo;
+        let that = this;
+        this.httpCaller.callPost(
+            '/sheetdata/getscalar',
+            {
+                spreadsheetName: entityInfo.spreadsheetName,
+                sheetName: entityInfo.sheetName,
+                entityName: entityInfo.entityName,
+                select: filter
+            },
+            r => {
+                let max: number = r.scalar;
+                that.package.entity[property.propName] = max;
+
+            },
+            err => {
+                ;
+            });
+    }
 }

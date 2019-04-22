@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
                     that.userSession.Language = profile.Language;
                     that.userSession.LastAuthTime = profile.LastAuthTime;
                     that.userSessionService.updateData(that.userSession);
-                    this.ngZone.run(() => this.router.navigate(['/'])).then().catch(err=>console.log(err));
+                    that.ngZone.run(() => that.router.navigate(['/'])).then().catch(err=>console.log(err));
                 }
             ).catch(err => {
                 console.log(err);

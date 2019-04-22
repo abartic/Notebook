@@ -1,6 +1,7 @@
 import { BaseEntity, SheetInfo } from "./base-entity";
+import { ArticleShell } from '../shells/article-shell';
 
-@SheetInfo("inventory", "articles", "Article", null, "code_art")  
+@SheetInfo("inventory", "articles", "Article", ArticleShell.adjustShellInfo, "code_art")  
 export class Article extends BaseEntity {
 
 
