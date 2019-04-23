@@ -243,10 +243,10 @@ export class SheetsManagementOperations {
                     let accountSpreadsheet = <ISpreadsheet>{};
                     accountSpreadsheets.push(accountSpreadsheet);
                     accountSpreadsheet.spreadsheetName = spreadsheetDefinition.spreadsheetName;
-                    accountSpreadsheet.spreadsheetID = spreadsheet.spreadsheetId;
+                    accountSpreadsheet.spreadsheetID = spreadsheet.data.spreadsheetId;
                     accountSpreadsheet.sheets = new Array<ISheet>();
 
-                    for (const sheet of spreadsheet.sheets) {
+                    for (const sheet of spreadsheet.data.sheets) {
 
                         let accountSheet = <ISheet>{};
                         accountSheet.sheetName = sheet.properties.title;
@@ -290,7 +290,7 @@ export class SheetsManagementOperations {
                         calls_sheet.push(new Promise((cb, cerr) => {
                             sheets.spreadsheets.batchUpdate(
                                 {
-                                    spreadsheetId: spreadsheet.spreadsheetId,
+                                    spreadsheetId: spreadsheet.data.spreadsheetId,
                                     includeSpreadsheetInResponse: false,
                                     resource: {
                                         requests: requests

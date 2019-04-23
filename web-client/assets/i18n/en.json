@@ -72,6 +72,10 @@
     "BTN.EDIT_DETAIL": "Edit",
     "BTN.DELETE_DETAIL": "Delete",
     "TIT.SELECT": "Select",
+    "TIT.EDIT": "Edit",
+
+    "MSG.LOGIN_ERROR": "Authentication error!",
+    "MSG.DOMAIN_MISSING": "Authentication error! Domain is missing or suspended.",
 
     "BTN.CREATE_SHEETS": "Create sheets",
     "BTN.ENROLL_DISENROLL": "Enroll/Disenroll",
@@ -254,7 +258,7 @@
     "company.www_address": "Web address",
     "company.phone1": "Phone 1",
     "company.phone2": "Phone 2",
-    "company.IBSN": "IBAN",
+    "company.IBAN": "IBAN",
     "company.IBAN_bank": "Bank",
     "company.invoice_report": "Invoice report",
     "company.invoice_ext_report": "Ext invoice report",
@@ -293,8 +297,8 @@
     "prospect.name_rep": "Repr. name",
     "prospect.email": "Email",
     "prospect.www_address": "Web address",
-    "prospect.iban": "IBAN",
-    "prospect.iban_bank": "Bank",
+    "prospect.IBAN": "IBAN",
+    "prospect.IBAN_bank": "Bank",
 
     "purchase": "purchase",
     "purchase.code_doc": "Doc. number",

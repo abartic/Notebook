@@ -1,5 +1,5 @@
 [{
-        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a2",
+        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a3",
         "domainName": "RedPenguin",
         "admin": {
             "accountName": "alexandrubartic@gmail.com",
@@ -11,10 +11,10 @@
         "isLogging": true
     },
     {
-        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a3",
-        "domainName": "RedPenguin2",
+        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a2",
+        "domainName": "Demo",
         "admin": {
-            "accountName": "galex.bartic@gmail.com",
+            "accountName": "alexandrubartic@gmail.com",
             "role": "owner",
             "accountDescr": "google-account",
             "enrollmentDate": 0

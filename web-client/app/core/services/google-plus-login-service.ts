@@ -75,7 +75,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                     cb(us);
                                 }
                                 else {
-                                    return errcb(null);
+                                    return errcb(r);
                                 }
                             },
                             (err) => {
@@ -122,7 +122,7 @@ export class GooglePlusLoginService implements IGoogleLogin {
                                             return cb(us);
                                         }
                                         else {
-                                            return cb(null);
+                                            return cb(r);
                                         }
                                     },
                                     (err) => {

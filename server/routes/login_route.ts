@@ -14,7 +14,11 @@ import { DriveOperations } from '../drive/drive_operations';
 import { eFileOperationType } from '../sheets/sheets_common_operations';
 import { Security } from '../common/security';
 
-
+enum eLoginCheckStatus {
+    DomnainMissing = 'domnain-missing',
+    LoginOk = 'login-ok',
+    LoginFailed = 'login-failed',
+}
 
 export class LoginRoute extends BaseRoute {
 
@@ -51,12 +55,13 @@ export class LoginRoute extends BaseRoute {
     }
 
 
+
     private static authHandler(req, accessToken, domainName, userId, language, callback) {
 
         let domain = LoginRoute.getDomainByName(domainName);
         if (domain === null || domain.isActive === false) {
             console.log('domain suspended');
-            callback(false);
+            callback(eLoginCheckStatus.DomnainMissing);
         }
 
         let domainId = domain.domainId;
@@ -68,7 +73,7 @@ export class LoginRoute extends BaseRoute {
             req.session['domainName'] = domainName;
             req.session['domainId'] = domainId;
             req.session['language'] = language;
-            callback(true);
+            callback(eLoginCheckStatus.LoginOk);
         };
 
         AppAcl.aclInstance.isAdmin((userId + domainId)).then((isAdmin) => {
@@ -110,20 +115,20 @@ export class LoginRoute extends BaseRoute {
                                         }
                                     }
                                     else {
-                                        callback(false);
+                                        callback(eLoginCheckStatus.LoginFailed);
                                     }
 
                                 });
 
                         }
                         else {
-                            callback(false);
+                            callback(eLoginCheckStatus.LoginFailed);
                         }
 
                     })
                     .catch(e => {
                         console.log(e);
-                        callback(false);
+                        callback(eLoginCheckStatus.LoginFailed);
                     });
             }
 
@@ -210,21 +215,19 @@ export class LoginRoute extends BaseRoute {
                     });
 
                     let token_validity = JSON.parse(token_validity_str);
-                    if (token_validity.error || !token_validity.scope)
-                    {
+                    if (token_validity.error || !token_validity.scope) {
                         console.log(token_validity_str);
                         return res.send({ error: null, refresh: false });
                     }
 
                     let scopes = token_validity.scope.split(' ');
-                    if (LoginRoute.arrayContains(Security.GoogleLoginScopes, scopes) === false)
-                    {
+                    if (LoginRoute.arrayContains(Security.GoogleLoginScopes, scopes) === false) {
                         console.log(scopes);
                         return res.send({ error: null, refresh: false });
                     }
 
-                    LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result) {
-                        if (result === true) {
+                    LoginRoute.authHandler(req, accessToken, domainName, payload.email, language, function (result: eLoginCheckStatus) {
+                        if (result === eLoginCheckStatus.LoginOk) {
                             console.log({
                                 error: null, refresh: true,
                                 DomainName: req.session['domainName'],
@@ -242,9 +245,12 @@ export class LoginRoute extends BaseRoute {
                                 Language: req.session['language'],
                             });
                         }
-                        else
-                        {
+                        else {
                             console.log('not auth')
+                            res.send({
+                                error: result, refresh: false,
+
+                            });
                         }
                     });
 

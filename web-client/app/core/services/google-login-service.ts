@@ -57,7 +57,7 @@ export class GoogleLoginService implements IGoogleLogin {
                                 cb(us);
                             }
                             else {
-                                return errcb(null);
+                                return errcb(r);
                             }
                         },
                         (err) => {
@@ -103,7 +103,7 @@ export class GoogleLoginService implements IGoogleLogin {
                                                 cb(us);
                                             }
                                             else {
-                                                return cb(null);
+                                                return cb(r);
                                             }
                                         },
                                         (err) => {

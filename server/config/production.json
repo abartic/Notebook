@@ -29,5 +29,5 @@
         "rootURL": "https://notebook-ultimate.herokuapp.com"
 
     },
-    "service_account": "test-service@reporter-184014.iam.gserviceaccount.com"
+    "service_account": "notebook-ultimate-serv@reporter-184014.iam.gserviceaccount.com"
 }

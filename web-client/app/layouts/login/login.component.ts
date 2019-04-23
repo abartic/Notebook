@@ -24,7 +24,7 @@ export class LoginComponent implements OnInit {
         @Inject(GOOGLE_LOGIN_SERV) private googleLoginService: IGoogleLogin,
         private userSessionService: UserSessionService,
         private ngZone: NgZone,
-        private translate: TranslateService) {
+        private translateService: TranslateService) {
         let that = this;
         this.userSessionService.userSession.subscribe(us => { that.userSession = us; });
     }
@@ -48,7 +48,10 @@ export class LoginComponent implements OnInit {
                 }
             ).catch(err => {
                 console.log(err);
-                alert('Login error! Retry.')
+                if (err && err == "domnain-missing")
+                    alert(this.translateService.instant("MSG.DOMAIN_MISSING")); //'Domain missing or suspended!')
+                else
+                    alert(this.translateService.instant("MSG.LOGIN_ERROR")); //'Login error! Retry.')
             });
     }
 

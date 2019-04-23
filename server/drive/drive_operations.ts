@@ -21,9 +21,9 @@ export class DriveOperations {
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
-        const {googleApi} = require('googleapis');
-        var {OAuth2Client} = require('google-auth-library');
+        const {google: googleApi} = require('googleapis');
         const drive = googleApi.drive('v3');
+        var {OAuth2Client} = require('google-auth-library');
         var oauth2Client = new OAuth2Client(); 
         oauth2Client.credentials = {
             access_token: accessToken
@@ -48,7 +48,7 @@ export class DriveOperations {
                             {
                                 fileId: fileId,
                                 auth: oauth2Client,
-                                removeParents: fileinfo['parents'][0],
+                                removeParents: fileinfo.data['parents'][0],
                                 addParents: folderId
                             }
                             , function (err, result) {
@@ -74,7 +74,7 @@ export class DriveOperations {
                     }
                     , function (err, fileinfo) {
                         if (!err) {
-                            cb(fileinfo.id);
+                            cb(fileinfo.data.id);
                         } else {
                             err_cb(err);
                         }
@@ -101,7 +101,7 @@ export class DriveOperations {
                     }
                     , function (err, fileinfo) {
                         if (!err) {
-                            cb(fileinfo.id);
+                            cb(fileinfo.data.id);
                         } else {
                             err_cb(err);
                         }

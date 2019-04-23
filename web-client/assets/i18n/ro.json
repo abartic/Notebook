@@ -72,6 +72,10 @@
     "BTN.EDIT_DETAIL": "Editeaza",
     "BTN.DELETE_DETAIL": "Sterge",
     "TIT.SELECT": "Selecteaza",
+    "TIT.EDIT": "Editeaza",
+
+    "MSG.LOGIN_ERROR": "Eroare la autentificare!",
+    "MSG.DOMAIN_MISSING": "Eroare la autentificare! Domeniul nu exista sau este suspendat.",
 
     "BTN.CREATE_SHEETS": "Creaza sheets",
     "BTN.ENROLL_DISENROLL": "Inreg/Dez-inreg",
@@ -293,8 +297,8 @@
     "prospect.name_rep": "Nume reprezentant",
     "prospect.email": "Email",
     "prospect.www_address": "Adresa web",
-    "prospect.iban": "IBAN",
-    "prospect.iban_bank": "Banca",
+    "prospect.IBAN": "IBAN",
+    "prospect.IBAN_bank": "Banca",
 
     "purchase": "achizitie",
     "purchase.code_doc": "Numar fact.",
