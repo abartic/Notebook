@@ -325,7 +325,7 @@ export class SheetsCrudOperations {
                             cb({ error: err });
                     }
                     else {
-                        if (!result.replies || result.replies.length === 0) {
+                        if (!result.data.replies || result.data.replies.length === 0) {
                             cb({ error: "ERROR_APPEND" });
 
                         }

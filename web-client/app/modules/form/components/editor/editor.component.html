@@ -51,7 +51,7 @@
                             <input class="form-control" [(ngModel)]="package.entity[property.lookup_entity_name+'_lookup_entity'][property.lookup_properties[1]]" disabled="true" type="text" *ngIf="package.entity[property.lookup_entity_name+'_lookup_entity'] && property.lookup_entity_name !== undefined">
 
                             <div class="input-group-append" *ngIf="packageCtrl.getInputType(property)==='num-pick-max'">
-                                <button class="btn fa fa-sign-in" type="button" (click)="packageCtrl.onPickMaxValue(property)"></button>
+                                <button class="btn fa fa-sign-in" type="button" (click)="packageCtrl.onPickMaxValue(package.entity, property)"></button>
                               </div>
                         </div>
                     </div>

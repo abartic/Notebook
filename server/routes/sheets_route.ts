@@ -223,11 +223,11 @@ export class SheetRoute extends BaseRoute {
                                     let result = null;
                                     if (checkUnique === true) {
                                         if (data.table.cols.length > 0 && data.table.rows.length !== 0)
-                                            result = data.table.cols[0].label + ' not unique! '
+                                            result = entityName.toLowerCase() + "." + data.table.cols[0].label + ",VLD.NOT_UNIQUE";
                                     }
                                     else {
                                         if (data.table.cols.length > 0 && data.table.rows.length === 0)
-                                            result = data.table.cols[0].label
+                                            result = entityName.toLowerCase() + "." + data.table.cols[0].label + ",VLD.NOT_VALID"
                                     }
                                     res.json(result);
                                 }
@@ -370,6 +370,7 @@ export class SheetRoute extends BaseRoute {
                                 out.stream.pipe(res);
 
                             }).catch(err => {
+                                LogsManager.uniqueInstance.write(userId, domainId, JSON.stringify(err));
                                 if (err && err.message && err.message.indexOf('No access, refresh token or API key is set.') >= 0)
                                     res.send({ error: { code: 401 } });
                                 else
@@ -394,6 +395,7 @@ export class SheetRoute extends BaseRoute {
 
                                 })
                                 .catch(err => {
+                                    LogsManager.uniqueInstance.write(userId, domainId, JSON.stringify(err));
                                     res.send({ error: err });
                                 });
 

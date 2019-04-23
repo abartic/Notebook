@@ -606,7 +606,19 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         this.validateEntity((validationResult) => {
 
             if (validationResult && validationResult.length > 0) {
-                this.showAlert(this.translateService.instant("MSG.INVALID_FIELDS") + validationResult);
+                let message = '';
+                for(let result of validationResult)
+                {
+                    if (message.length > 0)
+                        message = message + ", "
+
+                    let parts = result.split(',');
+                    for(let part of parts)
+                    {   
+                        message = message + this.translateService.instant(part);
+                    }
+                }
+                this.showAlert(this.translateService.instant("MSG.INVALID_FIELDS") + message);
                 return;
             }
 
@@ -1169,6 +1181,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         validation_item.select = BaseEntity.getFilterByUKey(lookup_entity, propName, entity[propName], false, checkUnique);
         validation_item.addSchema = false;
         validation_item.checkUnique = checkUnique;
+        validation_item.entityName = entity.entityInfo.entityName;
         this.package.validations.Add(entity.uid + propName, validation_item);
         return validation_item;
     }
@@ -1290,8 +1303,8 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             this.package.fetched_items_max = Math.ceil((rootheight / rowheight) * 1.8);
     }
 
-    public onPickMaxValue(property) {
-        let filter = BaseEntity.getMaxFilter(this.package.entity, property);
+    public onPickMaxValue(entity, property) {
+        let filter = BaseEntity.getMaxFilter(entity, property);
         const entityInfo: IEntityInfo = this.entityInfo;
         let that = this;
         this.httpCaller.callPost(
@@ -1305,7 +1318,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
             r => {
                 let max: number = r.scalar;
                 that.package.entity[property.propName] = max;
-
+                that.onEditorValueChanged(entity, property)
             },
             err => {
                 ;
