@@ -396,18 +396,18 @@
     
 
     "TIT.HOMEPAGE": "Welcome to Notebook",
-    "LBL.HM_DESCR1": "We think that Google Sheets is a great tool for any small business. <strong>Notebook</strong> try to enhance the Google Sheets. It using Google Sheets like storage for your data and help you manage information in a simple and intuitive manner. Managing articles, partners, inventory, expeditions or producing reports become super simple.",
-    "LBL.HM_DESCR2": "Notebook will create for you the sheets and files that needs in order to operate. All these resourses will be shared by all the users of your organisation <strong>and oly by them.</strong> You can see your resources at any time in Google Drive.",
+    "LBL.HM_DESCR1": "We think that Google Sheets is a great tool for any small business. <strong>Notebook</strong> try to enhance Google Sheets. It using Google Sheets like storage for your data and help you manage information in a simple and intuitive manner. Managing articles, partners, inventory, expeditions or producing reports become super simple. The users only need a valid Google account in order to authenticate and access to Google Drive.",
+    "LBL.HM_DESCR2": "<strong>Notebook</strong> will create for you the sheets and files that needs in order to operate. All these resourses will be shared by all the users of your organisation <strong>and oly by them.</strong> You can see your resources at any time in Google Drive. <strong>Notebook</strong> need access to your data only to fetch them and present to you.",
     "LBL.HM_DESCR3": "If you want to join us in this experience follow the next 3 steps.",
 
     "LBL.HP.STEP1": "1. Create your domain",
-    "LBL.HP.STEP1_DESCR": "Conntact us in order to create the domain under which your organisation will operate. For each domain you need to specify the person that act as administrator.",
+    "LBL.HP.STEP1_DESCR": "Conntact us in order to create the domain under which your organisation will operate. For each domain you need to specify the person that act will as an Administrator.",
 
     "LBL.HP.STEP2": "2. Create sheets & enroll users in new domain",
     "LBL.HP.STEP2_DESCR": "The Administrator of your domain will create sheets and will enroll users. More users can be enrolled/disenrolled later based on your business needs.",
 
     "LBL.HP.STEP3": "3. Login & start working",
-    "LBL.HP.STEP3_DESCR": "Now you can create & edit data inside sheets of your domain. User need to confirm on first login that will allow application to have access to sheets & files located on Google drive.",
+    "LBL.HP.STEP3_DESCR": "Now you can create & edit data inside sheets of your domain. User need to confirm on first login that will allow application to have access to sheets & files located on Google Drive.",
 
     "BTN.LOGIN": "Login"
 }
