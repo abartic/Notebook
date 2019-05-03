@@ -1,5 +1,5 @@
 
-import { Component, OnInit, Input, Inject, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input, Inject, ViewEncapsulation, NgZone } from '@angular/core';
 import { Router, NavigationCancel, NavigationStart, NavigationError, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserSessionService } from '../../core/services/userSessionService';
@@ -23,6 +23,7 @@ export class MainframeComponent implements OnInit {
     constructor(public router: Router,
         private activeRoute: ActivatedRoute,
         private modalService: NgbModal,
+        private ngZone: NgZone,
         @Inject(UserSessionService) private userSessionService: UserSessionService) {
 
         let that = this;
@@ -49,15 +50,31 @@ export class MainframeComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.router.url === '/') {
-            this.router.navigate(['/dashboard']);
-        }
+        // if (this.router.url === '/') {
+        //     this.router.navigate(['/homepage']);
+        // }
 
         let that = this;
         this.userSessionService.userSession.subscribe(
-            us => { this.userSession = us },
+            us => {
+                that.userSession = us;
+                if (that.userSession.DomainId) {
+                    that.ngZone.run(() => that.router.navigate(['/dashboard'])
+                        .then()
+                        .catch(err => console.log(err)));
+                }
+                else {
+                    that.ngZone.run(() => that.router.navigate(['/homepage'])
+                        .then()
+                        .catch(err => console.log(err)));
+                }
+            },
             error => {
-                that.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }]);
+
+
+                that.ngZone.run(() => that.router.navigate(['/error', { errorcode: 'User sessions missing. Please re-login!' }])
+                    .then()
+                    .catch(err => console.log(err)));
             });
 
     }

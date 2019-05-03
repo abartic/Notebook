@@ -50,7 +50,7 @@
         {{userSession.DomainName}}/{{userSession.Username}}</label>
       <br>
       <a *ngIf="userSession.Username" (click)="continueWithUser()" style="cursor: pointer;"><u>{{'LBL.CONT_USER_LOGGED' | translate}}</u></a>
-
+      <a  [routerLink]="['/homepage']">Home page</a>
     </div>
   </div>
 

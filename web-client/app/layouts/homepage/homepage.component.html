@@ -1,0 +1,56 @@
+<div [@routerTransition] class="container-fluid">
+
+  <div class="row">
+    <div class="col">
+      <h1 class="display-4">{{'TIT.HOMEPAGE' | translate}}</h1>
+      <p class="lead" [innerHTML]="'LBL.HM_DESCR1' | translate"></p>
+      <p class="lead" [innerHTML]="'LBL.HM_DESCR2' | translate"></p>
+      <p class="lead" [innerHTML]="'LBL.HM_DESCR3' | translate"></p>
+      <hr class="my-4">
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col">
+      <div class="jumbotron">
+        <h1 class="display-4">{{'LBL.HP.STEP1' | translate}}</h1>
+        <p class="lead">{{'LBL.HP.STEP1_DESCR' | translate}}</p>
+        <hr class="my-4">
+
+        <a href="mailto:contact@redpenguin.com" target="_blank">contact@redpenguin.com</a>
+      </div>
+    </div>
+
+
+    <div class="col">
+      <div class="jumbotron">
+        <h1 class="display-4">{{'LBL.HP.STEP2' | translate}}</h1>
+        <p class="lead">{{'LBL.HP.STEP2_DESCR' | translate}}</p>
+        <hr class="my-4">
+
+        <!-- <button class="btn btn-primary btn-lg" role="button"
+          (click)="onApply()">{{'BTN.FETCH_DATA' | translate}}</button> -->
+      </div>
+    </div>
+
+
+    <div class="col">
+      <div class="jumbotron">
+        <h1 class="display-4">{{'LBL.HP.STEP3' | translate}}</h1>
+        <p class="lead">{{'LBL.HP.STEP3_DESCR' | translate}}</p>
+        <hr class="my-4">
+
+        <button class="btn btn-primary btn-lg" role="button"
+        [routerLink]="['/login']">{{'BTN.LOGIN' | translate}}</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <a  [routerLink]="['/privacypolicy']">Privacy Policy</a>
+    </div>
+  </div>
+</div>

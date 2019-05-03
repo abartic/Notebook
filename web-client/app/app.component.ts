@@ -37,13 +37,13 @@ export class AppComponent implements OnInit {
     this.userSessionService.userSession.subscribe(us => {
       that.userSession = us;
 
-      if (!that.userSession.Username) {
-        this.ngZone.run(() => this.router.navigate(['/login'])).then();
-      }
-      else {
+      if (that.userSession.Username) {
+        //   this.ngZone.run(() => this.router.navigate(['/homepage'])).then();
+        // }
+        // else {
         that.translate.use(that.userSession.Language);
         if (environment.mobile === true) {
-          this.ngZone.run(() => this.router.navigate(['/'])).then();
+          this.ngZone.run(() => this.router.navigate(['/dashboard'])).then();
         }
       }
 
