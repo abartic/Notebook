@@ -78,10 +78,11 @@ export class GoogleLoginService implements IGoogleLogin {
         return new Promise<UserSession>((cb, errcb) => {
             this.auth2
                 .then(a2 => {
-                    if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
-                        return cb(null);
-
                     that.httpCaller.callGet('/login/google/init', () => {
+
+                        if (a2 === null || !a2.currentUser || !a2.currentUser.get().getAuthResponse(true))
+                            return cb(null);
+
                         that.httpCaller.callGet('/login/google/getprofile',
                             (p) => {
 
@@ -114,8 +115,8 @@ export class GoogleLoginService implements IGoogleLogin {
                             }, (err) => {
                                 return cb(null);
                             });
-                    }, () => { 
-                        cb(null) 
+                    }, () => {
+                        cb(null)
                     });
 
                 })

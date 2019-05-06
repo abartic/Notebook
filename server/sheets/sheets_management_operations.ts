@@ -71,14 +71,14 @@ export class SheetsManagementOperations {
             })
             .then(results => {
                 if (results.find(r => r.error !== null)) {
-                    Promise.reject({ error: 'Errors. Retry!' + results });
+                    return Promise.reject({ error: 'Errors. Retry!' + results });
                 }
                 else {
-                    Promise.resolve({ error: null });
+                    return Promise.resolve({ error: null });
                 }
             })
             .catch(err => {
-                Promise.reject({ error: err });
+                return Promise.reject({ error: err });
             });
 
     }
@@ -419,7 +419,7 @@ export class SheetsManagementOperations {
                                     err_cb(false);
                                 }
                                 else {
-                                    permissionIds.push({ fileId: spreadsheet.spreadsheetID, permissionId: result.id });
+                                    permissionIds.push({ fileId: spreadsheet.spreadsheetID, permissionId: result.data.id });
                                     cb(result);
                                 }
 
@@ -442,7 +442,7 @@ export class SheetsManagementOperations {
                                 err_cb(false);
                             }
                             else {
-                                permissionIds.push({ fileId: accountsFileId, permissionId: result.id });
+                                permissionIds.push({ fileId: accountsFileId, permissionId: result.data.id });
                                 cb(result);
                             }
 
@@ -464,7 +464,7 @@ export class SheetsManagementOperations {
                                 err_cb(false);
                             }
                             else {
-                                permissionIds.push({ fileId: sheetsFileId, permissionId: result.id });
+                                permissionIds.push({ fileId: sheetsFileId, permissionId: result.data.id });
                                 cb(result);
                             }
 

@@ -21,5 +21,17 @@
         },
         "isActive": true,
         "isLogging": true
+    },
+    {
+        "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a1",
+        "domainName": "Demo2",
+        "admin": {
+            "accountName": "alexandrubartic@gmail.com",
+            "role": "owner",
+            "accountDescr": "google-account",
+            "enrollmentDate": 0
+        },
+        "isActive": true,
+        "isLogging": false
     }
 ]
