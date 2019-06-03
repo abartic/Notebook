@@ -8,6 +8,6 @@ export const environment = {
   mobile: false,
   baseUrlServices: "",
   xsrf_token: "",
-  clientId : "533137817690-qtlt9od45g6l37oj8mts6v6b4feo1he0.apps.googleusercontent.com"
+  clientId : "92555240072-klo5cg496222irk01jr13ikuilar9vpq.apps.googleusercontent.com"
 };
 
