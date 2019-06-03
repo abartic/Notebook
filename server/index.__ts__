@@ -30,9 +30,9 @@ sequelize
 import * as accounts_m from "../models/accounts.js";
 
 
-const accounts = accounts_m(sequelize, Sequelize); //{ account_name: 'alexandrubartic@gmail.com', account_descr: 'facebook acct' });
+const accounts = accounts_m(sequelize, Sequelize); //{ account_name: 'contact@redpenguin.com', account_descr: 'facebook acct' });
 var account = accounts.build({
-    accountName: 'alexandrubartic@gmail.com',
+    accountName: 'contact@redpenguin.com',
     accountDescr: 'facebook'
 });
 account.save().catch(error => {
