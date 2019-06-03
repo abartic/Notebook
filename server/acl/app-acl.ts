@@ -9,18 +9,18 @@ export class AppAcl {
     public acl = new Acl(new Acl.memoryBackend());
 
     private constructor() {
-
+        let that = this;
         fs.readFile(path.join(__dirname, '../json/role-mapping.json'), 'utf8',
             (error, data) => {
                 var obj = JSON.parse(data);
-                this.acl.allow(obj['mapping']);
+                that.acl.allow(obj['mapping']);
             });
 
         fs.readFile(path.join(__dirname, '../json/domains.json'), 'utf8',
             (error, data) => {
                 var domains = <Array<IDomain>>JSON.parse(data);
                 for (let domain of domains)
-                    this.acl.addUserRoles(domain.admin.accountName + domain.domainId, "proj-admin");
+                    that.acl.addUserRoles(domain.admin.accountName + domain.domainId, "proj-admin");
             });
     }
 
@@ -35,12 +35,15 @@ export class AppAcl {
     }
 
     public isAdmin(userToken: string) {
-        return new Promise<boolean>((cb, cerr) => this.acl.hasRole(userToken, 'proj-admin', (err, isAdmin) => {
-            if (err)
-                cerr(err);
-            else
-                cb(isAdmin);
-        }));
+        let that = this;
+        return new Promise<boolean>((cb, cerr) => {
+            that.acl.hasRole(userToken, 'proj-admin', (err, isAdmin) => {
+                if (err)
+                    cerr(err);
+                else
+                    cb(isAdmin);
+            });
+        });
     }
 
 
@@ -49,7 +52,7 @@ export class AppAcl {
             let userId = req.session['userId'];
             let domainId = req.session['domainId'];
             let accountsFileId = req.session['accountsFileId'];
-            
+
 
             if (!accountsFileId) {
                 res.status(401);

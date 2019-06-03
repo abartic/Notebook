@@ -2,7 +2,7 @@
         "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a3",
         "domainName": "RedPenguin",
         "admin": {
-            "accountName": "contact@redpenguin.com",
+            "accountName": "contact@redpenguin.ro",
             "role": "owner",
             "accountDescr": "google-account",
             "enrollmentDate": 0
@@ -14,7 +14,7 @@
         "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a2",
         "domainName": "Demo",
         "admin": {
-            "accountName": "contact@redpenguin.com",
+            "accountName": "contact@redpenguin.ro",
             "role": "owner",
             "accountDescr": "google-account",
             "enrollmentDate": 0
@@ -26,7 +26,7 @@
         "domainId": "ff339590-d3a7-11e8-a4e1-83e5a56627a1",
         "domainName": "Demo2",
         "admin": {
-            "accountName": "contact@redpenguin.com",
+            "accountName": "contact@redpenguin.ro",
             "role": "owner",
             "accountDescr": "google-account",
             "enrollmentDate": 0

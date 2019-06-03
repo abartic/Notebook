@@ -77,13 +77,13 @@ export class JobManager {
         var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'contact@redpenguin.com',
+                user: 'contact@redpenguin.ro',
                 pass: 'xoctsdgyfdhklevg'
             }
         });
 
         var mailOptions = {
-            from: 'contact@redpenguin.com',
+            from: 'contact@redpenguin.ro',
             to: to,
             subject: subject,
             text: body
