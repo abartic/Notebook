@@ -3,28 +3,28 @@ import * as Config from "config";
 import { eFileOperationType } from '../sheets/sheets_common_operations';
 
 
-var {google} = require('googleapis');
+var { google } = require('googleapis');
 var sheets = google.sheets('v4');
 
 
 export class DriveOperations {
 
     static writeConfigFile(accessToken: string,
-        domainId :string,
+        domainId: string,
         fileoperationtype: eFileOperationType,
         fileId: string,
         folderId: string,
 
         data: string): Promise<string> {
 
-        
+
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
-        const {google: googleApi} = require('googleapis');
+        const { google: googleApi } = require('googleapis');
         const drive = googleApi.drive('v3');
-        var {OAuth2Client} = require('google-auth-library');
-        var oauth2Client = new OAuth2Client(); 
+        var { OAuth2Client } = require('google-auth-library');
+        var oauth2Client = new OAuth2Client();
         oauth2Client.credentials = {
             access_token: accessToken
         };
@@ -32,33 +32,7 @@ export class DriveOperations {
         return new Promise<string>((cb, err_cb) => {
             let fileName = fileoperationtype.toString();
             if (fileoperationtype === eFileOperationType.moveToFolder) {
-                drive.files.get(
-                    {
-                        fileId: fileId,
-                        fields: 'parents',
-                        auth: oauth2Client
-                    }
-                    , function (err, fileinfo) {
-
-                        if (err) {
-                            err_cb(err);
-                        }
-
-                        drive.files.update(
-                            {
-                                fileId: fileId,
-                                auth: oauth2Client,
-                                removeParents: fileinfo.data['parents'][0],
-                                addParents: folderId
-                            }
-                            , function (err, result) {
-                                if (!err) {
-                                    cb(data);
-                                } else {
-                                    err_cb(err);
-                                }
-                            });
-                    });
+                DriveOperations.callMoveToFolder(drive, oauth2Client, fileId, folderId, data, cb, err_cb);
             }
             else if (fileId) {
                 drive.files.update(
@@ -112,18 +86,62 @@ export class DriveOperations {
 
     }
 
+   
+
+    static callMoveToFolder(drive, oauth2Client, fileId, folderId, data, cb, err_cb, backoffTime = 1) {
+        drive.files.get(
+            {
+                fileId: fileId,
+                fields: 'parents',
+                auth: oauth2Client
+            }
+            , function (err, fileinfo) {
+
+                if (err) {
+                    if (backoffTime < 4) {
+                        DriveOperations.backoff(backoffTime);
+                        DriveOperations.callMoveToFolder(drive, oauth2Client, fileId, folderId, data, cb, err_cb, backoffTime * 2)
+                    }
+                    else {
+                        err_cb(err);
+                    }
+                }
+
+                drive.files.update(
+                    {
+                        fileId: fileId,
+                        auth: oauth2Client,
+                        removeParents: fileinfo.data['parents'][0],
+                        addParents: folderId
+                    }
+                    , function (err, result) {
+                        if (!err) {
+                            cb(data);
+                        } else {
+                            if (backoffTime < 4) {
+                                DriveOperations.backoff(backoffTime);
+                                DriveOperations.callMoveToFolder(drive, oauth2Client, fileId, folderId, data, cb, err_cb, backoffTime * 2)
+                            }
+                            else {
+                                err_cb(err);
+                            }
+                        }
+                    });
+            });
+    }
+
     static getConfigFile<T>(token: string, fileId: string, domainId: string, filetype: eFileOperationType): Promise<T> {
         var projId = Config.get<string>("googleConfig.clientID");
         projId = projId.split('.')[0];
 
-        const {google: googleApi} = require('googleapis');
+        const { google: googleApi } = require('googleapis');
         const drive = googleApi.drive('v3');
-        var {OAuth2Client} = require('google-auth-library');
-        var oauth2Client = new OAuth2Client(); 
+        var { OAuth2Client } = require('google-auth-library');
+        var oauth2Client = new OAuth2Client();
         oauth2Client.credentials = {
             access_token: token
         };
-         
+
         let fileName = filetype.toString();
         return new Promise<T>((cb, err_cb) => {
             if (fileId) {
@@ -146,7 +164,7 @@ export class DriveOperations {
                 drive.files.list(
                     {
                         q: 'name = "' + fileName + '_' + projId + '_' + domainId +
-                        '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '_' + domainId + '" }',
+                            '" and trashed=false and appProperties has { key="additionalID" and value="' + projId + '_' + domainId + '" }',
                         auth: oauth2Client
                     }
                     , function (err, response) {
@@ -180,5 +198,13 @@ export class DriveOperations {
             }
         });
 
+    }
+
+    static backoff(time) {
+        let milliseconds = time * 1000;
+        let start = (new Date()).getTime();
+        while (((new Date()).getTime() - start) < milliseconds) {
+            // do nothing
+        }
     }
 }
