@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { eFieldDataType } from "../common/enums";
 
-var { google } = require('googleapis');
+var {google} = require('googleapis');
 var sheets = google.sheets('v4');
 
 export class SheetsCrudOperations {
@@ -18,13 +18,13 @@ export class SheetsCrudOperations {
 
         let oauth2Client = SheetsCommonOperations.createAuth(accessToken);
 
-        let cleanDataFilterReq = {
-            spreadsheetId: spreadsheetID,
-            auth: oauth2Client,
-            resource: {
-                "dataFilters": []
-            }
-        };
+        // let cleanDataFilterReq = {
+        //     spreadsheetId: spreadsheetID,
+        //     auth: oauth2Client,
+        //     resource: {
+        //         "dataFilters": []
+        //     }
+        // };
 
         let updateDataFilterReq = {
             spreadsheetId: spreadsheetID,
@@ -44,8 +44,6 @@ export class SheetsCrudOperations {
             auth: oauth2Client,
         };
 
-        let needDelete = false;
-        
         //find sheeetDef if append is needed
         let needCreationPkgs = entitiesPackage.entityPackages.filter(p => p.action === eEntityAction.Create)
         let d_sheetsDef = new KeyedCollection<ISheet>();
@@ -66,8 +64,11 @@ export class SheetsCrudOperations {
             ID = entityPackage.ID;
             selectEntity = entityPackage.selectEntity;
             values = entityPackage.values;
-
-            if (entityPackage.action === eEntityAction.Update || entityPackage.action === eEntityAction.Delete) {
+            if (entityPackage.action === eEntityAction.Delete)
+            {
+                values = [];;
+            }
+            if (entityPackage.action === eEntityAction.Update) {
                 values.splice(0, 1, "=ROW()");
             }
             else {
@@ -81,33 +82,30 @@ export class SheetsCrudOperations {
                 }
             }
 
-            
-            if (entityPackage.action === eEntityAction.Delete) {
-                needDelete = true;
-                cleanDataFilterReq.resource.dataFilters.push(
-                    {
+            // cleanDataFilterReq.resource.dataFilters.push(
+            //     {
+            //         "developerMetadataLookup": {
+            //             "metadataKey": "lock_key",
+            //             "metadataValue": ID,
+            //             "locationType": "ROW",
+            //             "visibility": "DOCUMENT"
+            //         }
+            //     });
+
+            updateDataFilterReq.resource.data.push(
+                {
+                    "dataFilter": {
                         "developerMetadataLookup": {
                             "metadataKey": "lock_key",
                             "metadataValue": ID,
                             "locationType": "ROW",
                             "visibility": "DOCUMENT"
                         }
-                    });
-            } else {
-                updateDataFilterReq.resource.data.push(
-                    {
-                        "dataFilter": {
-                            "developerMetadataLookup": {
-                                "metadataKey": "lock_key",
-                                "metadataValue": ID,
-                                "locationType": "ROW",
-                                "visibility": "DOCUMENT"
-                            }
-                        },
-                        "majorDimension": "ROWS",
-                        "values": [values]
-                    });
-            }
+                    },
+                    "majorDimension": "ROWS",
+                    "values": [values]
+                });
+
             let addNewRow = entityPackage.action === eEntityAction.Create && entitiesPackagesAction === eEntityAction.Update;
             if (addNewRow === false) {
                 deleteMetadataAndAppendsReq.resource.requests.push({
@@ -138,38 +136,25 @@ export class SheetsCrudOperations {
                     throw false;
                 }
 
-                if (needDelete) {
-                    return new Promise((cb) => {
-                        sheets.spreadsheets.values.batchClearByDataFilter(cleanDataFilterReq, function (err, result) {
-                            if (err) {
-                                console.log(err);
-                                throw false;
-                            }
-                            
-                            return new Promise(() => {
-                                sheets.spreadsheets.values.batchUpdateByDataFilter(updateDataFilterReq, function (err, result) {
-                                    if (err) {
-                                        console.log(err);
-                                        throw err;
-                                    }
-                                    cb();
-                                });
-                            });
-                        });
+                // return new Promise((cb) => {
+                //     sheets.spreadsheets.values.batchClearByDataFilter(cleanDataFilterReq, function (err, result) {
+                //         if (err) {
+                //             console.log(err);
+                //             throw false;
+                //         }
+                //         cb();
+                //     });
+                // });
+                
+                return new Promise((cb) => {
+                    sheets.spreadsheets.values.batchUpdateByDataFilter(updateDataFilterReq, function (err, result) {
+                        if (err) {
+                            console.log(err);
+                            throw err;
+                        }
+                        cb();
                     });
-                }
-                else {
-                    return new Promise((cb) => {
-                        sheets.spreadsheets.values.batchUpdateByDataFilter(updateDataFilterReq, function (err, result) {
-                            if (err) {
-                                console.log(err);
-                                throw err;
-                            }
-                            cb();
-                        });
-                    });
-                }
-
+                })
             })
             .then(() => {
                 return new Promise((cb) => {
@@ -278,7 +263,7 @@ export class SheetsCrudOperations {
                 });
             })
             .catch((r) => {
-                return { error: 'Cannot save. Lock of record(s) failed! Please retry! (' + r + ')' };
+                return { error: 'Cannot save. Lock of record(s) failed! Please retry! ('  + r + ')'};
             });
     }
 

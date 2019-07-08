@@ -44,8 +44,6 @@ export class SheetsCrudOperations {
             auth: oauth2Client,
         };
 
-        let needDelete = false;
-        
         //find sheeetDef if append is needed
         let needCreationPkgs = entitiesPackage.entityPackages.filter(p => p.action === eEntityAction.Create)
         let d_sheetsDef = new KeyedCollection<ISheet>();
@@ -81,7 +79,7 @@ export class SheetsCrudOperations {
                 }
             }
 
-            
+            let needDelete = false;
             if (entityPackage.action === eEntityAction.Delete) {
                 needDelete = true;
                 cleanDataFilterReq.resource.dataFilters.push(

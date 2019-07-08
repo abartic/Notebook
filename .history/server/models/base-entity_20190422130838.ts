@@ -196,21 +196,14 @@ export class BaseEntity {
         return props;
     }
 
-    public toArray(forDelete? : boolean): (String | Number | Date)[] {
+    public toArray(): (String | Number | Date)[] {
         let array = [];
 
         if (this.properties) {
             for (let p of this.properties) {
                 if (p.isCustom === true)
                     continue;
-                if (forDelete)
-                {
-                    if (p.propName !== 'uid')
-                        array.push(null);
-                    else 
-                        array.push(this[p.propName]);
-                }
-                else if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
+                if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
                     array.push(this[p.propName])
             }
         }
@@ -425,17 +418,13 @@ export class BaseEntity {
     public static getFilterByUKey(entity: BaseEntity, ukey_prop_name: string, ukey_prop_value, allFields: boolean, excludeCurrentUid?: boolean): string {
         let entityInfo = entity.entityInfo;
         let cell_ukey, additionalWhere = '';
-        let cellDataType;
         let query = 'select '
         for (let p of entityInfo.properties) {
             if (p.isCustom === true)
                 continue;
 
             if (p.propName === ukey_prop_name)
-            {
                 cell_ukey = p.cellName;
-                cellDataType = p.dataType;
-            }
             if (excludeCurrentUid === true && p.propName === 'uid')
                 additionalWhere = " and " + p.cellName + " <> '" + entity.uid + "'";
             if (allFields === false && p.propName !== ukey_prop_name)
@@ -445,19 +434,7 @@ export class BaseEntity {
         }
 
         query = query.slice(0, query.length - 1);
-
-        let cellWhere;
-        if (cellDataType === 'n') {
-            cellWhere = cell_ukey + ' = ' + BaseEntity.parseNumber(ukey_prop_value).toString();
-        }
-        else if (cellDataType === 'b') {
-            cellWhere = cell_ukey + ' = ' + (ukey_prop_value.toString() || 'false').trim().toUpperCase();
-        }
-        else {
-            cellWhere = ' upper(' + cell_ukey + ') = "' + (ukey_prop_value.toString() || '').trim().toUpperCase() + '" ';
-        }
-
-        query = query + ' where  ' + cellWhere  + additionalWhere + ' limit 1';
+        query = query + ' where  upper(' + cell_ukey + ') = "' + (ukey_prop_value.toString() || '').trim().toUpperCase() + '" ' + additionalWhere + ' limit 1';
         return query;
     }
 

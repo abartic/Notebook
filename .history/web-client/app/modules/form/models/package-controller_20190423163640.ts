@@ -649,7 +649,6 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 sheetName: entityInfo.sheetName,
                 sheetID: entityInfo.sheetID,
                 ID: entity.uid,
-                values: entity.toArray(true),
                 rowid: entity.rowid,
                 selectEntity: select,
                 action
@@ -1057,7 +1056,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
         modalRef.componentInstance.lookupEntityName = lookupSourceProperty.lookup_entity_name;
         modalRef.componentInstance.lookupTargetProperty = lookupSourceProperty.lookup_properties[0];
 
-        modalRef.componentInstance.lookupProperties = lookupSourceProperty.lookup_properties;
+        modalRef.componentInstance.lookupProperties = lookupSourceProperty.lookup_properties;;
         modalRef.componentInstance.package = this.package;
         modalRef.componentInstance.packageCtrl = this;
         return modalRef.result.then((result) => {
@@ -1129,8 +1128,7 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                     }
                 }
             }
-            if (entity.ukeyPropName === property.propName)
-                this.addValidation(entity, entity.entityName, property.propName);
+            this.addValidation(entity, entity.entityName, property.propName);
         } else if (property.lookup_entity_name) {
             if (!entity[property.propName] || entity[property.propName].toString().trim().length === 0) {
                 this.removeValidation(entity, property.propName);

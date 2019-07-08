@@ -77,7 +77,7 @@ export class FilterComponent implements OnInit, AfterViewInit {
     this.rowheight = this.tablerow ? this.tablerow.nativeElement.offsetHeight : this.rowheight;
     this.packageCtrl.calculateMaxFilterItem(this.rowheight);
 
-    if (this.packageCtrl.package.filter_rows.length <= this.packageCtrl.package.fetched_items_max) {
+    if (this.packageCtrl.package.filter_rows.length <= this.packageCtrl.package.filter_items_max) {
       this.packageCtrl.executeFilter();
     }
   }

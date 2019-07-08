@@ -205,7 +205,7 @@ export class BaseEntity {
                     continue;
                 if (forDelete)
                 {
-                    if (p.propName !== 'uid')
+                    if (p.propName !== 'rowid')
                         array.push(null);
                     else 
                         array.push(this[p.propName]);

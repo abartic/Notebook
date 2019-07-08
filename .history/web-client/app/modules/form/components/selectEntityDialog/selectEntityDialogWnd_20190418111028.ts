@@ -117,7 +117,7 @@ export class SelectEntityDialogWnd implements OnInit, AfterViewInit {
         });
     }
 
-    if (check === false || (check === true && this.packageCtrl.package.lookup_rows.length <= this.packageCtrl.package.fetched_items_max)) {
+    if (check === false || (check === true && this.packageCtrl.package.lookup_rows.length <= this.packageCtrl.package.filter_items_max)) {
       this.packageCtrl.executeLookupFilter(this.lookupEntityName, filterItems, this.resetFilter, cb);
       this.resetFilter = false;
     }

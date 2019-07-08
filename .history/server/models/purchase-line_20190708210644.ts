@@ -43,8 +43,8 @@ export class PurchaseLine extends BaseEntity {
             this.move_date = (<Purchase>parent).creation_date;
             this.code_store = (<Purchase>parent).code_store;
             this.qty_out = 0;
-            this.discount_value = 0;
-            this.tax_value = 0;
+            // this.discount_value = 0;
+            // this.tax_value = 0;
             this.has_movements = (<Purchase>parent).has_movements;
             this.code_doc = (<Purchase>parent).code_doc;
             this.discount_perc = (<Purchase>parent).discount_perc || 0;

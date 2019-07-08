@@ -196,21 +196,14 @@ export class BaseEntity {
         return props;
     }
 
-    public toArray(forDelete? : boolean): (String | Number | Date)[] {
+    public toArray(): (String | Number | Date)[] {
         let array = [];
 
         if (this.properties) {
             for (let p of this.properties) {
                 if (p.isCustom === true)
                     continue;
-                if (forDelete)
-                {
-                    if (p.propName !== 'uid')
-                        array.push(null);
-                    else 
-                        array.push(this[p.propName]);
-                }
-                else if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
+                if ((this.status === eEntityStatus.New && (p.propName === 'rowid')) === false)
                     array.push(this[p.propName])
             }
         }
@@ -447,17 +440,17 @@ export class BaseEntity {
         query = query.slice(0, query.length - 1);
 
         let cellWhere;
-        if (cellDataType === 'n') {
+        if (cellDataType === 'NUMBER') {
             cellWhere = cell_ukey + ' = ' + BaseEntity.parseNumber(ukey_prop_value).toString();
         }
-        else if (cellDataType === 'b') {
+        else if (cellDataType === 'BOOLEAN') {
             cellWhere = cell_ukey + ' = ' + (ukey_prop_value.toString() || 'false').trim().toUpperCase();
         }
         else {
-            cellWhere = ' upper(' + cell_ukey + ') = "' + (ukey_prop_value.toString() || '').trim().toUpperCase() + '" ';
+            cellWhere = ' upper(' + cell_ukey + ') = "' + (ukey_prop_value.toString() || '').trim().toUpperCase();
         }
 
-        query = query + ' where  ' + cellWhere  + additionalWhere + ' limit 1';
+        query = query + ' where  ' + cellWhere + '" ' + additionalWhere + ' limit 1';
         return query;
     }
 

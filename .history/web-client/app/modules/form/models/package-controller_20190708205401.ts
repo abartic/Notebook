@@ -649,7 +649,6 @@ export class PackageController<T extends BaseEntity> implements IPackageControll
                 sheetName: entityInfo.sheetName,
                 sheetID: entityInfo.sheetID,
                 ID: entity.uid,
-                values: entity.toArray(true),
                 rowid: entity.rowid,
                 selectEntity: select,
                 action

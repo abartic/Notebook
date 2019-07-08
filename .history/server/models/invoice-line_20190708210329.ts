@@ -76,8 +76,8 @@ export class InvoiceLine extends BaseEntity {
             this.tax_value = 0;
             this.has_movements = (<Invoice>parent).has_movements;
             this.code_doc = (<Invoice>parent).code_doc;
-            this.discount_perc = (<Invoice>parent).discount_perc || 0;
-            this.tax_perc = (<Invoice>parent).tax_perc || 0;
+            this.discount_perc = (<Invoice>parent).discount_perc;
+            this.tax_perc = (<Invoice>parent).tax_perc;
             
             
         }
