@@ -375,7 +375,6 @@ export class SheetRoute extends BaseRoute {
                                     res.send({ error: { code: 401 } });
                                 else
                                     res.send({ error: err });
-                                    
                             });
                         };
                         let report_info = company[reportType + '_report'];

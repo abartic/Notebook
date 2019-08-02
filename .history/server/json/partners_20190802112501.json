@@ -9,7 +9,6 @@
                 "email", "www_address", "IBAN", "IBAN_bank", "IBAN2", 
                 "IBAN2_bank", "IBAN3", "IBAN3_bank", "invoice_report_type", "receivable_report_type",
                 "has_signature"],
-                
             "fields_types": [
                 "", "", "", "", "", 
                 "", "", "", "", "",

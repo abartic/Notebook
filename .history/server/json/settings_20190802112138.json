@@ -1,0 +1,25 @@
+{
+
+  "spreadsheetName": "settings",
+  "sheets": [{
+    "sheetName": "companies",
+    "sheetType" : "uniqueRecord",
+    "fields": ["code_comp", "name_comp", "descr_comp", "type_comp", "country", 
+      "county", "city", "zip_code", "address", "phone1", 
+      "phone2", "reg_number","fiscal_reg_number", "name_admin", "name_rep",
+       "email", "www_address", "IBAN", "IBAN_bank", 
+       "invoice_report","invoice_ext_report", "receivable_report", "receivable_ext_report", "expenses_report",
+       "IBAN2", "IBAN2_bank", "IBAN3", "IBAN3_bank" ],
+    "fields_types": ["", "", "", "", "", 
+      "", "", "", "", "",
+      "", "", "", "", "",
+      "", "", "", "", 
+      "","","","","",
+      "","","",""],
+    "entities": [{
+      "entityName": "Company",
+      "ukey": "code_comp"
+
+    }]
+  }]
+}

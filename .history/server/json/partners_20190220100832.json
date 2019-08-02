@@ -3,19 +3,7 @@
     "spreadsheetName": "partners",
     "sheets": [{
             "sheetName": "partners",
-            "fields": [
-                "code_part", "name_partner", "descr_partner", "type_partner", "unit", 
-                "currency", "reg_number", "fiscal_reg_number", "name_admin", "name_rep", 
-                "email", "www_address", "IBAN", "IBAN_bank", "IBAN2", 
-                "IBAN2_bank", "IBAN3", "IBAN3_bank", "invoice_report_type", "receivable_report_type",
-                "has_signature"],
-                
-            "fields_types": [
-                "", "", "", "", "", 
-                "", "", "", "", "",
-                "", "", "", "", "",
-                "", "", "", "", "",
-                "b"],
+            "fields": ["code_part", "name_partner", "descr_partner", "type_partner", "unit", "currency", "reg_number", "fiscal_reg_number", "name_admin", "name_rep", "email", "www_address", "IBAN", "IBAN_bank", "invoice_report_type", "receivable_report_type"],
             "entities": [{
                     "entityName": "Partner",
                     "ukey": "code_part",

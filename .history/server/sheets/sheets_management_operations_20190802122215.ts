@@ -638,15 +638,13 @@ export class SheetsManagementOperations {
                     if (map_entity.hidden_fields && map_entity.hidden_fields.findIndex(i => i === sheet.fields[index]) >= 0)
                         propInfo.isHidden = true;
 
-                    if (cellName.charAt(cellName.length-1) == 'Z')
+                    if (cellName >= 'Z')
                     {
-                        cellName = "A".repeat(cellName.length+1);
+                        var lastc = cellName.length > 1 ? cellName.charCodeAt(cellName.length - 1) : 'A'.charCodeAt(0);
+                        cellName = cellName.substring(0,1) + String.fromCharCode(lastc + 1);
                     }
                     else
-                    {
-                        cellName = cellName.substring(0, cellName.length-1) 
-                            + String.fromCharCode(cellName.charCodeAt(cellName.length-1) + 1);
-                    }
+                        cellName = String.fromCharCode(cellName.charCodeAt(0) + 1);
                     propInfos.push(propInfo);
                 }
 
