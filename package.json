@@ -72,7 +72,7 @@
         "helmet": "^3.11.0",
         "intl": "^1.2.5",
         "intl-locales-supported": "^1.0.0",
-        "json": "^9.0.6",
+        "json": "^10.0.0",
         "jsonp-client": "^1.1.1",
         "jsreport-assets": "1.0.1",
         "jsreport-core": "2.1.0",
