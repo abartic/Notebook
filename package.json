@@ -88,7 +88,7 @@
         "ngx-cookie-service": "^1.0.10",
         "ngx-infinite-scroll": "^7.0.1",
         "ngx-loading": "^1.0.14",
-        "nodemailer": "^4.6.8",
+        "nodemailer": "^6.4.16",
         "passport": "^0.3.2",
         "passport-facebook": "^2.1.1",
         "passport-google-oauth": "^1.0.0",
